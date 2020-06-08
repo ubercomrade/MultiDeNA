@@ -13,13 +13,17 @@ InMoDe: http://jstacs.de/index.php/InMoDe
 
 ## Install
 
-Install python packages:  
+Install python packages: 
+``` 
 pip3 install numpy pandas cython matplitlib  
+```
 
-Install tool:  
+Install tool:
+```  
 git clone https://github.com/ubercomrade/pipeline.git  
 cd pipeline/  
 pip3 install -e .  
+```
 
 ## Usage
 
