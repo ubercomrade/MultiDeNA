@@ -13,7 +13,9 @@ InMoDe: http://jstacs.de/index.php/InMoDe
 
 ## Install
 
-pip3 install -e "git+https://github.com/ubercomrade/pipeline.git@master#egg=pipeline"
+git clone https://github.com/ubercomrade/pipeline.git
+cd pipeline/
+pip3 install -e .
 
 ## Usage
 
