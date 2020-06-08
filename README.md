@@ -13,7 +13,7 @@ InMoDe: http://jstacs.de/index.php/InMoDe
 
 ## Install
 
-Bla bla bla
+pip3 install -e "git+https://github.com/ubercomrade/pipeline.git@master#egg=pipeline"
 
 ## Usage
 

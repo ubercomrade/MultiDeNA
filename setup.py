@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """pipeline for chip-seq analisys"""
 from setuptools import setup, Extension
 import Cython.Build
@@ -28,7 +27,7 @@ setup(
     author_email='tsukanov@bionet.nsc.ru',
     url='http://github.com/ubercomrade/pipeline',
     packages=[
-        'lib',
+        'lib.speedup',
         'tools'
     ],
     scripts=['pipeline.py'],
