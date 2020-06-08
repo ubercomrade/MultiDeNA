@@ -6,16 +6,16 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Requirements
 
-Python3 packages: numpy, pandas, cython, matplitlib
-Bamm: https://github.com/soedinglab/BaMMmotif2
-ChIPmunk: http://autosome.ru/ChIPMunk/
-InMoDe: http://jstacs.de/index.php/InMoDe
+Python3 packages: numpy, pandas, cython, matplitlib  
+Bamm: https://github.com/soedinglab/BaMMmotif2  
+ChIPmunk: http://autosome.ru/ChIPMunk/  
+InMoDe: http://jstacs.de/index.php/InMoDe  
 
 ## Install
 
-git clone https://github.com/ubercomrade/pipeline.git
-cd pipeline/
-pip3 install -e .
+git clone https://github.com/ubercomrade/pipeline.git  
+cd pipeline/  
+pip3 install -e .  
 
 ## Usage
 
@@ -53,11 +53,11 @@ optional arguments:
  * [Cistrome](http://cistrome.org/ap/) [5]
 
 ## Reference
-[1]	Benos P.V. et al. (2002) Additivity in protein-DNA interactions: how good an approximation is it? Nucleic Acids Res., 30(20):4442-4451.
-[2]	Srivastava D and Mahony S. (in press) Sequence and chromatin determinants of transcription factor binding and the establishment of cell type-specific binding patterns. Biochim Biophys Acta Gene Regul Mech., 194443. doi: 10.1016/j.bbagrm.2019.194443.
-[3]	Siebert M. and Söding J. (2016) Bayesian Markov models consistently outperform PWMs at predicting motifs in nucleotide sequences. Nucleic Acids Res., 44(13):6055–6069.
-[4]	Eggeling R. et al. (2017) InMoDe: tools for learning and visualizing intra-motif dependencies of DNA binding sites. Bioinformatics, 33(4):580-582.
-[5]	Mei S. et al. (2017) Cistrome Data Browser: a data portal for ChIP-Seq and chromatin accessibility data in human and mouse, Nucleic Acids Res., 45(D1):, D658–D662,.
+[1]	Benos P.V. et al. (2002) Additivity in protein-DNA interactions: how good an approximation is it? Nucleic Acids Res., 30(20):4442-4451.  
+[2]	Srivastava D and Mahony S. (in press) Sequence and chromatin determinants of transcription factor binding and the establishment of cell type-specific binding patterns. Biochim Biophys Acta Gene Regul Mech., 194443. doi: 10.1016/j.bbagrm.2019.194443.  
+[3]	Siebert M. and Söding J. (2016) Bayesian Markov models consistently outperform PWMs at predicting motifs in nucleotide sequences. Nucleic Acids Res., 44(13):6055–6069.  
+[4]	Eggeling R. et al. (2017) InMoDe: tools for learning and visualizing intra-motif dependencies of DNA binding sites. Bioinformatics, 33(4):580-582.  
+[5]	Mei S. et al. (2017) Cistrome Data Browser: a data portal for ChIP-Seq and chromatin accessibility data in human and mouse, Nucleic Acids Res., 45(D1):, D658–D662,.  
 
 ## License
 Copyright (c) 2020 Anton Tsukanov
