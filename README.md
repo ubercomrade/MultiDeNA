@@ -15,7 +15,7 @@ InMoDe: http://jstacs.de/index.php/InMoDe
 
 Install python packages: 
 ``` 
-pip3 install numpy pandas cython matplitlib  
+pip3 install numpy pandas cython matplotlib  
 ```
 
 Install tool:
