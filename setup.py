@@ -28,7 +28,7 @@ setup(
     url='http://github.com/ubercomrade/pipeline',
     package_dir={'lib' : 'lib'},
     packages=[
-        'lib.speedup',
+        'lib',
         'tools'
     ],
     scripts=['pipeline.py'],
