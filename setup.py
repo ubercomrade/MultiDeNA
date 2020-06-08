@@ -15,7 +15,7 @@ install_requires = [
 
 # cython modules
 ext_modules = [Extension(
-        'lib.speedup.pyx',
+        'lib.speedup',
         sources=['lib/speedup.pyx'],
     )]
 
@@ -26,6 +26,7 @@ setup(
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
     url='http://github.com/ubercomrade/pipeline',
+    package_dir={'lib' : 'lib'},
     packages=[
         'lib.speedup',
         'tools'
