@@ -493,7 +493,8 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
-    parser.add_argument('promoters', action='store', help='path to promoters fasta file')
+    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38'], metavar='N',
+         help='promoters of organism (hg38, mm10)')
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
     parser.add_argument('models', action='store', choices=['pwm', 'bamm', 'inmode', 'sitega'], metavar='N', nargs='+',
@@ -534,10 +535,16 @@ def main():
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk
     path_to_inmode = args.inmode
-    path_to_promoters = args.promoters
+    organism = args.promoters
     path_to_genome = args.genome
     path_to_hocomoco = args.path_to_hocomoco
     cpu_count = args.cpu_count
+
+    this_dir, this_filename = os.path.split(__file__)
+    if organism == 'mm10':
+        path_to_promoters = os.path.join(this_dir, "promoters", "mm10.fasta")
+    elif organism == 'hg38':
+        path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
