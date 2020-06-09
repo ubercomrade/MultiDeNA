@@ -17,6 +17,7 @@ from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
 from tools.sites_intersection import sites_intersection
 from tools.combine_results import combine_results
+from tools.summary import write_peaks_classification
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
 
@@ -275,42 +276,6 @@ def get_motif_length(models):
     return(motif_length)
 
 
-# def compare_by_pair(bed, first, second, tag, name1, name2, compare_sites, path_to_python_tools):
-#     list(itertools.combinations(a, 2))
-#     args = ['pypy3', path_to_python_tools + '/compare_scripts/compare_sites_2.py',
-#                     '-p', bed,
-#                     '-first', first,
-#                     '-second', second,
-#                     '-t', tag, '-fname', name1, '-sname', name2,
-#                     '-o', compare_sites]
-#     r = subprocess.call(args)
-#     pass
-
-
-# def compare_2(bed, first, second, tag, name1, name2, compare_sites, path_to_python_tools):
-#     args = ['pypy3', path_to_python_tools + '/compare_scripts/compare_sites_2.py',
-#                     '-p', bed,
-#                     '-first', first,
-#                     '-second', second,
-#                     '-t', tag, '-fname', name1, '-sname', name2,
-#                     '-o', compare_sites]
-#     r = subprocess.call(args)
-#     pass
-
-
-# def compare_4(bed, first, second, third, fourth, tag, compare_sites, path_to_python_tools):
-#     args = ['python3', path_to_python_tools + '/compare_scripts/compare_sites_4.py',
-#                     '-p', bed,
-#                     '-first', first,
-#                     '-second', second,
-#                     '-third', third,
-#                     '-fourth', fourth,
-#                     '-t', tag,
-#                     '-o', compare_sites]
-#     r = subprocess.call(args)
-#     pass
-
-
 # def montecarlo( scores1, scores2, thr1, thr2, length, results):
 #         args = ['monteCarlo', '{}'.format(scores1), '{}'.format(scores2), '{}'.format(thr1), '{}'.format(thr2), '{}'.format(length), '{}'.format(results)]
 #         r = subprocess.call(args)
@@ -507,9 +472,10 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     # COMBINE SCAN
     list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
     list_path_fpr_table = [thresholds + '{}_model_thresholds.txt'.format(i) for i in tools]
-    combine_results(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '\combined_scan.pro')
+    combine_results(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
 
     # CALCULATE SUMMARY
+    write_peaks_classification(results + '/combined_scan.pro', results + '/peaks_classification.tsv')
 
     # MONTECARLO #
     # for tool1, tool2 in pair_tools:
