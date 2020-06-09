@@ -9,6 +9,9 @@ from shutil import copyfile
 from tools.get_threshold_for_bamm import get_threshold_for_bamm
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
+from tools.bootstrap_for_pwm import bootstrap_for_pwm
+from tools.bootstrap_for_bamm import bootstrap_for_bamm
+from tools.bootstrap_for_inmode import bootstrap_for_inmode
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_bamm import scan_by_bamm
 from tools.get_top_peaks import write_top_peaks
