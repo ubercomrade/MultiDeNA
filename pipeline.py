@@ -546,6 +546,7 @@ def main():
     elif organism == 'hg38':
         path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
 
+    print(path_to_promoters)
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, path_to_hocomoco, cpu_count)
