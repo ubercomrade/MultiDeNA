@@ -25,6 +25,7 @@ from tools.scan_best_by_pwm import scan_best_by_pwm
 from tools.scan_best_by_bamm import scan_best_by_bamm
 from tools.scan_best_by_inmode import scan_best_by_inmode
 from tools.extract_sites import extract_sites
+from tools.write_model import write_model
 from lib.common import check_threshold_table, check_bootstrap
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
