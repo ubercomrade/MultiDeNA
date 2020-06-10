@@ -479,7 +479,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
     # COMBINE SCAN
     list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
-    list_path_fpr_table = [thresholds + '{}_model_thresholds.txt'.format(i) for i in tools]
+    list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
     combine_results(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
 
     # CALCULATE SUMMARY
