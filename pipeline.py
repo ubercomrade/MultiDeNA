@@ -21,6 +21,9 @@ from tools.parse_inmode_results import parse_inmode_results
 from tools.sites_intersection import sites_intersection
 from tools.combine_results import combine_results
 from tools.summary import write_peaks_classification
+from tools.scan_best_by_pwm import scan_best_by_pwm
+from tools.scan_best_by_bamm import scan_best_by_bamm
+from tools.scan_best_by_inmode import scan_best_by_inmode
 from lib.common import check_threshold_table, check_bootstrap
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
