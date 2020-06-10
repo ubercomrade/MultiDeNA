@@ -469,7 +469,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     scan_peaks_by_sitega()
 
     # COMPARE SITES #
-    tools.remove('inmode')
     print('COMPARE SITES')
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
