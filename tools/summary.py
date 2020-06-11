@@ -53,7 +53,7 @@ def peak_classifier(profile, combinations):
 
 
 def write_peaks_classification(profile_path, write_path):
-    profile = read_profile(path)
+    profile = read_profile(profile_path)
     number_of_peaks = len([k for k in profile.keys()])
     combinations = get_tools_combinations(profile)
     statistics = peak_classifier(profile, combinations)
