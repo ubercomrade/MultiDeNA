@@ -12,7 +12,7 @@ def inmode_scan(path_to_inmode, path_java, input_data, input_model, tmp_dir,
             'id={}'.format(input_data),
            'f={}'.format(fpr_for_thr),
            'outdir={}'.format(tmp_dir)]
-    r = subprocess.call(args, capture_output=True)
+    r = subprocess.run(args, capture_output=True)
     return()
 
 
