@@ -3,6 +3,7 @@ import glob
 import math
 import shutil
 import os
+import pandas as pd
 
 
 def inmode_scan(path_to_inmode, path_java, input_data, input_model, tmp_dir,
