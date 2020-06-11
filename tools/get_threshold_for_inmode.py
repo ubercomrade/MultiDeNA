@@ -15,34 +15,11 @@ def calculate_scores_inmode_thresholds(path_to_inmode, path_to_model, path_to_fa
         'd={}'.format(path_to_fasta),
        'f={}'.format(0.001),
        'outdir={}'.format(tmp_dir)]
-    # args = [path_to_java, '-Xmx8096m', '-Xms1024m', '-jar', path_to_inmode, 'scan',
-    #    'i={}'.format(path_to_model),
-    #    'id={}'.format(path_to_fasta),
-    #    'b={}'.format('From file'),
-    #    'd={}'.format(path_to_fasta),
-    #   'f={}'.format(0.0006),
-    #   'outdir={}'.format(tmp_dir)]
-    r = subprocess.call(args)
+    r = subprocess.run(args, capture_output=True)
     with open(tmp_dir + "/Motif_hits_from_SequenceScan(0.001).BED") as file:
         for line in file:
             append(math.log10(float(line.strip().split()[4])))
     return(container)
-
-
-# def get_threshold(scores, number_of_sites, path_out):
-#     scores.sort(reverse=True) # big -> small
-#     with open(path_out, "w") as file:
-#         last_score = scores[0]
-#         for count, score in enumerate(scores[1:], 1):
-#             if score == last_score:
-#                 continue
-#             elif score != last_score and count/number_of_sites < 0.00051:
-#                 file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-#                 last_score = score 
-#             else:
-#                 break
-#     file.close()
-#     return(0)
 
 
 def get_threshold(scores, number_of_sites, path_out):
@@ -60,7 +37,6 @@ def get_threshold(scores, number_of_sites, path_out):
                 last_score = score 
     file.close()
     return(0)
-
 
 
 def get_threshold_for_inmode(path_to_fasta, path_to_model, path_to_inmode,

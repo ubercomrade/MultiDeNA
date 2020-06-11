@@ -84,7 +84,7 @@ def get_inmode_model(models_path, fasta_path, path_to_java, path_to_inmode, moti
                 'm={}'.format(motif_length),
                'mo={}'.format(model_order),
                'outdir={}'.format(inmode_model_path)]
-        r = subprocess.call(args)
+        r = subprocess.run(args, capture_output=True)
     else:
         print('INMODE model already exists')
     copyfile(glob.glob(inmode_model_path + '/Learned_DeNovo*/XML*')[0], inmode_model_path + '/inmode_model.xml')
@@ -144,7 +144,7 @@ def get_bamm_model(models_path, fasta_train, meme_model, model_order):
                '--order', str(model_order),
                '--scoreSeqset',
                '--saveLogOdds']
-        r = subprocess.call(args)
+        r = subprocess.run(args, capture_output=True)
     else:
         print('BAMM model already exists')
     return(0)
@@ -215,7 +215,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
             'd={}'.format(path_to_promoters),
            'f={}'.format(fpr),
            'outdir={}'.format(inmode_scan_dir)]
-    r = subprocess.call(args)
+    r = subprocess.run(args, capture_output=True)
     parse_inmode_results(fasta_test, glob.glob(inmode_scan_dir + '/*.BED')[0],
         inmode_scan_path, thr_inmode)
     os.system("rm -r {}".format(inmode_scan_dir))
@@ -243,7 +243,7 @@ def bed_to_fasta(path_to_fa, path_to_bed, out):
             '-fi', path_to_fa,
             '-bed', path_to_bed,
             '-fo', out]
-    r = subprocess.call(args)
+    r = subprocess.run(args, capture_output=True)
     pass
 
 
@@ -269,7 +269,7 @@ def get_threshold(path, fpr_for_thr):
 
 def run_tomtom(query, model, outdir):
     args = ['tomtom', query, model, '-oc', outdir]
-    r = subprocess.call(args)
+    r = subprocess.run(args, capture_output=True)
     pass
 
 
@@ -287,7 +287,7 @@ def get_motif_length(models):
 
 # def montecarlo( scores1, scores2, thr1, thr2, length, results):
 #         args = ['monteCarlo', '{}'.format(scores1), '{}'.format(scores2), '{}'.format(thr1), '{}'.format(thr2), '{}'.format(length), '{}'.format(results)]
-#         r = subprocess.call(args)
+#         r = subprocess.run(args, capture_output=True)
 #         pass
 
 
