@@ -21,7 +21,7 @@ def calculate_scores_inmode_bootsrap(path_to_inmode, path_to_java, motif_length,
             path_to_inmode, 'scan',
             'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
             'id={}/{}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
-    r = subprocess.call(args, capture_output=True)
+    r = subprocess.run(args, capture_output=True)
     with open('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED")) as file:
         for line in file:
             container.append(math.log(float(line.split()[4]), 10))
@@ -36,7 +36,7 @@ def make_inmode(path_to_inmode, path_to_java, motif_length, order, tmp_dir):
     args = [path_to_java, '-Xmx4096m', '-Xms1024m', '-jar', path_to_inmode,
     'denovo', 'i={}/train.fa'.format(tmp_dir), 'm={}'.format(motif_length), 'outdir={}'.format(tmp_dir),
     'mo={}'.format(order)]
-    r = subprocess.call(args, capture_output=True)
+    r = subprocess.run(args, capture_output=True)
     return(0)
 
 
