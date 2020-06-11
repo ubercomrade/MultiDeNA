@@ -24,7 +24,7 @@ def create_bamm_model(directory, order):
     fasta_path = directory + '/train.fasta'
     sites_path = directory + '/sites.txt'
     args = ['BaMMmotif', directory, fasta_path, '--bindingSiteFile', sites_path, '--EM', '--order', str(order), '--Order', str(order)]
-    r = subprocess.run(args, , capture_output=True)
+    r = subprocess.run(args, capture_output=True)
     bamm_path = directory + '/train_motif_1.ihbcp'
     bg_path = directory + '/train.hbcp'
     bamm, order = read_bamm(bamm_path, bg_path)
