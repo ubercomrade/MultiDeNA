@@ -97,10 +97,10 @@ def run_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_len
                    'ru.autosome.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
                    's:{}'.format(fasta_path),
                   '100', '10', '1', str(cpu_count), 'random']
-    p = subprocess.Popen(args, shell=False, stdout=subprocess.PIPE)
-    out = p.communicate()
+    p = subprocess.run(args, shell=False, capture_output=True)
+    out = p.stdout
     with open(path_out, 'wb') as file:
-        file.write(out[0])
+        file.write(out)
     return(0)
 
 
