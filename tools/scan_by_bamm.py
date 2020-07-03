@@ -1,7 +1,6 @@
 import csv
 import re
-from lib.common import read_bamm
-from lib.speedup import score_bamm
+from lib.common import read_bamm, score_bamm
 
 
 def read_fasta(path):

@@ -1,5 +1,5 @@
 import re
-from lib.speedup import score_pwm
+from lib.common import score_pwm
 
 
 def read_fasta(path):

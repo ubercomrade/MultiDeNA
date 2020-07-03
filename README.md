@@ -6,19 +6,12 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Requirements
 
-Python3 packages: numpy, pandas, cython, matplitlib  
 Bamm: https://github.com/soedinglab/BaMMmotif2  
 ChIPmunk: http://autosome.ru/ChIPMunk/  
 InMoDe: http://jstacs.de/index.php/InMoDe  
 
 ## Install
 
-Install python packages: 
-``` 
-pip3 install numpy pandas cython matplotlib  
-```
-
-Install tool:
 ```  
 git clone https://github.com/ubercomrade/pipeline.git  
 cd pipeline/  

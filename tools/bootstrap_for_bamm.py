@@ -2,8 +2,11 @@ import subprocess
 import os
 import shutil
 import random
-from lib.common import read_bamm, write_table_bootstrap
-from lib.speedup import calculate_scores_bamm_bootstrap, creat_random_sample, creat_table_bootstrap
+from lib.common import read_bamm, \
+write_table_bootstrap, \
+calculate_scores_bamm_bootstrap, \
+creat_random_sample, \
+creat_table_bootstrap
 
 
 def read_log_odds_zoops(path):
