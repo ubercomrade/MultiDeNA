@@ -121,7 +121,7 @@ def make_optimized_pwm(chipmunk_path, fasta_path, output_dir, times, tag, cpu_co
                  'C': 0.25,
                  'G': 0.25,
                  'T': 0.25}
-        fprs = []
+    fprs = []
     optimal_sites = chipmunk_sites(fasta, chipmunk)
     #optimal_sites = remove_equalent_seq(optimal_sites, homology=0.95)
     optimal_fpr = calculate_fpr(optimal_sites, 500)
