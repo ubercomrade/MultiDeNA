@@ -6,7 +6,7 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Scheme of pipeline
 
-![image](./pipeline_sheme.png)
+![image](pipeline_sheme.png)
 
 ## Requirements
 
