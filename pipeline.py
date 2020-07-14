@@ -285,12 +285,6 @@ def get_motif_length(models):
     return(motif_length)
 
 
-# def montecarlo( scores1, scores2, thr1, thr2, length, results):
-#         args = ['monteCarlo', '{}'.format(scores1), '{}'.format(scores2), '{}'.format(thr1), '{}'.format(thr2), '{}'.format(length), '{}'.format(results)]
-#         r = subprocess.run(args, capture_output=True)
-#         pass
-
-
 def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, path_to_hocomoco, cpu_count):
@@ -349,13 +343,14 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     # CALCULATE CHIPMUNK MODEL #
     pwm_model = models + '/pwm_model/optimized_pwm_model.pwm'
     pwm_threshold_table = thresholds + '/pwm_model_thresholds.txt'
+    print('Training PWM model')
     get_pwm_model(models, fasta_train,
         path_to_java, path_to_chipmunk,
         motif_length_start, motif_length_end,
         cpu_count)
 
     # BOOTSTRAP
-    print('Run bootstrap for pwm model')
+    print('Run bootstrap for PWM model')
     bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
         bootstrap + '/pwm_model.tsv', 10000)
     check = check_bootstrap(bootstrap + '/pwm_model.tsv')
@@ -386,11 +381,11 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     motif_length = get_motif_length(models)
     inmode_model = models + '/inmode_model/inmode_model.xml'
     inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
-
+    print('Training INMODE model')
     get_inmode_model(models, fasta_train, path_to_java,
         path_to_inmode, motif_length, model_order)
     # BOOTSTRAP
-    print('Run bootstrap for inmode model')
+    print('Run bootstrap for INMODE model')
     bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
         bootstrap + "/inmode_model.tsv",
         10000,
@@ -428,9 +423,10 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     bamm_threshold_table = thresholds + '/bamm_model_thresholds.txt'
     bamm_model = models + '/bamm_model/bamm_motif_1.ihbcp'
     bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-
+    print('Training BAMM model')
     get_bamm_model(models, fasta_train, meme_model, model_order)
     # BOOTSTRAP
+    print('Run bootstrap for BAMM model')
     bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
         bootstrap + "/bamm_model.tsv", 10000, model_order)
     check = check_bootstrap(bootstrap + '/bamm_model.tsv')
@@ -468,7 +464,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     calculate_thresholds_for_sitega()
     scan_peaks_by_sitega()
 
-    # COMPARE SITES #
+    # COMPARE SITES
     print('COMPARE SITES')
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
@@ -486,6 +482,15 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     write_peaks_classification(results + '/combined_scan.pro', results + '/peaks_classification.tsv')
 
     # TOMTOM
+    print('Runing TomTom')
+    for t in tools:
+        run_tomtom(path_to_hocomoco, tomtom + '/{}.meme'.format(t),
+            tomtom + '/{}.tomtom_results'.format(t))
+    
+    print('Pipeline is finished!')
+
+    tools = [t.upper() for t in tools]
+    print('Results calculated for the next models:', *tools)
     
 
 def parse_args():
