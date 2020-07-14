@@ -6,7 +6,7 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Scheme of pipeline
 
-![image](pipeline_sheme.png)
+![image](pipeline_scheme.png)
 
 ## Requirements
 
@@ -30,6 +30,7 @@ pip3 install -e .
 ```
 
 ## Usage
+The command `pipeline.py -h` return:
 
 ```
 usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] -I INMODE
@@ -64,7 +65,7 @@ optional arguments:
                         can get motif database from http://meme-
                         suite.org/doc/download.html
 ```
-Example run:
+### Example run
 ```
 pipeline.py peaks.bed \
 hg38 \
@@ -76,7 +77,7 @@ pwm bamm inmode \
 -c /path/to/ChIPmunk/chipmunk.jar 
 ```
 
-## Required options description
+### Required options description
 
 **First positional argument**:
 ```
@@ -103,6 +104,23 @@ genome                path to genome fasta file
 ```
 You shuld give path to fasta file. It's required to get sequences for peaks by bedtools.
 Reference genomes for mm10/hg38 can be downloaded from https://www.gencodegenes.org/ or https://genome.ucsc.edu/
+
+
+**Fourth positional argument**:
+```
+output                output dir
+```
+Path of directory to write results. If dir is not exists it'll be created.
+
+
+**Fifth positional argument**:
+```
+N                     list of models to use (pwm, bamm, inmode, sitega)
+```
+Argument can take several values from the list: pwm, bamm, inmode, sitega. All values must be separated by space. Example: `pwm bamm`, `pwm bamm inmode`, `pwm bamm inmode`, `pwm sitega` 
+*IMPORTANT!* Option `bamm` must be used with `pwm`. Becouse PWM model initializes BaMM
+
+### Optional options description
 
 ## Useful links
 
