@@ -485,17 +485,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     # CALCULATE SUMMARY
     write_peaks_classification(results + '/combined_scan.pro', results + '/peaks_classification.tsv')
 
-    # MONTECARLO #
-    # for tool1, tool2 in pair_tools:
-    #     thr1 = str(get_threshold(thresholds + '/{}_model_thresholds.txt'.format(tool1), fpr))
-    #     thr2 = str(get_threshold(thresholds + '/{}_model_thresholds.txt'.format(tool2), fpr))
-    #     scores1 = scan_best + '/{}.scores.txt'.format(tool1)
-    #     scores2 = scan_best + '/{}.scores.txt'.format(tool2)
-    #     name1, name2 = tool1, tool2
-    #     results_montecarlo = montecarlo + '/montecarlo.results.{0}.{1}.{2:.2e}.txt'.format(tool1, tool2, fpr)
-    #     montecarlo( scores1, scores2, thr1, thr2, length, results_montecarlo)
-
-
+    # TOMTOM
+    
 
 def parse_args():
 
