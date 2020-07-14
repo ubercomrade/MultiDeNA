@@ -482,13 +482,17 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     write_peaks_classification(results + '/combined_scan.pro', results + '/peaks_classification.tsv')
 
     # TOMTOM
-    print('Runing TomTom')
-    for t in tools:
-        run_tomtom(path_to_hocomoco, tomtom + '/{}.meme'.format(t),
-            tomtom + '/{}.tomtom_results'.format(t))
-    
+    if path_to_mdb != None:   
+        print('Runing TomTom')
+        try:
+            for t in tools:
+                run_tomtom(path_to_hocomoco, tomtom + '/{}.meme'.format(t),
+                    tomtom + '/{}.tomtom_results'.format(t))
+        except:
+            print('Tomtom failed. Check your PATH if you have already installed TomTom,\
+                or install TomTom. If the problem rise again check your meme file (data base). \
+                You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
     print('Pipeline is finished!')
-
     tools = [t.upper() for t in tools]
     print('Results calculated for the next models:', *tools)
     
@@ -517,8 +521,9 @@ def parse_args():
                         required=True, help='path to chipmunk')
     parser.add_argument('-C', '--processes', action='store', type=int, dest='cpu_count',
                         required=False, default=4, help='Number of processes to use, default: 2')
-    parser.add_argument('-H', '--hocomoco', action='store', dest='path_to_hocomoco',
-                        required=False, help='path to HOCOMOCO database in meme format for TOMTOM')
+    parser.add_argument('-m', '--motifdatabase', action='store', dest='path_to_mdb',
+                        required=False, default=None, help='path to motif database in meme format for TOMTOM. \
+                        You can get motif database from http://meme-suite.org/doc/download.html')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -541,7 +546,7 @@ def main():
     path_to_inmode = args.inmode
     organism = args.promoters
     path_to_genome = args.genome
-    path_to_hocomoco = args.path_to_hocomoco
+    path_to_mdb = args.path_to_mdb
     cpu_count = args.cpu_count
 
     this_dir, this_filename = os.path.split(__file__)
@@ -552,7 +557,7 @@ def main():
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                          path_to_promoters, path_to_genome, path_to_hocomoco, cpu_count)
+                          path_to_promoters, path_to_genome, path_to_mdb, cpu_count)
 
 if __name__ == '__main__':
     main()
