@@ -6,9 +6,17 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Requirements
 
-Bamm: https://github.com/soedinglab/BaMMmotif2  
-ChIPmunk: http://autosome.ru/ChIPMunk/  
-InMoDe: http://jstacs.de/index.php/InMoDe  
+TOOLS:
+  * bedtools: https://bedtools.readthedocs.io/en/latest/
+
+MODELS:
+  * Bamm: https://github.com/soedinglab/BaMMmotif2  
+  * ChIPmunk: http://autosome.ru/ChIPMunk/  
+  * InMoDe: http://jstacs.de/index.php/InMoDe
+
+## Optional
+
+TomTom: http://meme-suite.org/index.html
 
 ## Install
 
@@ -21,12 +29,13 @@ pip3 install -e .
 ## Usage
 
 ```
-usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] -I INMODE [-J JAVA] -c CHIPMUNK [-C CPU_COUNT] [-H PATH_TO_HOCOMOCO]
-                   bed promoters genome output N [N ...]
+usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] -I INMODE
+                   [-J JAVA] -c CHIPMUNK [-C CPU_COUNT] [-m PATH_TO_MDB]
+                   bed N genome output N [N ...]
 
 positional arguments:
   bed                   path to BED file
-  promoters             path to promoters fasta file
+  N                     promoters of organism (hg38, mm10)
   genome                path to genome fasta file
   output                output dir
   N                     list of models to use (pwm, bamm, inmode, sitega)
@@ -34,10 +43,12 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -t TRAIN_SIZE, --train TRAIN_SIZE
-                        size of training sample, by default size is equal to 500
+                        size of training sample, by default size is equal to
+                        500
   -f FPR, --FPR FPR     FPR, def=1.9*10^(-4)
   -T TEST_SIZE, --test TEST_SIZE
-                        size of testing sample, by default size is equal to 4000
+                        size of testing sample, by default size is equal to
+                        4000
   -I INMODE, --inmode INMODE
                         path to inmode
   -J JAVA, --java JAVA  path to Java
@@ -45,8 +56,10 @@ optional arguments:
                         path to chipmunk
   -C CPU_COUNT, --processes CPU_COUNT
                         Number of processes to use, default: 2
-  -H PATH_TO_HOCOMOCO, --hocomoco PATH_TO_HOCOMOCO
-                        path to HOCOMOCO database in meme format for TOMTOM
+  -m PATH_TO_MDB, --motifdatabase PATH_TO_MDB
+                        path to motif database in meme format for TOMTOM. You
+                        can get motif database from http://meme-
+                        suite.org/doc/download.html
 ```
 
 ## Useful links
