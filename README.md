@@ -4,21 +4,24 @@
 Regulation of eukaryotic gene expression achieved through compound interaction of various transcription factors (TFs). Development and massive application of next generation sequencing technologies for mapping of TF binding sites (BS) in genome, in particular ChIP-seq, provides an opportunity to study gene expression regulation in detail. Widely applied approach of TFBS prediction, the position weight matrix (PWM) relied on a relatively short motifs and proposed the additivity of various positions within potential TFBS [1,2]. Recently, to supplement the verification of potential BSs in ChIP-seq data with PWMs, various approaches that taking into account intra-motifs dependencies were applied for wide-genome application, e.g. BaMM [3] and InMode [4]. These approaches use the markov models (MMs), which neglect the additivity assumption through the concept of the order of markov chain, i.e. a short distance for a given position that may contain other dependent nucleotides. Typically, the order of MM is changed from one to five, that’s way MMs may be referred as to as ‘short-range interaction’ models.
 To compare traditional PWMs with BAMM/InMode models we developed the integrated pipeline for ChIP-seq data verification with multiple de novo motif search models.
 
+## Scheme of pipeline
+
+![image](./pipeline_sheme.pdf)
+
 ## Requirements
 
 TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/
 
 MODELS:
-  * Bamm: https://github.com/soedinglab/BaMMmotif2  
+  * BaMM: https://github.com/soedinglab/BaMMmotif2  
   * ChIPmunk: http://autosome.ru/ChIPMunk/  
   * InMoDe: http://jstacs.de/index.php/InMoDe
 
-## Optional
+OPTIONAL:
+  * TomTom: http://meme-suite.org/index.html
 
-TomTom: http://meme-suite.org/index.html
-
-## Install
+## Installation
 
 ```  
 git clone https://github.com/ubercomrade/pipeline.git  
@@ -44,11 +47,11 @@ optional arguments:
   -h, --help            show this help message and exit
   -t TRAIN_SIZE, --train TRAIN_SIZE
                         size of training sample, by default size is equal to
-                        500
+                        2000
   -f FPR, --FPR FPR     FPR, def=1.9*10^(-4)
   -T TEST_SIZE, --test TEST_SIZE
                         size of testing sample, by default size is equal to
-                        4000
+                        2000
   -I INMODE, --inmode INMODE
                         path to inmode
   -J JAVA, --java JAVA  path to Java
@@ -61,12 +64,52 @@ optional arguments:
                         can get motif database from http://meme-
                         suite.org/doc/download.html
 ```
+Example run:
+```
+pipeline.py peaks.bed \
+hg38 \
+/path/to/the/genome/hg38.fa \
+./name_of_directory_to_write_results \
+pwm bamm inmode \
+-t 500 -T 1000 -C 4 \
+-I /path/to/inmode/InMoDeCLI-1.1.jar \
+-c /path/to/ChIPmunk/chipmunk.jar 
+```
+
+## Required options description
+
+**First positional argument**:
+```
+bed                   path to BED file
+```
+You shuld give path to bed file. The file should contain the following columns separated by tab:
+1. chromosome
+2. start
+3. end
+4. name
+5. score
+
+Additional columns can be in file but not required. Information about bed format is avaliable in: https://m.ensembl.org/info/website/upload/bed.html, https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+
+**Second positional argument**:
+```
+N                     promoters of organism (hg38, mm10)
+```
+Value of N can be _hg38_ or _mm10_. Depend on organism usage in research
+
+**Third positional argument**:
+```
+genome                path to genome fasta file
+```
+You shuld give path to fasta file. It's required to get sequences for peaks by bedtools.
+Reference genomes for mm10/hg38 can be downloaded from https://www.gencodegenes.org/ or https://genome.ucsc.edu/
 
 ## Useful links
 
  * [Cistrome](http://cistrome.org/ap/) [5]
 
 ## Reference
+
 [1]	Benos P.V. et al. (2002) Additivity in protein-DNA interactions: how good an approximation is it? Nucleic Acids Res., 30(20):4442-4451.  
 [2]	Srivastava D and Mahony S. (in press) Sequence and chromatin determinants of transcription factor binding and the establishment of cell type-specific binding patterns. Biochim Biophys Acta Gene Regul Mech., 194443. doi: 10.1016/j.bbagrm.2019.194443.  
 [3]	Siebert M. and Söding J. (2016) Bayesian Markov models consistently outperform PWMs at predicting motifs in nucleotide sequences. Nucleic Acids Res., 44(13):6055–6069.  
@@ -74,6 +117,7 @@ optional arguments:
 [5]	Mei S. et al. (2017) Cistrome Data Browser: a data portal for ChIP-Seq and chromatin accessibility data in human and mouse, Nucleic Acids Res., 45(D1):, D658–D662,.  
 
 ## License
+
 Copyright (c) 2020 Anton Tsukanov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

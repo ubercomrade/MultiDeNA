@@ -78,7 +78,6 @@ def get_inmode_model(models_path, fasta_path, path_to_java, path_to_inmode, moti
     if not os.path.isdir(inmode_model_path):
         os.mkdir(inmode_model_path)
     if glob.glob(inmode_model_path + '/Learned_DeNovo*') == []:
-        print('calculate INMODE model')
         args = [path_to_java, '-jar', path_to_inmode, 'denovo',
                 'i={}'.format(fasta_path),
                 'm={}'.format(motif_length),
@@ -110,7 +109,6 @@ def get_pwm_model(models_path, fasta_path,  path_to_java, path_to_chipmunk, moti
         os.mkdir(chipmunk_model_path)
     # FIND MODEL BY CHIPMUNK #
     if not os.path.isfile(chipmunk_model_path + '/initial_pwm_model.pwm'):
-        print('Create PWM model by ChIPMunk')
         run_chipmunk(path_to_java, path_to_chipmunk,
         fasta_path,
         chipmunk_model_path + '/initial_pwm_model.txt',
@@ -508,11 +506,11 @@ def parse_args():
     parser.add_argument('models', action='store', choices=['pwm', 'bamm', 'inmode', 'sitega'], metavar='N', nargs='+',
          help='list of models to use (pwm, bamm, inmode, sitega)')
     parser.add_argument('-t', '--train', action='store', type=int, dest='train_size',
-                        required=False, default=500, help='size of training sample, by default size is equal to 500')
+                        required=False, default=2000, help='size of training sample, by default size is equal to 500')
     parser.add_argument('-f', '--FPR', action='store', type=float, dest='fpr',
                         required=False, default=1.9*10**(-4), help='FPR, def=1.9*10^(-4)')
     parser.add_argument('-T', '--test', action='store', type=int, dest='test_size',
-                        required=False, default=4000, help='size of testing sample, by default size is equal to 4000')
+                        required=False, default=2000, help='size of testing sample, by default size is equal to 4000')
     parser.add_argument('-I', '--inmode', action='store', dest='inmode',
                         required=True, help='path to inmode')
     parser.add_argument('-J', '--java', action='store', dest='java',
