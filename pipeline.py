@@ -224,8 +224,8 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     return(0)
 
 
-def get_sitega_model(models_path, fasta_path):
-    sitega_model_path = models_path + '/sitega_model'
+def get_sitega_model(models_dir, fasta_path):
+    sitega_model_path = models_dir + '/sitega_model'
     if not os.path.isdir(sitega_model_path):
         os.mkdir(sitega_model_path)
     # FIND MODEL BY SITEGA
@@ -383,6 +383,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
             bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
                 bootstrap + '/pwm_model.tsv', 10000)
+        else:
+            print("Bootstrap for PWM model already calculated -> PASS")
         check = check_bootstrap(bootstrap + '/pwm_model.tsv')
         if check < 0.0005:
             # THRESHOLD
@@ -423,6 +425,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 bootstrap + "/inmode_model.tsv",
                 10000,
                 path_to_inmode, model_order, path_to_java)
+        else:
+            print("Bootstrap for INMODE model already calculated -> PASS")
         check = check_bootstrap(bootstrap + '/inmode_model.tsv')
         if check < 0.0005:
             # THRESHOLDS
@@ -465,6 +469,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
             bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
                 bootstrap + "/bamm_model.tsv", 10000, model_order)
+        else:
+            print("Bootstrap for BAMM model already calculated -> PASS")
         check = check_bootstrap(bootstrap + '/bamm_model.tsv')
         if check < 0.0005:
             # THRESHOLDS
@@ -501,11 +507,13 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         clear_from_n(fasta_train, sitega_model + '/train_sample_no_n.fa')
         # TRAIN SITEGA
         print('Training SITEGA model')
-        get_sitega_model(models_path, fasta_path)
+        get_sitega_model(sitega, fasta_path)
         # BOOTSTRAP
-        print('Run bootstrap for SITEGA model')
+        #print('Run bootstrap for SITEGA model')
         #if not os.path.isfile(bootstrap + '/sitega_model.tsv'):
             #bootstrap_sitega()
+        #else:
+            #print("Bootstrap for SITEGA model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/sitega_model.tsv')
         check = 0.00005
         if check < 0.0005:
