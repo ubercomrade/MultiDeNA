@@ -233,9 +233,10 @@ def get_sitega_model(models_dir, fasta_path):
     if not os.path.isfile(sitega_model_path + '/peaks.mnt'):
         args = ['monte0dg' ,'6', sitega_model_path + '/train_sample_no_n.fa', sitega_model_path + '/peaks.mnt']
         capture = subprocess.run(args, capture_output=True)
-    if not os.path.isfile(sitega_model_path + '/peaks.mnt'):
+    if not os.path.isfile(sitega_model_path + '/train_sample_no_n.fa_mat'):
         args = ['andy02', sitega_model_path + '/peaks.mnt', '30', '10', '90', '10']
         capture = subprocess.run(args, capture_output=True)
+        print(capture)
     else:
         print('{0} already exists (initial model exists)'.format(sitega_model_path + '/train_sample.fa_mat'))
     pass
@@ -252,6 +253,7 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model_dir, thresho
                  path_to_promoters, thresholds_dir + '/sitega_model_thresholds.txt', \
                 '0.0005', '0.997', '0.0000000005']
         capture = subprocess.run(args, capture_output=True)
+        print(capture)
     else:
         print('Thresholds for SITEGA already calculated')
     return(0)
