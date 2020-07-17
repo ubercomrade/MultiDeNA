@@ -1,9 +1,11 @@
 import os
+import os.path
 import sys
 import subprocess
 import argparse
 import glob
 import itertools
+import shutil
 from operator import itemgetter
 from shutil import copyfile
 from tools.get_threshold_for_bamm import get_threshold_for_bamm
@@ -26,6 +28,8 @@ from tools.scan_best_by_bamm import scan_best_by_bamm
 from tools.scan_best_by_inmode import scan_best_by_inmode
 from tools.extract_sites import extract_sites
 from tools.write_model import write_model
+from tools.clear_from_n import clear_from_n
+from tools.parse_sitega_results import parse_sitega_results
 from lib.common import check_threshold_table, check_bootstrap
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
@@ -220,7 +224,20 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     return(0)
 
 
-def get_sitega_model():
+def get_sitega_model(models_path, fasta_path):
+    sitega_model_path = models_path + '/sitega_model'
+    if not os.path.isdir(sitega_model_path):
+        os.mkdir(sitega_model_path)
+    # FIND MODEL BY SITEGA
+    clear_from_n(fasta_path, sitega_model_path + '/train_sample_no_n.fa')
+    if not os.path.isfile(sitega_model_path + '/peaks.mnt'):
+        args = ['monte0dg' ,'6', sitega_model_path + '/train_sample_no_n.fa', 'peaks.mnt']
+        capture = subprocess.run(args, capture_output=True)
+    if not os.path.isfile(sitega_model_path + '/peaks.mnt'):
+        args = ['andy02', sitega_model_path + 'peaks.mnt', '30', '10', '90', '10']
+        capture = subprocess.run(args, capture_output=True)
+    else:
+        print('{0} already exists (initial model exists)'.format(chipmunk_model_path + '/train_sample.fa_mat'))
     pass
 
 
@@ -228,12 +245,28 @@ def bootstrap_sitega():
     pass
 
 
-def calculate_thresholds_for_sitega():
-    pass
+def calculate_thresholds_for_sitega(path_to_promoters, sitega_model_dir, thresholds_dir):
+    if not os.path.isfile(thresholds_dir + '/sitega_model_thresholds.txt'):
+        args = ['sitega_thr_dist_mat', \
+                 sitega_model_dir + '/train_sample_no_n.fa.fa_mat', \
+                 path_to_promoters, thresholds_dir + '/sitega_model_thresholds.txt', \
+                '0.0005', '0.997', '0.0000000005']
+        capture = subprocess.run(args, capture_output=True)
+    else:
+        print('Thresholds for SITEGA already calculated')
+    return(0)
 
 
-def scan_peaks_by_sitega():
-    pass
+def scan_peaks_by_sitega(fasta_test, sitega_model_dir, scan, threshold_table_path, fpr, scan_best_dir):
+    thr_pwm = get_threshold(threshold_table_path, fpr)
+    sitega_scan_path = scan + '/sitega_{:.2e}.bed'.format(fpr)
+    print('Scan peaks by SITEGA with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
+    args = ['andy1_mat', fasta_test, sitega_model_dir + '/train_sample_no_n.fa.fa_mat', \
+    threshold_table_path, fpr, sitega_model_dir + '/chipseq.pro']
+    capture = subprocess.run(args, capture_output=True)
+    parse_sitega_results(sitega_model_dir + '/chipseq.pro', sitega_scan_path)
+    shutil.copyfile(sitega_model_dir + '/train_sample_no_n.fa_bestscosg', scan_best_dir + '/sitega.scores.txt')
+    return(0)
 
 
 def bed_to_fasta(path_to_fa, path_to_bed, out):
@@ -248,13 +281,10 @@ def bed_to_fasta(path_to_fa, path_to_bed, out):
 def get_threshold(path, fpr_for_thr):
     container = list()
     append = container.append
-    
     with open(path, 'r') as file:
-        file.readline()
         for line in file:
             append(tuple(map(float, line.strip().split())))
     file.close()
-    
     container = sorted(container, key=itemgetter(1))
     last_score, last_fpr = container[0]
     for line in container:
@@ -291,7 +321,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     model_order = 2
     cpu_count = cpu_count
     motif_length_start = str(8)
-    motif_length_end = str(12)
+    motif_length_end = str(16)
     if not os.path.isdir(main_out):
         os.mkdir(main_out)
     models = main_out + '/models'
@@ -338,129 +368,159 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     bed_test = bed + '/test_sample.bed'
     bed_train = bed + '/train_sample.bed'
 
-    # CALCULATE CHIPMUNK MODEL #
-    pwm_model = models + '/pwm_model/optimized_pwm_model.pwm'
-    pwm_threshold_table = thresholds + '/pwm_model_thresholds.txt'
-    print('Training PWM model')
-    get_pwm_model(models, fasta_train,
-        path_to_java, path_to_chipmunk,
-        motif_length_start, motif_length_end,
-        cpu_count)
+    ### CALCULATE PWM MODEL ###
+    if 'pwm' in tools:
+        pwm_model = models + '/pwm_model/optimized_pwm_model.pwm'
+        pwm_threshold_table = thresholds + '/pwm_model_thresholds.txt'
+        print('Training PWM model')
+        get_pwm_model(models, fasta_train,
+            path_to_java, path_to_chipmunk,
+            motif_length_start, motif_length_end,
+            cpu_count)
 
-    # BOOTSTRAP
-    print('Run bootstrap for PWM model')
-    bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
-        bootstrap + '/pwm_model.tsv', 10000)
-    check = check_bootstrap(bootstrap + '/pwm_model.tsv')
-    if check < 0.0001:
-        # THRESHOLD
-        calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
-        check = check_threshold_table(thresholds + '/pwm_model_thresholds.txt')
-        if check < fpr:
-            # SCAN
-            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr)
-            scan_best_by_pwm(scan_best + '/pwm.scores.txt',
-                 pwm_model,
-                 fasta_test)
-            extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
-            write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
-            #run_tomtom(path_to_hocomoco, tomtom + '/pwm.meme', tomtom + '/pwm')
+        # BOOTSTRAP
+        print('Run bootstrap for PWM model')
+        bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
+            bootstrap + '/pwm_model.tsv', 10000)
+        check = check_bootstrap(bootstrap + '/pwm_model.tsv')
+        if check < 0.0005:
+            # THRESHOLD
+            calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
+            check = check_threshold_table(pwm_threshold_table)
+            if check < fpr:
+                # SCAN
+                scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr)
+                scan_best_by_pwm(scan_best + '/pwm.scores.txt',
+                     pwm_model,
+                     fasta_test)
+                extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
+                write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
+                #run_tomtom(path_to_hocomoco, tomtom + '/pwm.meme', tomtom + '/pwm')
+            else:
+                tools.remove('pwm')
+                print('PWM model has poor table with thresholds')
+                print('GO to next model')
         else:
             tools.remove('pwm')
-            print('PWM model has poor table with thresholds')
+            print('PWM model is very weak (TPR = 0.5 -> FPR = {})'.format(check))
             print('GO to next model')
-    else:
-        tools.remove('pwm')
-        print('PWM model is very weak (TPR = 0.5 -> FPR = {})'.format(check))
-        print('GO to next model')
+    ### END PWM ###
 
 
-    # CALCULATE INMODE MODEL WITH EM ALG #
-    motif_length = get_motif_length(models)
-    inmode_model = models + '/inmode_model/inmode_model.xml'
-    inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
-    print('Training INMODE model')
-    get_inmode_model(models, fasta_train, path_to_java,
-        path_to_inmode, motif_length, model_order)
-    # BOOTSTRAP
-    print('Run bootstrap for INMODE model')
-    bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
-        bootstrap + "/inmode_model.tsv",
-        10000,
-        path_to_inmode, model_order, path_to_java)
-    check = check_bootstrap(bootstrap + '/inmode_model.tsv')
-    if check < 0.0001:
-        # THRESHOLDS
-        calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
-            thresholds, motif_length,
-            path_to_inmode, path_to_java)
-        check = check_threshold_table(thresholds + '/inmode_model_thresholds.txt')
-        if check < fpr:
-            # SCAN
-            scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
-            fpr, path_to_java, path_to_inmode, path_to_promoters)
-            scan_best_by_inmode(scan_best + '/inmode.scores.txt',
-                inmode_model,
-                fasta_test,
+    ### CALCULATE INMODE MODEL WITH EM ALG ###
+    if 'inmode' in tools:
+        motif_length = get_motif_length(models)
+        inmode_model = models + '/inmode_model/inmode_model.xml'
+        inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
+        print('Training INMODE model')
+        get_inmode_model(models, fasta_train, path_to_java,
+            path_to_inmode, motif_length, model_order)
+        # BOOTSTRAP
+        print('Run bootstrap for INMODE model')
+        bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
+            bootstrap + "/inmode_model.tsv",
+            10000,
+            path_to_inmode, model_order, path_to_java)
+        check = check_bootstrap(bootstrap + '/inmode_model.tsv')
+        if check < 0.0005:
+            # THRESHOLDS
+            calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
+                thresholds, motif_length,
                 path_to_inmode, path_to_java)
-            extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
-            write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
-            #run_tomtom(path_to_hocomoco, tomtom + '/inmode.meme', tomtom + '/inmode')
+            check = check_threshold_table(inmode_threshold_table)
+            if check < fpr:
+                # SCAN
+                scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
+                fpr, path_to_java, path_to_inmode, path_to_promoters)
+                scan_best_by_inmode(scan_best + '/inmode.scores.txt',
+                    inmode_model,
+                    fasta_test,
+                    path_to_inmode, path_to_java)
+                extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
+                write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
+                #run_tomtom(path_to_hocomoco, tomtom + '/inmode.meme', tomtom + '/inmode')
+            else:
+                tools.remove('inmode')
+                print('INMODE model has poor table with thresholds')
+                print('GO to next model')
         else:
             tools.remove('inmode')
-            print('INMODE model has poor table with thresholds')
+            print('INMODE model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
             print('GO to next model')
-    else:
-        tools.remove('inmode')
-        print('INMODE model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
-        print('GO to next model')
+    ### END INMODE ###
 
 
-    # CALCULATE BAMM MODEL WITH EM ALG #
-    meme_model = models + '/pwm_model/optimized_pwm_model.meme'
-    bamm_threshold_table = thresholds + '/bamm_model_thresholds.txt'
-    bamm_model = models + '/bamm_model/bamm_motif_1.ihbcp'
-    bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-    print('Training BAMM model')
-    get_bamm_model(models, fasta_train, meme_model, model_order)
-    # BOOTSTRAP
-    print('Run bootstrap for BAMM model')
-    bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
-        bootstrap + "/bamm_model.tsv", 10000, model_order)
-    check = check_bootstrap(bootstrap + '/bamm_model.tsv')
-    if check < 0.0001:
-        # THRESHOLDS
-        calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
-        check = check_threshold_table(thresholds + '/bamm_model_thresholds.txt')
-        if check < fpr:
-            # SCAN
-            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr)
-            scan_best_by_bamm(scan_best + '/bamm.scores.txt',
-                bamm_model,
-                bg_bamm_model,
-                fasta_test)
-            extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
-            write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
-            #run_tomtom(path_to_hocomoco, tomtom + '/bamm.meme', tomtom + '/bamm')
+    ### CALCULATE BAMM MODEL WITH EM ALG ###
+    if 'bamm' in tools:
+        meme_model = models + '/pwm_model/optimized_pwm_model.meme'
+        bamm_threshold_table = thresholds + '/bamm_model_thresholds.txt'
+        bamm_model = models + '/bamm_model/bamm_motif_1.ihbcp'
+        bg_bamm_model = models + '/bamm_model/bamm.hbcp'
+        print('Training BAMM model')
+        get_bamm_model(models, fasta_train, meme_model, model_order)
+        # BOOTSTRAP
+        print('Run bootstrap for BAMM model')
+        bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
+            bootstrap + "/bamm_model.tsv", 10000, model_order)
+        check = check_bootstrap(bootstrap + '/bamm_model.tsv')
+        if check < 0.0005:
+            # THRESHOLDS
+            calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
+            check = check_threshold_table(bamm_threshold_table)
+            if check < fpr:
+                # SCAN
+                scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr)
+                scan_best_by_bamm(scan_best + '/bamm.scores.txt',
+                    bamm_model,
+                    bg_bamm_model,
+                    fasta_test)
+                extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
+                write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
+                #run_tomtom(path_to_hocomoco, tomtom + '/bamm.meme', tomtom + '/bamm')
+            else:
+                tools.remove('bamm')
+                print('BAMM model has poor table with thresholds')
+                print('GO to next model')
         else:
             tools.remove('bamm')
-            print('BAMM model has poor table with thresholds')
+            print('BAMM model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
             print('GO to next model')
-    else:
-        tools.remove('bamm')
-        print('BAMM model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
-        print('GO to next model')
+    ### END BAMM ###
 
 
-    # CALCULATE SITEGA MODEL #
-    sitega_model = models + '/sitega_model/sitega.txt'
-    inmode_threshold_table = thresholds + '/sitega_model_thresholds.txt'
-    get_sitega_model()
-    # BOOTSTRAP
-    bootstrap_sitega()
-    # THRESHOLDS
-    calculate_thresholds_for_sitega()
-    scan_peaks_by_sitega()
+    ### CALCULATE SITEGA MODEL ###
+    if 'sitega' in tools:
+        sitega_model = models + '/sitega_model'
+        sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
+        # PREPARE FASTA 
+        clear_from_n(fasta_in, fasta_out)
+        # TRAIN SITEGA
+        print('Training SITEGA model')
+        get_sitega_model(models_path, fasta_path)
+        # BOOTSTRAP
+        print('Run bootstrap for SITEGA model')
+        #bootstrap_sitega()
+        #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
+        check = 0.00005
+        if check < 0.0005:
+            # THRESHOLDS
+            calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds)
+            check = check_threshold_table(sitega_threshold_table)
+            if check < fpr:
+                # SCAN
+                scan_peaks_by_sitega(fasta_test, sitega_model, scan, sitega_threshold_table, fpr, scan_best)
+                extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
+                write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
+            else:
+                tools.remove('sitega')
+                print('SITEGA model has poor table with thresholds')
+                print('GO to next model')
+        else:
+            tools.remove('sitega')
+            print('SITEGA model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
+            print('GO to next model')
+    ### END SITEGA ###
+
 
     # COMPARE SITES
     print('COMPARE SITES')
@@ -471,13 +531,16 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         scan2 = scan + '/{0}_{1:.2e}.bed'.format(tool2, fpr)
         sites_intersection(bed_test, scan1, scan2, tag, tool1, tool2, results)
 
+
     # COMBINE SCAN
     list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
     list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
     combine_results(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
 
+
     # CALCULATE SUMMARY
     write_peaks_classification(results + '/combined_scan.pro', results + '/peaks_classification.tsv')
+
 
     # TOMTOM
     if path_to_mdb != None:   
@@ -496,7 +559,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     
 
 def parse_args():
-
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
     parser.add_argument('promoters', action='store', choices=['mm10', 'hg38'], metavar='N',
@@ -522,11 +584,9 @@ def parse_args():
     parser.add_argument('-m', '--motifdatabase', action='store', dest='path_to_mdb',
                         required=False, default=None, help='path to motif database in meme format for TOMTOM. \
                         You can get motif database from http://meme-suite.org/doc/download.html')
-
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
-
     return(parser.parse_args())
 
 
