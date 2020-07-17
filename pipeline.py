@@ -237,7 +237,7 @@ def get_sitega_model(models_dir, fasta_path):
         args = ['andy02', sitega_model_path + '/peaks.mnt', '30', '10', '90', '10']
         capture = subprocess.run(args, capture_output=True)
     else:
-        print('{0} already exists (initial model exists)'.format(chipmunk_model_path + '/train_sample.fa_mat'))
+        print('{0} already exists (initial model exists)'.format(sitega_model_path + '/train_sample.fa_mat'))
     pass
 
 
