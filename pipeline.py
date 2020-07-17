@@ -492,6 +492,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     if 'sitega' in tools:
         sitega_model = models + '/sitega_model'
         sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
+        sitega_model_path = models_path + '/sitega_model'
+        if not os.path.isdir(sitega_model_path):
+            os.mkdir(sitega_model_path)
         # PREPARE FASTA 
         clear_from_n(fasta_train, sitega_model + '/train_sample_no_n.fa')
         # TRAIN SITEGA
