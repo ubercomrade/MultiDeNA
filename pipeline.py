@@ -507,7 +507,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         clear_from_n(fasta_train, sitega_model + '/train_sample_no_n.fa')
         # TRAIN SITEGA
         print('Training SITEGA model')
-        get_sitega_model(sitega, fasta_path)
+        get_sitega_model(models, fasta_path)
         # BOOTSTRAP
         #print('Run bootstrap for SITEGA model')
         #if not os.path.isfile(bootstrap + '/sitega_model.tsv'):
