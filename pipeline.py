@@ -380,8 +380,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
         # BOOTSTRAP
         print('Run bootstrap for PWM model')
-        bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
-            bootstrap + '/pwm_model.tsv', 10000)
+        if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
+            bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
+                bootstrap + '/pwm_model.tsv', 10000)
         check = check_bootstrap(bootstrap + '/pwm_model.tsv')
         if check < 0.0005:
             # THRESHOLD
@@ -417,10 +418,11 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             path_to_inmode, motif_length, model_order)
         # BOOTSTRAP
         print('Run bootstrap for INMODE model')
-        bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
-            bootstrap + "/inmode_model.tsv",
-            10000,
-            path_to_inmode, model_order, path_to_java)
+        if not os.path.isfile(bootstrap + '/inmode_model.tsv'):
+            bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
+                bootstrap + "/inmode_model.tsv",
+                10000,
+                path_to_inmode, model_order, path_to_java)
         check = check_bootstrap(bootstrap + '/inmode_model.tsv')
         if check < 0.0005:
             # THRESHOLDS
@@ -460,8 +462,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         get_bamm_model(models, fasta_train, meme_model, model_order)
         # BOOTSTRAP
         print('Run bootstrap for BAMM model')
-        bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
-            bootstrap + "/bamm_model.tsv", 10000, model_order)
+        if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
+            bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
+                bootstrap + "/bamm_model.tsv", 10000, model_order)
         check = check_bootstrap(bootstrap + '/bamm_model.tsv')
         if check < 0.0005:
             # THRESHOLDS
@@ -492,9 +495,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     if 'sitega' in tools:
         sitega_model = models + '/sitega_model'
         sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
-        sitega_model_path = models_path + '/sitega_model'
-        if not os.path.isdir(sitega_model_path):
-            os.mkdir(sitega_model_path)
+        if not os.path.isdir(sitega_model):
+            os.mkdir(sitega_model)
         # PREPARE FASTA 
         clear_from_n(fasta_train, sitega_model + '/train_sample_no_n.fa')
         # TRAIN SITEGA
@@ -502,8 +504,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         get_sitega_model(models_path, fasta_path)
         # BOOTSTRAP
         print('Run bootstrap for SITEGA model')
-        #bootstrap_sitega()
-        #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
+        #if not os.path.isfile(bootstrap + '/sitega_model.tsv'):
+            #bootstrap_sitega()
+        #check = check_bootstrap(bootstrap + '/sitega_model.tsv')
         check = 0.00005
         if check < 0.0005:
             # THRESHOLDS
