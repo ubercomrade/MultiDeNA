@@ -41,11 +41,15 @@ def parse_sitega(path):
 
 
 def write_bed(path_out, data):
-    with open('names.csv', 'w', newline='') as csvfile:
-        fieldnames = data[0].keys()
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
-        for row in data:
-            writer.writerow(row)
+    if len(data) == 0:
+        open(path_out, 'w', newline='').close()
+        print('WARNING! SITEGA didn`t find sites with current threshold')
+    else:
+        with open(path_out, 'w', newline='') as csvfile:
+            fieldnames = data[0].keys()
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
+            for row in data:
+                writer.writerow(row)
     return(0)
 
 
