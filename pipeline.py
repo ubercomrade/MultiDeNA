@@ -265,7 +265,7 @@ def scan_peaks_by_sitega(fasta_test, sitega_model_dir, scan, threshold_table_pat
     threshold_table_path, str(fpr), sitega_model_dir + '/chipseq.pro']
     capture = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_model_dir + '/chipseq.pro', sitega_scan_path)
-    shutil.copyfile(sitega_model_dir + '/train_sample_no_n.fa_bestscosg', scan_best_dir + '/sitega.scores.txt')
+    shutil.copyfile(fasta_test + '_bestscosg', scan_best_dir + '/sitega.scores.txt')
     return(0)
 
 
