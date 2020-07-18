@@ -262,7 +262,7 @@ def scan_peaks_by_sitega(fasta_test, sitega_model_dir, scan, threshold_table_pat
     sitega_scan_path = scan + '/sitega_{:.2e}.bed'.format(fpr)
     print('Scan peaks by SITEGA with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
     args = ['andy1_mat', fasta_test, sitega_model_dir + '/train_sample_no_n.fa.fa_mat', \
-    threshold_table_path, fpr, sitega_model_dir + '/chipseq.pro']
+    threshold_table_path, str(fpr), sitega_model_dir + '/chipseq.pro']
     capture = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_model_dir + '/chipseq.pro', sitega_scan_path)
     shutil.copyfile(sitega_model_dir + '/train_sample_no_n.fa_bestscosg', scan_best_dir + '/sitega.scores.txt')
