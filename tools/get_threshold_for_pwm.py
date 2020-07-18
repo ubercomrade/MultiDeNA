@@ -1,5 +1,5 @@
-from lib.common import read_seqs_with_complement, read_pwm, \
-calculate_scores_pwm_thresholds
+from lib.common import read_seqs_with_complement, read_pwm
+from lib.speedup import calculate_scores_pwm_thresholds
 
 
 def to_score(norm_value, pwm):

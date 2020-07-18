@@ -1,5 +1,6 @@
 import csv
-from lib.common import read_fasta, read_pwm, score_pwm
+from lib.common import read_fasta, read_pwm
+from lib.speedup import score_pwm
 
 
 def complement(record):

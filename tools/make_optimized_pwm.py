@@ -5,8 +5,9 @@ import random
 import itertools
 import argparse
 from operator import itemgetter
-from lib.common import make_pcm, make_pfm, make_pwm, sites_to_pwm, \
-calculate_scores_pwm_bootstrap, write_meme, write_pwm, write_pfm
+from lib.common import make_pcm, make_pfm, make_pwm, \
+sites_to_pwm, write_meme, write_pwm, write_pfm
+from lib.speedup import calculate_scores_pwm_bootstrap
 
 
 def parse_chipmunk_words(path):

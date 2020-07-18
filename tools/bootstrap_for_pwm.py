@@ -1,8 +1,8 @@
 import random
 from lib.common import read_seqs, sites_to_pwm, \
-write_table_bootstrap, calculate_scores_pwm_bootstrap, \
+write_table_bootstrap
+from lib.speedup import calculate_scores_pwm_bootstrap, \
 creat_table_bootstrap, creat_random_sample
-
 
 
 def bootstrap_pwm(sites, size_of_random_sample):

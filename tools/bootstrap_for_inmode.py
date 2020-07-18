@@ -3,9 +3,8 @@ import os
 import random
 import math
 import shutil
-from lib.common import read_seqs, \
-write_table_bootstrap, \
-creat_random_sample, \
+from lib.common import read_seqs, write_table_bootstrap
+from lib.speedup import creat_random_sample, \
 creat_table_bootstrap
 
 

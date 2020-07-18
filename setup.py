@@ -1,9 +1,15 @@
 """pipeline for chip-seq analisys"""
-from setuptools import setup
+from setuptools import setup, Extension
+from Cython.Build import cythonize
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+install_requires = ['setuptools>=18.0', 'cython']
+ext_modules = [Extension('lib.speedup', sources=['lib/speedup.pyx'],)]
+
+
+#cmdclass={'build_ext': Cython.Build.build_ext},
 setup(
     name='pipeline',
     version='0.0.1',
@@ -16,7 +22,7 @@ setup(
         'lib',
         'tools'
     ],
-    scripts=['pipeline.py'],
+    scripts=['pipeline.py',],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
@@ -24,12 +30,16 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Unix",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        'Programming Language :: Cython',
         "Topic :: Scientific/Engineering :: Bio-Informatics"
     ],
-    zip_safe=False
+    zip_safe=False,
+    install_requires=install_requires,
+    setup_requires=install_requires,
+    python_requires='>=3.6',
+    ext_modules = cythonize(ext_modules)
 )
