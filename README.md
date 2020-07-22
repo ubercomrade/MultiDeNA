@@ -10,6 +10,9 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Requirements
 
+PYTHON:
+  * cython: `pip3 install cython`
+
 TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0
 
