@@ -17,7 +17,7 @@ def write_fasta(sites, tmp_dir, tag):
 
 def calculate_scores_inmode_bootsrap(path_to_inmode, path_to_java, motif_length, tmp_dir, tag):
     container = []
-    args = [path_to_java, '-Xmx8G', '-Xms1G', 
+    args = [path_to_java, '-Xmx16G', '-Xms1G', 
             '-jar',
             path_to_inmode, 'scan',
             'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
