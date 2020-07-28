@@ -385,7 +385,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 bootstrap + '/pwm_model.tsv', 2000)
         else:
             print("Bootstrap for PWM model already calculated -> PASS")
-        check = check_bootstrap(bootstrap + '/pwm_model.tsv')
+        #check = check_bootstrap(bootstrap + '/pwm_model.tsv')
+        check = 0.0001
         if check < 0.0005:
             # THRESHOLD
             calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
@@ -427,7 +428,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 path_to_inmode, model_order, path_to_java)
         else:
             print("Bootstrap for INMODE model already calculated -> PASS")
-        check = check_bootstrap(bootstrap + '/inmode_model.tsv')
+        #check = check_bootstrap(bootstrap + '/inmode_model.tsv')
+        check = 0.0001
         if check < 0.0005:
             # THRESHOLDS
             calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
@@ -471,7 +473,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 bootstrap + "/bamm_model.tsv", 2000, model_order)
         else:
             print("Bootstrap for BAMM model already calculated -> PASS")
-        check = check_bootstrap(bootstrap + '/bamm_model.tsv')
+        #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
+        check = 0.0001
         if check < 0.0005:
             # THRESHOLDS
             calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
@@ -515,7 +518,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         #else:
             #print("Bootstrap for SITEGA model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/sitega_model.tsv')
-        check = 0.00005
+        check = 0.0001
         if check < 0.0005:
             # THRESHOLDS
             calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds)
