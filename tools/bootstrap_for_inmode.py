@@ -23,7 +23,6 @@ def calculate_scores_inmode_bootsrap(path_to_inmode, path_to_java, motif_length,
             'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
             'id={0}/{1}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
     r = subprocess.run(args, capture_output=True)
-    print(r)
     with open('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED")) as file:
         for line in file:
             container.append(math.log(float(line.split()[4]), 10))
