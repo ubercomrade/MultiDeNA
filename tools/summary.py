@@ -28,6 +28,7 @@ def get_tools_combinations(profile):
         for line in profile[key]:
             tool = line['model']
             if not tool in tools:
+                print(tool)
                 tools.append(tool)
             else: continue
     container = []
@@ -35,7 +36,7 @@ def get_tools_combinations(profile):
         container += list(itertools.combinations(tools, i))
     combinations = []
     for i in container:
-        combinations.append(set(i))
+        combinations.append(sorted(list(i)))
     return(combinations)
 
 
@@ -44,11 +45,12 @@ def peak_classifier(profile, combinations):
     for i in range(len(combinations)):
         statistics[i] = 0
     for k in profile.keys():
-        models_in_peak = set()
+        models_in_peak = list()
         for site in profile[k]:
-            models_in_peak.add(site['model'])
-        if models_in_peak != set():
-            statistics[combinations.index(models_in_peak)] += 1
+            if not site['model'] in models_in_peak:
+                models_in_peak.append(site['model'])
+        if models_in_peak != list():
+            statistics[combinations.index(sorted(models_in_peak))] += 1
     return(statistics)
 
 
