@@ -59,8 +59,8 @@ def write_peaks_classification(profile_path, write_path):
     statistics = peak_classifier(profile, combinations)
     header = []
     for i in combinations:
-        header.append('x'.join(list(i)))
-    header.append('NO_SITES')
+        header.append('_and_'.join(list(i)))
+    header.append('number_of_sites')
     with open(write_path, 'w') as file:
         file.write('\t'.join(header) + '\n')
         file.write('\t'.join(map(str, statistics.values())) + '\t{}\n'.format(number_of_peaks))

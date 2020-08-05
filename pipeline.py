@@ -295,10 +295,15 @@ def get_threshold(path, fpr_for_thr):
     return(last_score)
 
 
-def run_tomtom(query, model, outdir):
-    args = ['tomtom', query, model, '-oc', outdir]
+def run_tomtom(query, target, outdir):
+    args = ['tomtom',
+        query,
+        target,
+        '-thresh', '1.0',
+        '-oc', outdir]
     r = subprocess.run(args, capture_output=True)
-    pass
+    return(1)   
+
 
 
 def get_motif_length(models):
@@ -564,7 +569,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         print('Runing TomTom')
         try:
             for t in tools:
-                run_tomtom(path_to_hocomoco, tomtom + '/{}.meme'.format(t),
+                run_tomtom(path_to_mdb, tomtom + '/{}.meme'.format(t),
                     tomtom + '/{}.tomtom_results'.format(t))
         except:
             print('Tomtom failed. Check your PATH if you have already installed TomTom,\

@@ -127,17 +127,17 @@ def sites_intersection(peaks_path, first_model_path, second_model_path, tag, fna
 
     statistics = {'{0}: against {1}'.format(fname, sname): len(only_first_model_ids),
                   '{0}: against {1}'.format(sname, fname): len(only_second_model_ids),
-                  'OVERLAPPED:{},{}'.format(fname, sname): 0,
-                  'OVERLAPPED:++{0},{1}'.format(fname, sname): 0,
-                  'OVERLAPPED:++{0},{1}'.format(sname, fname): 0,
-                  'NOT_OVERLAPPED:{},{}'.format(fname, sname): 0,
-                  'NO_SITES:{},{}'.format(fname, sname): 0,
-                  'PEAKS': len(peaks)}
+                  'overlapped:{},{}'.format(fname, sname): 0,
+                  #'OVERLAPPED:++{0},{1}'.format(fname, sname): 0,
+                  #'OVERLAPPED:++{0},{1}'.format(sname, fname): 0,
+                  'not_overlapped:{},{}'.format(fname, sname): 0,
+                  'no_sites:{},{}'.format(fname, sname): 0,
+                  'number_of_peaks': len(peaks)}
 
-    statistics['OVERLAPPED:{},{}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) > 0])
-    statistics['NOT_OVERLAPPED:{},{}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) == 0])
-    statistics['OVERLAPPED:++{0},{1}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) > 0 and len(i['not_intersected_sites1']) > 0])
-    statistics['OVERLAPPED:++{0},{1}'.format(sname, fname)] = len([i for i in c if len(i['intersected_sites2']) > 0 and len(i['not_intersected_sites2']) > 0])
-    statistics['NO_SITES:{},{}'.format(fname, sname)] = len(peaks) - len(common_ids) - statistics['{0}: against {1}'.format(fname, sname)] - statistics['{0}: against {1}'.format(sname, fname)]
+    statistics['overlapped:{},{}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) > 0])
+    statistics['not_overlapped:{},{}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) == 0])
+    #statistics['OVERLAPPED:++{0},{1}'.format(fname, sname)] = len([i for i in c if len(i['intersected_sites1']) > 0 and len(i['not_intersected_sites1']) > 0])
+    #statistics['OVERLAPPED:++{0},{1}'.format(sname, fname)] = len([i for i in c if len(i['intersected_sites2']) > 0 and len(i['not_intersected_sites2']) > 0])
+    statistics['no_sites:{},{}'.format(fname, sname)] = len(peaks) - len(common_ids) - statistics['{0}: against {1}'.format(fname, sname)] - statistics['{0}: against {1}'.format(sname, fname)]
     write_table(out_dir + '/' + tag + '_{0}.{1}_counts.tsv'.format(fname, sname), statistics)
     return(0)
