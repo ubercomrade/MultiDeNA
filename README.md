@@ -138,7 +138,7 @@ The argument `-T/--test` sets up the number of peaks that will be scaned by mode
 ```
 -f FPR, --FPR FPR
 ```
-The argument `-f/--FPR` sets up threshold for value for scanning models. The default value is equal to 1.9 \times 10-4).
+The argument `-f/--FPR` sets up threshold for value for scanning models. The default value is equal to 0.00019.
 
 ## Useful links
 
