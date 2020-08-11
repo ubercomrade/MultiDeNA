@@ -80,7 +80,7 @@ pwm bamm inmode \
 -c /path/to/ChIPmunk/chipmunk.jar 
 ```
 
-### Required options description
+### Required arguments description
 
 **First positional argument**:
 ```
@@ -123,7 +123,22 @@ N                     list of models to use (pwm, bamm, inmode, sitega)
 Argument can take several values from the list: pwm, bamm, inmode, sitega. All values must be separated by space. Example: `pwm bamm`, `pwm bamm inmode`, `pwm bamm inmode`, `pwm sitega` 
 *IMPORTANT!* Option `bamm` must be used with `pwm`. Becouse PWM model initializes BaMM
 
-### Optional options description
+### Optional arguments description
+
+```
+-t TRAIN_SIZE, --train TRAIN_SIZE
+```
+The argument `-t/--train` sets up the number of peaks that will be used to train models. The default value is equal to 500. 
+
+```
+-T TEST_SIZE, --test TEST_SIZE
+```
+The argument `-T/--test` sets up the number of peaks that will be scaned by models The default value is equal to 4000.
+
+```
+-f FPR, --FPR FPR
+```
+The argument `-f/--FPR` sets up threshold for value for scanning models. The default value is equal to 1.9 \times 10-4).
 
 ## Useful links
 
