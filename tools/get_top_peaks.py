@@ -23,7 +23,6 @@ def clear_peaks(peaks):
 def get_top_peaks(peaks, amount, col):
     #peaks = [i for i in peaks if len(i[0]) <= 5]
     scores = list(set([i[col] for i in peaks]))
-    print(len(scores))
     if len(scores) > 2000:
         sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
         for index, line in enumerate(sorted_peaks):
