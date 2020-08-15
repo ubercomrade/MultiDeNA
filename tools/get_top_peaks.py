@@ -1,4 +1,5 @@
 import os
+import random
 
 
 def read_file(path):
@@ -21,10 +22,16 @@ def clear_peaks(peaks):
 
 def get_top_peaks(peaks, amount, col):
     #peaks = [i for i in peaks if len(i[0]) <= 5]
-    sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
-    for index, line in enumerate(sorted_peaks):
-        line[3] = 'peaks_' + str(index)
-    return(sorted_peaks[:amount])
+    scores = list(set([i[col] for i in peaks]))
+    print(len(scores))
+    if len(scores) > 2000:
+        sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
+        for index, line in enumerate(sorted_peaks):
+            line[3] = 'peaks_' + str(index)
+        results = sorted_peaks[:amount]
+    else:
+        results = random.choices(peaks, k=amount)
+    return(results)
 
 
 def get_legths(data):
@@ -67,4 +74,3 @@ def write_top_peaks(path, output, col, tag, amount):
             file.write('\t'.join(i) + '\n')
     file.close()
     return(0)
-
