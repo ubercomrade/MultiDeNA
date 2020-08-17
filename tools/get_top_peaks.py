@@ -21,8 +21,8 @@ def clear_peaks(peaks):
 
 
 def get_top_peaks(peaks, amount, col):
-    #peaks = [i for i in peaks if len(i[0]) <= 5]
     scores = list(set([i[col] for i in peaks]))
+    print(len(scores))
     if len(scores) > 3:
         sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
         for index, line in enumerate(sorted_peaks):
@@ -30,6 +30,9 @@ def get_top_peaks(peaks, amount, col):
         results = sorted_peaks[:amount]
     else:
         results = random.choices(peaks, k=amount)
+        for index, line in enumerate(results):
+            line[3] = 'peaks_' + str(index)
+        results = sorted(results, key=lambda i: int(i[3].split('_')[1]), reverse=False)
     return(results)
 
 

@@ -38,21 +38,36 @@ def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_s
     #     GET TOP PEAKS    #
     ########################
 
-    if not os.path.isfile(bed + '/' + 'train_sample.bed'):
-        #Get top training_sample_size bed peaks
-        print('Get top {0} bed peaks'.format(train_sample_size))
-        bed_out = bed + '/'
-        write_top_peaks(bed_path, bed_out, 4, 'train_sample', train_sample_size)      
-    else:
-        print('{0} already exists'.format('train_sample.bed'))
+    if train_sample_size == test_sample_size:
+        if not os.path.isfile(bed + '/' + 'train_sample.bed'):
+            print('Get top {0} bed peaks'.format(train_sample_size))
+            bed_out = bed + '/'
+            write_top_peaks(bed_path, bed_out, 4, 'train_sample', train_sample_size)
+        else:
+            print('{0} already exists'.format('train_sample.bed'))
 
-    if not os.path.isfile(bed + '/' + 'test_sample.bed'):
-        #Get top testing_sample_size bed peaks
-        print('Get top {0} bed peaks'.format(test_sample_size))
-        bed_out = bed + '/'
-        write_top_peaks(bed_path, bed_out, 4, 'test_sample', test_sample_size)
+        if not os.path.isfile(bed + '/' + 'test_sample.bed'):
+            print('Get top {0} bed peaks'.format(test_sample_size))
+            copyfile(bed + '/train_sample.bed', bed + '/test_sample.bed')
+            copyfile(bed + '/train_sample.length.txt', bed + '/test_sample.length.txt')
+        else:
+            print('{0} already exists'.format('test_sample.bed')) 
     else:
-        print('{0} already exists'.format('test_sample.bed'))
+        if not os.path.isfile(bed + '/' + 'train_sample.bed'):
+            #Get top training_sample_size bed peaks
+            print('Get top {0} bed peaks'.format(train_sample_size))
+            bed_out = bed + '/'
+            write_top_peaks(bed_path, bed_out, 4, 'train_sample', train_sample_size)      
+        else:
+            print('{0} already exists'.format('train_sample.bed'))
+
+        if not os.path.isfile(bed + '/' + 'test_sample.bed'):
+            #Get top testing_sample_size bed peaks
+            print('Get top {0} bed peaks'.format(test_sample_size))
+            bed_out = bed + '/'
+            write_top_peaks(bed_path, bed_out, 4, 'test_sample', test_sample_size)
+        else:
+            print('{0} already exists'.format('test_sample.bed'))
 
     ########################
     #     BED TO FASTA     #
