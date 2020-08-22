@@ -47,7 +47,7 @@ def bootstrap_inmode(sites, path_to_inmode, path_to_java, tmp_dir, order, size_o
     number_of_sites = len(sites)
     len_of_site = len(sites[0])
 
-    for i in range(10):
+    for i in range(50):
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
         train_sample = random.choices(sites, k=round(0.9 * number_of_sites))

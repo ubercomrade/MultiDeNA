@@ -49,7 +49,7 @@ def bootstrap_bamm(sites, size_of_random_sample, order, directory):
     number_of_sites = len(sites)
     length_of_site = len(sites[0])
 
-    for i in range(10):
+    for i in range(50):
         train_sample = random.choices(sites, k=round(0.9 * number_of_sites))
         test_sample = [site for site in sites  if not site in train_sample]
         random_sample = creat_random_sample(test_sample, size_of_random_sample)
