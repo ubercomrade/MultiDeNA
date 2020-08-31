@@ -3,7 +3,7 @@ import shutil
 import os
 import subprocess
 from lib.common import read_peaks, sites_to_pwm, \
-write_table_bootstrap, creat_background, write_fasta
+write_table_bootstrap, creat_background, write_fasta, complement
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 

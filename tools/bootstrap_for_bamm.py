@@ -3,7 +3,7 @@ import os
 import shutil
 import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
-write_table_bootstrap, creat_background, score_bamm
+write_table_bootstrap, creat_background, score_bamm, complement
 from lib.speedup import creat_table_bootstrap
 
 
