@@ -2,7 +2,6 @@ import subprocess
 import os
 import shutil
 import random
-import math
 from lib.common import read_peaks, write_fasta, read_bamm, \
 write_table_bootstrap, creat_background, score_bamm
 from lib.speedup import creat_table_bootstrap
