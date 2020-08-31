@@ -3,6 +3,7 @@ import os
 import random
 import math
 import shutil
+from operator import itemgetter
 from lib.common import read_peaks, write_table_bootstrap, \
 creat_background, complement
 from lib.speedup import creat_table_bootstrap
