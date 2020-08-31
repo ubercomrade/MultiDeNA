@@ -92,9 +92,9 @@ def bootstrap_pwm(peaks, length_of_site, counter, path_to_java, path_to_chipmunk
         sites = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
         sites = list(set(sites))
         pwm = sites_to_pwm(sites)
-        for true_score in true_scores_pwm(test_peaks, pwm):
+        for true_score in true_scores_pwm(test_peaks, pwm, length_of_site):
             true_scores.append(true_score)
-        for false_score in false_scores_pwm(shuffled_peaks, pwm):
+        for false_score in false_scores_pwm(shuffled_peaks, pwm, length_of_site):
             false_scores.append(false_score)
     table = creat_table_bootstrap(true_scores, false_scores)
     return(table)
