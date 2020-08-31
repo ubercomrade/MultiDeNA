@@ -28,7 +28,6 @@ def get_tools_combinations(profile):
         for line in profile[key]:
             tool = line['model']
             if not tool in tools:
-                print(tool)
                 tools.append(tool)
             else: continue
     container = []
