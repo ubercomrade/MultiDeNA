@@ -1,6 +1,7 @@
 import random
 import shutil
 import os
+import subprocess
 from lib.common import read_peaks, sites_to_pwm, \
 write_table_bootstrap, creat_background, write_fasta
 from lib.speedup import creat_table_bootstrap, score_pwm
