@@ -61,7 +61,7 @@ def true_scores_pwm(peaks, pwm, length_of_site):
     true_scores = []
     for peak in peaks:
         complement_peak = complement(peak)
-        cdef int best = -1000000
+        best = -1000000
         full_peak = peak + 'N' * length_of_site + complement_peak
         n = len(full_peak) - length_of_site + 1
         for i in range(n):
