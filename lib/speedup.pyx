@@ -1,18 +1,6 @@
 import random
 
 
-def creat_random_sample(test_sample, size_of_random_sample):
-    container = []
-    test_sample = [list(i) for i in test_sample]
-    for index in range(len(test_sample) * size_of_random_sample):
-        container.append(random.choice(test_sample))
-        random.shuffle(container[-1])
-    random_sites = []
-    for site in container:
-        random_sites.append(''.join(site))
-    return(random_sites)
-
-
 def creat_table_bootstrap(true_scores, false_scores):
     cdef list table = []
     true_scores.sort(reverse=True)
@@ -59,17 +47,6 @@ def calculate_scores_pwm_thresholds(list peaks, dict pwm, int length_of_site, fl
     return(scores, number_of_sites)
 
 
-def calculate_scores_pwm_bootstrap(list sites, dict pwm):
-    cdef str site
-    cdef list scores = []
-    cdef int number_of_sites = len(sites)
-    append = scores.append
-    for i in range(number_of_sites):
-        site = sites[i]
-        scores.append(score_pwm(site, pwm))
-    return(scores)
-
-
 def score_bamm(str site, dict bamm, int order, int length_of_site):
     cdef float score = 0
     cdef int index
@@ -78,17 +55,6 @@ def score_bamm(str site, dict bamm, int order, int length_of_site):
     for index in range(length_of_site - order):
         score += bamm[site[index:index+order + 1]][index + order]
     return(score)
-
-
-def calculate_scores_bamm_bootstrap(list sites, dict bamm, int order, int length_of_site):
-    cdef str site
-    cdef list scores = []
-    cdef int number_of_sites = len(sites)
-    append = scores.append
-    for i in range(number_of_sites):
-        site = sites[i]
-        append(score_bamm(site, bamm, order, length_of_site))
-    return(scores)
 
 
 def calculate_scores_bamm_thresholds(list peaks, dict bamm, int order, int length_of_site, float threshold):

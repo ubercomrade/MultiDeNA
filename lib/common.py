@@ -18,6 +18,16 @@ def read_seqs(path):
     return(container)
 
 
+def read_peaks(path):
+    container = []
+    append = container.append
+    with open(path) as file:
+        for line in file:
+            if not line.startswith('>'):
+                append(line.strip().upper())
+    return(container)
+
+
 def read_seqs_with_complement(path):
     container = []
     append = container.append
@@ -87,6 +97,25 @@ def write_pfm(output, tag, pfm):
             file.write('{0:.9f}\t{1:.9f}\t{2:.9f}\t{3:.9f}\n'.format(i[0], i[1], i[2], i[3]))
 
 
+def write_fasta(peaks, path):
+    with open(path, 'w') as file:
+        for index, p in enumerate(peaks):
+            file.write('>{}\n'.format(index))
+            file.write(p + '\n')
+    return(0)
+
+
+def creat_background(peaks, length_of_site, counter):
+    shuffled_peaks = []
+    number_of_sites = 0
+    while counter > number_of_sites:
+        peak = random.choice(peaks)
+        shuffled_peak = ''.join(random.sample(peak, len(peak)))
+        shuffled_peaks.append(shuffled_peak)
+        number_of_sites += (len(''.join(shuffled_peak)) - length_of_site + 1) * 2
+    return(shuffled_peaks)
+
+
 def write_table_bootstrap(path, data):
     with open(path, 'w') as csvfile:
         fieldnames = data[0].keys()
@@ -126,6 +155,7 @@ def write_scan(path, data):
         for line in data:
             writer.writerow(line)
     pass
+    
 
 # PWM MODEL
 def make_pcm(motifs):

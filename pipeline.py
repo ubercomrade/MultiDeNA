@@ -397,12 +397,13 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             path_to_java, path_to_chipmunk,
             motif_length_start, motif_length_end,
             cpu_count)
+        motif_length = get_motif_length(models)
 
         # BOOTSTRAP
         print('Run bootstrap for PWM model')
         if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
-            bootstrap_for_pwm(models + '/pwm_model/optimized_pwm_model.fasta',
-                bootstrap + '/pwm_model.tsv', 4000)
+            bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
+                path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=5000000)
         else:
             print("Bootstrap for PWM model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/pwm_model.tsv')
@@ -442,10 +443,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         # BOOTSTRAP
         print('Run bootstrap for INMODE model')
         if not os.path.isfile(bootstrap + '/inmode_model.tsv'):
-            bootstrap_for_inmode(models + '/inmode_model/inmode_sites.txt',
-                bootstrap + "/inmode_model.tsv",
-                4000,
-                path_to_inmode, model_order, path_to_java)
+            bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
+                path_to_inmode, path_to_java, './inmode.tmp', counter=5000000, order=model_order)
         else:
             print("Bootstrap for INMODE model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/inmode_model.tsv')
@@ -489,8 +488,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         # BOOTSTRAP
         print('Run bootstrap for BAMM model')
         if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
-            bootstrap_for_bamm(models + '/bamm_model/bamm_motif_1.occurrence',
-                bootstrap + "/bamm_model.tsv", 4000, model_order)
+            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, \
+                meme_model, './bamm.tmp', counter = 5000000, order=model_order)
         else:
             print("Bootstrap for BAMM model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
