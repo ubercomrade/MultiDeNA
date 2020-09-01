@@ -488,8 +488,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         # BOOTSTRAP
         print('Run bootstrap for BAMM model')
         if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
-            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, \
-                meme_model, './bamm.tmp', counter = 5000000, order=model_order)
+            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
+                       path_to_chipmunk, path_to_java, cpu_count, 
+                       './bamm.tmp', counter = 5000000, order=model_order)
         else:
             print("Bootstrap for BAMM model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
