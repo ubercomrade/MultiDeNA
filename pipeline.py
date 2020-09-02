@@ -403,7 +403,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         print('Run bootstrap for PWM model')
         if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
-                path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=5000000)
+                path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
         else:
             print("Bootstrap for PWM model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/pwm_model.tsv')
@@ -444,7 +444,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         print('Run bootstrap for INMODE model')
         if not os.path.isfile(bootstrap + '/inmode_model.tsv'):
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
-                path_to_inmode, path_to_java, './inmode.tmp', counter=5000000, order=model_order)
+                path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=model_order)
         else:
             print("Bootstrap for INMODE model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/inmode_model.tsv')
@@ -490,7 +490,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
             bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
                        path_to_chipmunk, path_to_java, cpu_count, 
-                       './bamm.tmp', counter = 5000000, order=model_order)
+                       './bamm.tmp', counter = 10000000, order=model_order)
         else:
             print("Bootstrap for BAMM model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/bamm_model.tsv')

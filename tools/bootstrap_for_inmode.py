@@ -87,12 +87,12 @@ def bootstrap_inmode(peaks, length_of_site, counter, path_to_inmode, path_to_jav
     true_scores = []
     false_scores = []
     number_of_peaks = len(peaks)
-    for i in range(10):
+    for i in range(5):
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
         train_peaks = random.choices(peaks, k=round(0.9 * number_of_peaks))
         test_peaks = [peak for peak in peaks  if not peak in train_peaks]
-        shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 10)
+        shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 5)
         write_fasta(train_peaks, tmp_dir, "train")
         write_fasta(test_peaks, tmp_dir, "test")
         write_fasta(shuffled_peaks, tmp_dir, "shuffled")
