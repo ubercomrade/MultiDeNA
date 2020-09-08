@@ -11,7 +11,7 @@ from shutil import copyfile
 from tools.creat_optimized_pwm_model import de_novo_with_oprimization_pwm
 from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
 from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
-from tools.get_threshold_for_bamm import get_threshold_for_bam
+from tools.get_threshold_for_bamm import get_threshold_for_bamm
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
 from tools.bootstrap_for_pwm import bootstrap_for_pwm
