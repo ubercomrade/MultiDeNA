@@ -401,8 +401,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         motif_length = get_motif_length(models)
 
         # BOOTSTRAP
-        print('Run bootstrap for PWM model')
         if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
+            print('Run bootstrap for PWM model')
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
                 path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
 
@@ -432,14 +432,19 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
         if not os.path.isfile(inmode_model):
             print('Training INMODE model')
-            de_novo_with_oprimization_inmode(fasta_train, 
+            if not os.path.isdir(models + '/inmode_model/'):
+                os.mkdir(models + '/inmode_model/')
+            inmode_order = de_novo_with_oprimization_inmode(fasta_train, 
                 motif_length, path_to_inmode, \
                 path_to_java, './inmode.tmp', inmode_model)
+            with open(models + '/bamm_model/order.txt') as file:
+                file.write(bamm_order)
+            file.close()
         # BOOTSTRAP
-        print('Run bootstrap for INMODE model')
         if bootstrap:
+            print('Run bootstrap for INMODE model')
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
-                path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=model_order)
+                path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=inmode_order)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, motif_length,
@@ -471,11 +476,19 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         bg_bamm_model = models + '/bamm_model/bamm.hbcp'
         if not os.path.isfile(inmode_model):
             print('Training BAMM model')
-            de_novo_with_oprimization_bamm(peaks_path, \
+            if not os.path.isdir(models + '/bamm_model/'):
+                os.mkdir(models + '/bamm_model/')
+            bamm_order = de_novo_with_oprimization_bamm(peaks_path, \
                 motif_length, meme_model, './bamm.tmp', models + '/bamm_model')
-            get_bamm_model(models, fasta_train, meme_model, model_order)
+            with open(models + '/bamm_model/order.txt') as file:
+                file.write(bamm_order)
+            file.close()
         # BOOTSTRAP
-        print('Run bootstrap for BAMM model')
+        if bootstrap:
+            print('Run bootstrap for BAMM model')
+            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
+                       path_to_chipmunk, path_to_java, cpu_count, 
+                       tmp_dir, counter = 5000000, order=bamm_order)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:

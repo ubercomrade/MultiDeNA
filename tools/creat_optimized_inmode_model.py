@@ -174,7 +174,6 @@ def de_novo_with_oprimization_inmode(peaks_path, length, path_to_inmode, path_to
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     inmode_order = learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, path_to_java, tmp_dir)
-    shutil.copy(tmp_dir + '/new_inmode_model.xml',
-                       output_path)
+    shutil.copy(tmp_dir + '/new_inmode_model.xml', output_path)
     shutil.rmtree(tmp_dir)
     return(inmode_order)
