@@ -8,7 +8,10 @@ import itertools
 import shutil
 from operator import itemgetter
 from shutil import copyfile
-from tools.get_threshold_for_bamm import get_threshold_for_bamm
+from tools.creat_optimized_pwm_model import de_novo_with_oprimization_pwm
+from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
+from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
+from tools.get_threshold_for_bamm import get_threshold_for_bam
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
 from tools.bootstrap_for_pwm import bootstrap_for_pwm
@@ -17,7 +20,7 @@ from tools.bootstrap_for_inmode import bootstrap_for_inmode
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_bamm import scan_by_bamm
 from tools.get_top_peaks import write_top_peaks
-from tools.make_optimized_pwm import make_optimized_pwm
+from tools.make_pwm import make_pwm
 from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
 from tools.sites_intersection import sites_intersection
@@ -138,11 +141,11 @@ def get_pwm_model(models_path, fasta_path,  path_to_java, path_to_chipmunk, moti
     parse_chipmunk_results(chipmunk_model_path + '/initial_pwm_model.txt',
         chipmunk_model_path, 'initial_pwm_model')
     # Get oPWM from chipmunk results. OUTPUT: .meme, .pwm and .fasta (multi fasta) #
-    if not os.path.isfile(chipmunk_model_path + '/optimized_pwm_model.pwm'):
-        make_optimized_pwm(chipmunk_model_path + '/initial_pwm_model.txt',
-            fasta_path, chipmunk_model_path, 5000, 'optimized_pwm_model', cpu_count)
+    if not os.path.isfile(chipmunk_model_path + '/pwm_model.pwm'):
+        make_pwm(chipmunk_model_path + '/initial_pwm_model.txt',
+            fasta_path, chipmunk_model_path, 5000, 'pwm_model', cpu_count)
     else:
-        print('{0} already exists'.format(chipmunk_model_path + '/optimized_pwm_model.pwm'))
+        print('{0} already exists'.format(chipmunk_model_path + '/pwm_model.pwm'))
     return(0)
 
 
@@ -183,7 +186,7 @@ def calculate_thresholds_for_pwm(path_to_promoters, pwm_model_dir, thresholds_di
     if not os.path.isfile(thresholds_dir + '/pwm_model_thresholds.txt'):
         print('Calculate threshold for pwm based on promoters and fpr')
         get_threshold_for_pwm(path_to_promoters,
-                pwm_model_dir + '/optimized_pwm_model.pwm',
+                pwm_model_dir + '/pwm_model.pwm',
                 thresholds_dir + '/pwm_model_thresholds.txt')
     else:
         print('Thresholds for PWM already calculated')
@@ -322,7 +325,7 @@ def run_tomtom(query, target, outdir):
 
 
 def get_motif_length(models):
-    with open(models + '/pwm_model/optimized_pwm_model.fasta', 'r') as file:
+    with open(models + '/pwm_model/pwm_model.fasta', 'r') as file:
         for i in file:
             if i.startswith('>'):
                 continue
@@ -333,7 +336,7 @@ def get_motif_length(models):
     return(motif_length)
 
 
-def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
+def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, path_to_mdb, cpu_count):
 
@@ -390,13 +393,12 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
     ### CALCULATE PWM MODEL ###
     if 'pwm' in tools:
-        pwm_model = models + '/pwm_model/optimized_pwm_model.pwm'
+        pwm_model = models + '/pwm_model/pwm_model.pwm'
         pwm_threshold_table = thresholds + '/pwm_model_thresholds.txt'
-        print('Training PWM model')
-        get_pwm_model(models, fasta_train,
-            path_to_java, path_to_chipmunk,
-            motif_length_start, motif_length_end,
-            cpu_count)
+        if not os.path.isfile(pwm_model):
+            print('Training PWM model')
+            de_novo_with_oprimization_pwm(fasta_train, path_to_java, path_to_chipmunk, 
+                './pwm.tmp', models + '/pwm_model/', cpu_count)
         motif_length = get_motif_length(models)
 
         # BOOTSTRAP
@@ -404,30 +406,22 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
                 path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
-        else:
-            print("Bootstrap for PWM model already calculated -> PASS")
-        #check = check_bootstrap(bootstrap + '/pwm_model.tsv')
-        check = 0.0001
-        if check < 0.0005:
-            # THRESHOLD
-            calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
-            check = check_threshold_table(pwm_threshold_table)
-            if check < fpr:
-                # SCAN
-                scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr)
-                scan_best_by_pwm(scan_best + '/pwm.scores.txt',
-                     pwm_model,
-                     fasta_test)
-                extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
-                write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
-                #run_tomtom(path_to_hocomoco, tomtom + '/pwm.meme', tomtom + '/pwm')
-            else:
-                tools.remove('pwm')
-                print('PWM model has poor table with thresholds')
-                print('GO to next model')
+
+        # THRESHOLD
+        calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
+        check = check_threshold_table(pwm_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr)
+            scan_best_by_pwm(scan_best + '/pwm.scores.txt',
+                 pwm_model,
+                 fasta_test)
+            extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
+            write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
+            #run_tomtom(path_to_hocomoco, tomtom + '/pwm.meme', tomtom + '/pwm')
         else:
             tools.remove('pwm')
-            print('PWM model is very weak (TPR = 0.5 -> FPR = {})'.format(check))
+            print('PWM model has poor table with thresholds')
             print('GO to next model')
     ### END PWM ###
 
@@ -437,85 +431,67 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         motif_length = get_motif_length(models)
         inmode_model = models + '/inmode_model/inmode_model.xml'
         inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
-        print('Training INMODE model')
-        get_inmode_model(models, fasta_train, path_to_java,
-            path_to_inmode, motif_length, model_order)
+        if not os.path.isfile(inmode_model):
+            print('Training INMODE model')
+            de_novo_with_oprimization_inmode(fasta_train, 
+                motif_length, path_to_inmode, \
+                path_to_java, './inmode.tmp', inmode_model)
         # BOOTSTRAP
         print('Run bootstrap for INMODE model')
-        if not os.path.isfile(bootstrap + '/inmode_model.tsv'):
+        if bootstrap:
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
                 path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=model_order)
-        else:
-            print("Bootstrap for INMODE model already calculated -> PASS")
-        #check = check_bootstrap(bootstrap + '/inmode_model.tsv')
-        check = 0.0001
-        if check < 0.0005:
-            # THRESHOLDS
-            calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
-                thresholds, motif_length,
+        # THRESHOLDS
+        calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
+            thresholds, motif_length,
+            path_to_inmode, path_to_java)
+        check = check_threshold_table(inmode_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
+            fpr, path_to_java, path_to_inmode, path_to_promoters)
+            scan_best_by_inmode(scan_best + '/inmode.scores.txt',
+                inmode_model,
+                fasta_test,
                 path_to_inmode, path_to_java)
-            check = check_threshold_table(inmode_threshold_table)
-            if check < fpr:
-                # SCAN
-                scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
-                fpr, path_to_java, path_to_inmode, path_to_promoters)
-                scan_best_by_inmode(scan_best + '/inmode.scores.txt',
-                    inmode_model,
-                    fasta_test,
-                    path_to_inmode, path_to_java)
-                extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
-                write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
-                #run_tomtom(path_to_hocomoco, tomtom + '/inmode.meme', tomtom + '/inmode')
-            else:
-                tools.remove('inmode')
-                print('INMODE model has poor table with thresholds')
-                print('GO to next model')
+            extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
+            write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
+            #run_tomtom(path_to_hocomoco, tomtom + '/inmode.meme', tomtom + '/inmode')
         else:
             tools.remove('inmode')
-            print('INMODE model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
+            print('INMODE model has poor table with thresholds')
             print('GO to next model')
     ### END INMODE ###
 
 
     ### CALCULATE BAMM MODEL WITH EM ALG ###
     if 'bamm' in tools:
-        meme_model = models + '/pwm_model/optimized_pwm_model.meme'
+        meme_model = models + '/pwm_model/pwm_model.meme'
         bamm_threshold_table = thresholds + '/bamm_model_thresholds.txt'
-        bamm_model = models + '/bamm_model/bamm_motif_1.ihbcp'
+        bamm_model = models + '/bamm_model/bamm_model.ihbcp'
         bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-        print('Training BAMM model')
-        get_bamm_model(models, fasta_train, meme_model, model_order)
+        if not os.path.isfile(inmode_model):
+            print('Training BAMM model')
+            de_novo_with_oprimization_bamm(peaks_path, \
+                motif_length, meme_model, './bamm.tmp', models + '/bamm_model')
+            get_bamm_model(models, fasta_train, meme_model, model_order)
         # BOOTSTRAP
         print('Run bootstrap for BAMM model')
-        if not os.path.isfile(bootstrap + '/bamm_model.tsv'):
-            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
-                       path_to_chipmunk, path_to_java, cpu_count, 
-                       './bamm.tmp', counter = 10000000, order=model_order)
-        else:
-            print("Bootstrap for BAMM model already calculated -> PASS")
-        #check = check_bootstrap(bootstrap + '/bamm_model.tsv')
-        check = 0.0001
-        if check < 0.0005:
-            # THRESHOLDS
-            calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
-            check = check_threshold_table(bamm_threshold_table)
-            if check < fpr:
-                # SCAN
-                scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr)
-                scan_best_by_bamm(scan_best + '/bamm.scores.txt',
-                    bamm_model,
-                    bg_bamm_model,
-                    fasta_test)
-                extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
-                write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
-                #run_tomtom(path_to_hocomoco, tomtom + '/bamm.meme', tomtom + '/bamm')
-            else:
-                tools.remove('bamm')
-                print('BAMM model has poor table with thresholds')
-                print('GO to next model')
+        calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
+        check = check_threshold_table(bamm_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr)
+            scan_best_by_bamm(scan_best + '/bamm.scores.txt',
+                bamm_model,
+                bg_bamm_model,
+                fasta_test)
+            extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
+            write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
+            #run_tomtom(path_to_hocomoco, tomtom + '/bamm.meme', tomtom + '/bamm')
         else:
             tools.remove('bamm')
-            print('BAMM model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
+            print('BAMM model has poor table with thresholds')
             print('GO to next model')
     ### END BAMM ###
 
@@ -533,28 +509,22 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         get_sitega_model(models, fasta_train)
         # BOOTSTRAP
         #print('Run bootstrap for SITEGA model')
-        #if not os.path.isfile(bootstrap + '/sitega_model.tsv'):
+        #if bootstrap:
             #bootstrap_sitega()
         #else:
             #print("Bootstrap for SITEGA model already calculated -> PASS")
         #check = check_bootstrap(bootstrap + '/sitega_model.tsv')
-        check = 0.0001
-        if check < 0.0005:
             # THRESHOLDS
-            calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds)
-            check = check_threshold_table(sitega_threshold_table)
-            if check < fpr:
-                # SCAN
-                scan_peaks_by_sitega(fasta_test, sitega_model, scan, sitega_threshold_table, fpr, scan_best)
-                extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
-                write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
-            else:
-                tools.remove('sitega')
-                print('SITEGA model has poor table with thresholds')
-                print('GO to next model')
+        calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds)
+        check = check_threshold_table(sitega_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_sitega(fasta_test, sitega_model, scan, sitega_threshold_table, fpr, scan_best)
+            extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
+            write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
         else:
             tools.remove('sitega')
-            print('SITEGA model is very weak (TPR = 0.5 -> FPR = {} > 0.0001)'.format(check))
+            print('SITEGA model has poor table with thresholds')
             print('GO to next model')
     ### END SITEGA ###
 
@@ -610,6 +580,8 @@ def parse_args():
                         required=False, default=1.9*10**(-4), help='FPR, def=1.9*10^(-4)')
     parser.add_argument('-T', '--test', action='store', type=int, dest='test_size',
                         required=False, default=2000, help='size of testing sample, by default size is equal to 4000')
+    parser.add_argument('-b', '--bootstrap', action='store_true', dest='bootstrap',
+                        required=False, default=2000, help='Flag to calculate ROC for models, default is False')
     parser.add_argument('-I', '--inmode', action='store', dest='inmode',
                         required=True, help='path to inmode')
     parser.add_argument('-J', '--java', action='store', dest='java',
@@ -635,6 +607,7 @@ def main():
     test_sample_size = args.test_size
     fpr = args.fpr
     tools = args.models
+    bootstrap = args.bootstrap
 
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk
@@ -650,7 +623,7 @@ def main():
     elif organism == 'hg38':
         path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
 
-    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
+    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, path_to_mdb, cpu_count)
 
