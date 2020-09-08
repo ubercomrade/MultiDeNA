@@ -20,7 +20,6 @@ from tools.bootstrap_for_inmode import bootstrap_for_inmode
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_bamm import scan_by_bamm
 from tools.get_top_peaks import write_top_peaks
-from tools.make_pwm import make_pwm
 from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
 from tools.sites_intersection import sites_intersection
