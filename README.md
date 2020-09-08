@@ -36,7 +36,7 @@ pip3 install -e .
 The command `pipeline.py -h` return:
 
 ```
-usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] -I INMODE
+usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] [-b] -I INMODE
                    [-J JAVA] -c CHIPMUNK [-C CPU_COUNT] [-m PATH_TO_MDB]
                    bed N genome output N [N ...]
 
@@ -51,11 +51,12 @@ optional arguments:
   -h, --help            show this help message and exit
   -t TRAIN_SIZE, --train TRAIN_SIZE
                         size of training sample, by default size is equal to
-                        2000
+                        500
   -f FPR, --FPR FPR     FPR, def=1.9*10^(-4)
   -T TEST_SIZE, --test TEST_SIZE
                         size of testing sample, by default size is equal to
-                        2000
+                        4000
+  -b, --bootstrap       Flag to calculate ROC for models, default is False
   -I INMODE, --inmode INMODE
                         path to inmode
   -J JAVA, --java JAVA  path to Java
