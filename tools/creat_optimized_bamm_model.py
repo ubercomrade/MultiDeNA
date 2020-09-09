@@ -92,7 +92,7 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
             false_scores.append(false_score)
         table = creat_table_bootstrap(true_scores, false_scores)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 < 5:
+        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 > 5:
             fpr_current = fpr_new
             index += 1
             print(length + extend * 2, fpr_current, order)

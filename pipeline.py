@@ -479,7 +479,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             print('Training BAMM model')
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
-            bamm_order = de_novo_with_oprimization_bamm(peaks_path, \
+            bamm_order = de_novo_with_oprimization_bamm(fasta_train, \
                 motif_length, meme_model, './bamm.tmp', models + '/bamm_model')
             with open(models + '/bamm_model/order.txt', 'w') as file:
                 file.write(str(bamm_order))
