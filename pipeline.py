@@ -335,7 +335,7 @@ def get_motif_length(models):
     return(motif_length)
 
 
-def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap,
+def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, path_to_mdb, cpu_count):
 
@@ -401,7 +401,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         motif_length = get_motif_length(models)
 
         # BOOTSTRAP
-        if bootstrap:
+        if bootstrap_flag:
             print('Run bootstrap for PWM model')
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
                 path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
@@ -440,7 +440,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 file.write(inmode_order)
             file.close()
         # BOOTSTRAP
-        if bootstrap:
+        if bootstrap_flag:
             print('Run bootstrap for INMODE model')
             with open(models + '/inmode_model/order.txt') as file:
                 inmode_order = int(file.readline().strip())
@@ -485,7 +485,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 file.write(bamm_order)
             file.close()
         # BOOTSTRAP
-        if bootstrap:
+        if bootstrap_flag:
             print('Run bootstrap for BAMM model')
             with open(models + '/bamm_model/order.txt') as file:
                 bamm_order = int(file.readline().strip())
@@ -524,7 +524,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         get_sitega_model(models, fasta_train)
         # BOOTSTRAP
         #print('Run bootstrap for SITEGA model')
-        #if bootstrap:
+        #if bootstrap_flag:
             #bootstrap_sitega()
         #else:
             #print("Bootstrap for SITEGA model already calculated -> PASS")
@@ -622,7 +622,7 @@ def main():
     test_sample_size = args.test_size
     fpr = args.fpr
     tools = args.models
-    bootstrap = args.bootstrap
+    bootstrap_flag = args.bootstrap
     print(bootstrap)
 
     path_to_java = args.java
@@ -639,7 +639,7 @@ def main():
     elif organism == 'hg38':
         path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
 
-    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap,
+    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, path_to_mdb, cpu_count)
 
