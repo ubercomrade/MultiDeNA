@@ -401,7 +401,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         motif_length = get_motif_length(models)
 
         # BOOTSTRAP
-        if not os.path.isfile(bootstrap + '/pwm_model.tsv'):
+        if bootstrap:
             print('Run bootstrap for PWM model')
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
                 path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
@@ -417,7 +417,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                  fasta_test)
             extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
-            #run_tomtom(path_to_hocomoco, tomtom + '/pwm.meme', tomtom + '/pwm')
         else:
             tools.remove('pwm')
             print('PWM model has poor table with thresholds')
@@ -463,7 +462,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 path_to_inmode, path_to_java)
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
-            #run_tomtom(path_to_hocomoco, tomtom + '/inmode.meme', tomtom + '/inmode')
         else:
             tools.remove('inmode')
             print('INMODE model has poor table with thresholds')
@@ -506,7 +504,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 fasta_test)
             extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
             write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
-            #run_tomtom(path_to_hocomoco, tomtom + '/bamm.meme', tomtom + '/bamm')
         else:
             tools.remove('bamm')
             print('BAMM model has poor table with thresholds')
