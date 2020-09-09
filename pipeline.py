@@ -475,7 +475,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         bamm_threshold_table = thresholds + '/bamm_model_thresholds.txt'
         bamm_model = models + '/bamm_model/bamm_model.ihbcp'
         bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-        if not os.path.isfile(inmode_model):
+        if not os.path.isfile(bamm_model):
             print('Training BAMM model')
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
