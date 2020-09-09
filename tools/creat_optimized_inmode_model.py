@@ -154,7 +154,7 @@ def learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, p
         for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'new'):
             false_scores.append(false_score)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current:
+        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 < 5:
             shutil.copy(tmp_dir + '/new_inmode_model.xml',
                        tmp_dir + '/current_inmode_model.xml')
             fpr_current = fpr_new

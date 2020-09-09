@@ -438,7 +438,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 motif_length, path_to_inmode, \
                 path_to_java, './inmode.tmp', inmode_model)
             with open(models + '/inmode_model/order.txt', 'w') as file:
-                file.write(bamm_order)
+                file.write(inmode_order)
             file.close()
         # BOOTSTRAP
         if bootstrap:
@@ -490,7 +490,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         if bootstrap:
             print('Run bootstrap for BAMM model')
             with open(models + '/bamm_model/order.txt') as file:
-                inmode_order = int(file.readline().strip())
+                bamm_order = int(file.readline().strip())
             file.close()
             bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
                        path_to_chipmunk, path_to_java, cpu_count, 
