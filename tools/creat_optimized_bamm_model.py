@@ -97,6 +97,7 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
             index += 1
             print(length + extend * 2, fpr_current, order)
         elif fpr_new > fpr_current and order <= 2:
+            fpr_current = fpr_new #!!!
             print(length + extend * 2, fpr_new, order)
             order += 1
         else:
