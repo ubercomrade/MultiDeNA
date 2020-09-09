@@ -596,7 +596,7 @@ def parse_args():
     parser.add_argument('-T', '--test', action='store', type=int, dest='test_size',
                         required=False, default=2000, help='size of testing sample, by default size is equal to 4000')
     parser.add_argument('-b', '--bootstrap', action='store_true', dest='bootstrap',
-                        required=False, default=2000, help='Flag to calculate ROC for models, default is False')
+                        required=False, help='Flag to calculate ROC for models, default is False')
     parser.add_argument('-I', '--inmode', action='store', dest='inmode',
                         required=True, help='path to inmode')
     parser.add_argument('-J', '--java', action='store', dest='java',
@@ -623,7 +623,6 @@ def main():
     fpr = args.fpr
     tools = args.models
     bootstrap = args.bootstrap
-    print(bootstrap)
 
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk
