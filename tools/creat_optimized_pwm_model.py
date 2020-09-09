@@ -142,7 +142,7 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
 
 
 def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count):
-    counter = 4000000
+    counter = 6000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     sites, length, fpr_current = learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count)

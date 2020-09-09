@@ -169,8 +169,8 @@ def learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, p
 
 
 def de_novo_with_oprimization_inmode(peaks_path, length, path_to_inmode, path_to_java, tmp_dir, output_path):
-    counter = 4000000
-    order = 1
+    counter = 6000000
+    order = 2
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     inmode_order = learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, path_to_java, tmp_dir)
