@@ -108,6 +108,8 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
 def de_novo_with_oprimization_bamm(peaks_path, length, meme, tmp_dir, output_dir):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
     counter = 4000000
     order = 1
     bamm_order, model_index = learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir)

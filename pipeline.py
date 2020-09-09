@@ -437,7 +437,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             inmode_order = de_novo_with_oprimization_inmode(fasta_train, 
                 motif_length, path_to_inmode, \
                 path_to_java, './inmode.tmp', inmode_model)
-            with open(models + '/bamm_model/order.txt') as file:
+            with open(models + '/inmode_model/order.txt', 'w') as file:
                 file.write(bamm_order)
             file.close()
         # BOOTSTRAP
@@ -480,7 +480,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 os.mkdir(models + '/bamm_model/')
             bamm_order = de_novo_with_oprimization_bamm(peaks_path, \
                 motif_length, meme_model, './bamm.tmp', models + '/bamm_model')
-            with open(models + '/bamm_model/order.txt') as file:
+            with open(models + '/bamm_model/order.txt', 'w') as file:
                 file.write(bamm_order)
             file.close()
         # BOOTSTRAP
