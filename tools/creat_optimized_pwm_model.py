@@ -131,7 +131,7 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
             false_scores.append(false_score)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current: and (1 - fpr_new/fpr_current) * 100 > 5:
+        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 > 5:
             sites_current = sites_new[:]
             fpr_current = fpr_new
             print(length, fpr_current)
