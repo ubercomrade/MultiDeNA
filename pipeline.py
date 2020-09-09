@@ -171,7 +171,7 @@ def get_bamm_model(models_path, fasta_train, meme_model, model_order):
 
 def calculate_thresholds_for_bamm(path_to_promoters, bamm_model_dir, thresholds_dir):
     if not os.path.isfile(thresholds_dir + '/bamm_model_thresholds.txt'):
-        print('Calculate threshold for BAMM based on promoters and fpr')
+        print('Calculate threshold for BaMM based on promoters and fpr')
         get_threshold_for_bamm(path_to_promoters,
             bamm_model_dir + '/bamm_model.ihbcp',
             bamm_model_dir + '/bamm.hbcp',
@@ -183,7 +183,7 @@ def calculate_thresholds_for_bamm(path_to_promoters, bamm_model_dir, thresholds_
 
 def calculate_thresholds_for_pwm(path_to_promoters, pwm_model_dir, thresholds_dir):
     if not os.path.isfile(thresholds_dir + '/pwm_model_thresholds.txt'):
-        print('Calculate threshold for pwm based on promoters and fpr')
+        print('Calculate threshold for PWM based on promoters and fpr')
         get_threshold_for_pwm(path_to_promoters,
                 pwm_model_dir + '/pwm_model.pwm',
                 thresholds_dir + '/pwm_model_thresholds.txt')
@@ -194,6 +194,7 @@ def calculate_thresholds_for_pwm(path_to_promoters, pwm_model_dir, thresholds_di
 
 def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresholds_dir, motif_length, path_to_inmode, path_to_java):
     if not os.path.isfile(thresholds_dir + '/inmode_model_thresholds.txt'):
+        print('Calculate threshold for InMoDe based on promoters and fpr')
         get_threshold_for_inmode(path_to_promoters,
                 inmode_model_dir + '/inmode_model.xml',
                 path_to_inmode,
