@@ -173,7 +173,7 @@ def calculate_thresholds_for_bamm(path_to_promoters, bamm_model_dir, thresholds_
     if not os.path.isfile(thresholds_dir + '/bamm_model_thresholds.txt'):
         print('Calculate threshold for BAMM based on promoters and fpr')
         get_threshold_for_bamm(path_to_promoters,
-            bamm_model_dir + '/bamm_motif_1.ihbcp',
+            bamm_model_dir + '/bamm_model.ihbcp',
             bamm_model_dir + '/bamm.hbcp',
             thresholds_dir + '/bamm_model_thresholds.txt')
     else:

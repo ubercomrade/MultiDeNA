@@ -118,4 +118,4 @@ def de_novo_with_oprimization_bamm(peaks_path, length, meme, tmp_dir, output_dir
     shutil.copy(tmp_dir + '/{}.hbcp'.format(model_index),
            output_dir + '/bamm.hbcp')
     shutil.rmtree(tmp_dir)
-    return(0)
+    return(bamm_order)
