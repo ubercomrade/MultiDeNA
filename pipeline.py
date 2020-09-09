@@ -443,6 +443,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         # BOOTSTRAP
         if bootstrap:
             print('Run bootstrap for INMODE model')
+            with open(models + '/inmode_model/order.txt') as file:
+                inmode_order = int(file.readline().strip())
+            file.close()
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
                 path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=inmode_order)
         # THRESHOLDS
@@ -486,6 +489,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         # BOOTSTRAP
         if bootstrap:
             print('Run bootstrap for BAMM model')
+            with open(models + '/bamm_model/order.txt') as file:
+                inmode_order = int(file.readline().strip())
+            file.close()
             bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
                        path_to_chipmunk, path_to_java, cpu_count, 
                        tmp_dir, counter = 5000000, order=bamm_order)
