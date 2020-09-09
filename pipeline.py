@@ -623,7 +623,6 @@ def main():
     fpr = args.fpr
     tools = args.models
     bootstrap_flag = args.bootstrap
-    print(bootstrap)
 
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk
