@@ -2,7 +2,10 @@ import random
 import shutil
 import os
 import subprocess
-from lib.common import read_peaks, sites_to_pwm, creat_background, write_fasta, complement, make_pcm, make_pfm, make_pwm, write_meme, write_pwm, write_pfm
+from lib.common import read_peaks, sites_to_pwm, creat_background, 
+write_fasta, complement, make_pcm, make_pfm, 
+make_pwm, write_meme, write_pwm, write_pfm,
+calculate_roc, calculate_particial_auc
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
@@ -94,11 +97,8 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count):
-
-    # INITIAL STEP
+def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count, tpr, pfpr):
     length = 12
-    tpr = 0.3
     true_scores = []
     false_scores = []
     peaks = read_peaks(peaks_path)
@@ -113,8 +113,11 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         true_scores.append(true_score)
     for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
         false_scores.append(false_score)
+    roc = calculate_roc(true_scores, false_scores)
     fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
-    print(length, fpr_current)
+    auc_current = calculate_particial_auc(roc[0], roc[1], pfpr)
+    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current),
+          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
     for length in range(14, 34, 2):
         true_scores = []
         false_scores = []
@@ -130,22 +133,26 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
             true_scores.append(true_score)
         for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
             false_scores.append(false_score)
+        roc = calculate_roc(true_scores, false_scores)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 > 5:
+        auc_new = calculate_particial_auc(roc[0], roc[1], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new),
+                  "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
+        if auc_new > auc_current:
             sites_current = sites_new[:]
-            fpr_current = fpr_new
-            print(length, fpr_current)
+            auc_current = auc_new
         else:
-            print(length, fpr_new)
             break
-    return(sites_current, length, fpr_current)
+    return(sites_current, length)
 
 
-def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count):
+def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, 
+    tmp_dir, output_dir, cpu_count, tpr, pfpr):
     counter = 6000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
-    sites, length, fpr_current = learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count)
+    sites, length, fpr_current = learn_optimized_pwm(peaks_path, counter, path_to_java, 
+        path_to_chipmunk, tmp_dir, cpu_count, tpr, pfpr)
     shutil.rmtree(tmp_dir)
     pcm = make_pcm(sites)
     pfm = make_pfm(pcm)

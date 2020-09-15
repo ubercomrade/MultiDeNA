@@ -3,7 +3,7 @@ import os
 import shutil
 import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
-write_table_bootstrap, creat_background, \
+creat_background, calculate_roc, calculate_particial_auc, \
 score_bamm, complement, make_pcm, make_pfm, write_meme
 from lib.speedup import creat_table_bootstrap
 
@@ -66,8 +66,7 @@ def fpr_at_tpr(true_scores, false_scores, tpr):
     return(fpr)
 
 
-def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
-    tpr = 0.3
+def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, tpr, pfpr):
     true_scores = []
     false_scores = []
     peaks = read_peaks(peaks_path)
@@ -77,10 +76,13 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
         true_scores.append(true_score)
     for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
         false_scores.append(false_score)
-    table = creat_table_bootstrap(true_scores, false_scores)
+    roc = calculate_roc(true_scores, false_scores)
     fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
+    auc_current = calculate_particial_auc(roc[0], roc[1], pfpr)
     index = 0
-    print(length, fpr_current, order)
+    print("Length {0}, Order {1};".format(length, order),
+          "pAUC at {0} = {1};".format(pfpr, auc_current),
+          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
     for extend in range(1, 20):
         true_scores = []
         false_scores = []
@@ -90,29 +92,30 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir):
             true_scores.append(true_score)
         for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length + extend):
             false_scores.append(false_score)
-        table = creat_table_bootstrap(true_scores, false_scores)
+        roc = calculate_roc(true_scores, false_scores)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 > 5:
-            fpr_current = fpr_new
+        auc_new = calculate_particial_auc(roc[0], roc[1], pfpr)
+        print("Length {0}, Order {1};".format(length + extend * 2, order),
+              "pAUC at {0} = {1};".format(pfpr, auc_new),
+              "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
+        if auc_new > auc_current:
+            auc_current = auc_new
             index += 1
-            print(length + extend * 2, fpr_current, order)
-        elif fpr_new > fpr_current and order <= 2:
-            print(length + extend * 2, fpr_new, order)
+        elif auc_new < auc_current and order <= 2:
             order += 1
         else:
-            print(length + extend * 2, fpr_new, order)
             break
     return(order, index)
 
 
-def de_novo_with_oprimization_bamm(peaks_path, length, meme, tmp_dir, output_dir):
+def de_novo_with_oprimization_bamm(peaks_path, length, meme, tmp_dir, output_dir, tpr, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     counter = 6000000
     order = 2
-    bamm_order, model_index = learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir)
+    bamm_order, model_index = learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, tpr, pfpr)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(model_index),
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(model_index),

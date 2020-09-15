@@ -409,3 +409,35 @@ def calculate_scores_bamm_thresholds(peaks, bamm, order, length_of_site, thresho
             if score >= threshold:
                 append(score)
     return(scores, number_of_sites)
+
+
+# de-novo roc and auc
+
+def calculate_roc(true_scores, false_scores):
+    tprs = []
+    fprs = []
+    true_scores.sort()
+    false_scores.sort()
+    true_scores_uniq = list(set(true_scores))
+    true_scores_uniq.sort(reverse=True)
+    false_length = len(false_scores)
+    true_length = len(true_scores)
+    for score in true_scores_uniq:
+        tpr = (true_length - bisect.bisect_right(true_scores, score)) / true_length
+        fpr = (false_length - bisect.bisect_right(false_scores, score)) / false_length
+        tprs.append(tpr)
+        fprs.append(fpr)
+    return(tprs, fprs)
+
+
+def calculate_particial_auc(tprs, fprs, pfpr):
+    auc = 0
+    tpr_old = tprs[0]
+    fpr_old = fprs[0]
+    for tpr_new, fpr_new in zip(tprs[1:], fprs[1:]):
+        if fpr_new >= pfpr:
+            break
+        auc += (tpr_new + tpr_old) * ((fpr_new - fpr_old) / 2)
+        fpr_old = fpr_new
+        tpr_old = tpr_new
+    return(auc)

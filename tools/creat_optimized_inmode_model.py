@@ -10,6 +10,7 @@ import shutil
 import glob
 from operator import itemgetter
 import argparse
+from lib.common import calculate_roc, calculate_particial_auc
 
 
 def read_peaks(path):
@@ -128,8 +129,8 @@ def complement(seq):
     return(seq.replace('A', 't').replace('T', 'a').replace('C', 'g').replace('G', 'c').upper()[::-1])
 
 
-def learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, path_to_java, tmp_dir):
-    tpr = 0.3
+def learn_optimized_inmode(peaks_path, counter, order, length, 
+    path_to_inmode, path_to_java, tmp_dir, tpr, pfpr):
     true_scores = []
     false_scores = []
     peaks = read_peaks(peaks_path)
@@ -141,8 +142,12 @@ def learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, p
         true_scores.append(true_score)
     for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'current'):
         false_scores.append(false_score)
+    roc = calculate_roc(true_scores, false_scores)
     fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
-    print(length, fpr_current, order)
+    auc_current = calculate_particial_auc(roc[0], roc[1], pfpr)
+    print("Length {0}, Order {1};".format(length, order),
+          "pAUC at {0} = {1};".format(pfpr, auc_current),
+          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
     for length in range(length + 2, 34, 2):
         true_scores = []
         false_scores = []
@@ -153,27 +158,31 @@ def learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, p
             true_scores.append(true_score)
         for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'new'):
             false_scores.append(false_score)
+        roc = calculate_roc(true_scores, false_scores)
         fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        if fpr_new < fpr_current and (1 - fpr_new/fpr_current) * 100 > 5:
+        auc_new = calculate_particial_auc(roc[0], roc[1], pfpr)
+        print("Length {0}, Order {1};".format(length, order),
+              "pAUC at {0} = {1};".format(pfpr, auc_new),
+              "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
+        if auc_new > auc_current:
             shutil.copy(tmp_dir + '/new_inmode_model.xml',
                        tmp_dir + '/current_inmode_model.xml')
-            fpr_current = fpr_new
-            print(length, fpr_current, order)
-        elif fpr_new > fpr_current and order <= 2:
-            print(length, fpr_new, order)
+            auc_current = auc_new
+        elif auc_new < auc_current and order <= 2:
             order += 1
         else:
-            print(length, fpr_new, order)
             break
     return(order)
 
 
-def de_novo_with_oprimization_inmode(peaks_path, length, path_to_inmode, path_to_java, tmp_dir, output_path):
+def de_novo_with_oprimization_inmode(peaks_path, length, path_to_inmode, 
+    path_to_java, tmp_dir, output_path, tpr, pfpr):
     counter = 6000000
     order = 2
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
-    inmode_order = learn_optimized_inmode(peaks_path, counter, order, length, path_to_inmode, path_to_java, tmp_dir)
+    inmode_order = learn_optimized_inmode(peaks_path, counter, order, length, 
+        path_to_inmode, path_to_java, tmp_dir, tpr, pfpr)
     shutil.copy(tmp_dir + '/new_inmode_model.xml', output_path)
     shutil.rmtree(tmp_dir)
     return(inmode_order)
