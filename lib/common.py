@@ -6,6 +6,7 @@ import math
 from math import log
 import re
 import random
+import bisect
 
 
 def read_seqs(path):
@@ -123,6 +124,14 @@ def write_table_bootstrap(path, data):
         writer.writeheader()
         for line in data:
             writer.writerow(line)
+    return(0)
+
+
+def write_table_bootstrap_wide(path, data):
+    with open(path, 'w') as file:
+        file.write("TPR\tFPR\n")
+        for tpr, fpr in zip(*data):
+            file.write('{0}\t{1}\n'.format(tpr, fpr))
     return(0)
 
 

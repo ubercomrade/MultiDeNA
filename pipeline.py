@@ -404,7 +404,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         # BOOTSTRAP
         if bootstrap_flag and not os.path.isfile(bootstrap + '/pwm_model.tsv'):
             print('Run bootstrap for PWM model')
-            bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', motif_length, 
+            bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', \
+                bootstrap + '/pwm_model_full.tsv', motif_length, \
                 path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
 
         # THRESHOLD
@@ -446,7 +447,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             with open(models + '/inmode_model/order.txt') as file:
                 inmode_order = int(file.readline().strip())
             file.close()
-            bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', motif_length, \
+            bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', \
+                bootstrap + '/inmode_model_full.tsv', motif_length, \
                 path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=inmode_order)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
@@ -492,7 +494,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             with open(models + '/bamm_model/order.txt') as file:
                 bamm_order = int(file.readline().strip())
             file.close()
-            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', motif_length, 
+            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', \
+                       bootstrap + '/bamm_model_full.tsv', motif_length, \
                        path_to_chipmunk, path_to_java, cpu_count, 
                        tmp_dir, counter = 5000000, order=bamm_order)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)

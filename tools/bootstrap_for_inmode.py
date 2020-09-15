@@ -5,7 +5,7 @@ import math
 import shutil
 from operator import itemgetter
 from lib.common import read_peaks, write_table_bootstrap, \
-creat_background, complement
+creat_background, complement, write_table_bootstrap_wide
 from lib.speedup import creat_table_bootstrap
 
 
@@ -103,12 +103,14 @@ def bootstrap_inmode(peaks, length_of_site, counter, path_to_inmode, path_to_jav
             false_scores.append(false_score)
         shutil.rmtree(tmp_dir)
     table = creat_table_bootstrap(true_scores, false_scores)
-    return(table)
+    table_full = calculate_roc(true_scores, false_scores)
+    return(table, table_full)
 
 
-def bootstrap_for_inmode(peaks_path, results_path, length_of_site, path_to_inmode, path_to_java, tmp_dir, counter=5000000, order=2):
+def bootstrap_for_inmode(peaks_path, results_path, results_path_wide, length_of_site, path_to_inmode, path_to_java, tmp_dir, counter=5000000, order=2):
     peaks = read_peaks(peaks_path)
-    table = bootstrap_inmode(peaks, length_of_site, counter, path_to_inmode, path_to_java, tmp_dir, order)
+    table, table_full = bootstrap_inmode(peaks, length_of_site, counter, path_to_inmode, path_to_java, tmp_dir, order)
     write_table_bootstrap(results_path, table)
+    write_table_bootstrap_wide(results_path_wide, table_full)
     return(0)
 

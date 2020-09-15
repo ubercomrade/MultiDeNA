@@ -3,7 +3,8 @@ import shutil
 import os
 import subprocess
 from lib.common import read_peaks, sites_to_pwm, \
-write_table_bootstrap, creat_background, write_fasta, complement
+write_table_bootstrap, creat_background, write_fasta, complement, \
+write_table_bootstrap_wide
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
@@ -97,14 +98,17 @@ def bootstrap_pwm(peaks, length_of_site, counter, path_to_java, path_to_chipmunk
         for false_score in false_scores_pwm(shuffled_peaks, pwm, length_of_site):
             false_scores.append(false_score)
     table = creat_table_bootstrap(true_scores, false_scores)
-    return(table)
+    table_full = calculate_roc(true_scores, false_scores)
+    return(table, table_full)
 
 
-def bootstrap_for_pwm(peaks_path, results_path, length_of_site, path_to_java, path_to_chipmunk, tmp_dir, cpu_count, counter=5000000):
+
+def bootstrap_for_pwm(peaks_path, results_path, results_path_wide, length_of_site, path_to_java, path_to_chipmunk, tmp_dir, cpu_count, counter=5000000):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     peaks = read_peaks(peaks_path)
-    table = bootstrap_pwm(peaks, length_of_site, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count)
+    table, table_full = bootstrap_pwm(peaks, length_of_site, counter, path_to_java, path_to_chipmunk, tmp_dir, cpu_count)
     write_table_bootstrap(results_path, table)
+    write_table_bootstrap_wide(results_path_wide, table_full)
     shutil.rmtree(tmp_dir)
     return(0)
