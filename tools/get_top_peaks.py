@@ -36,6 +36,18 @@ def get_top_peaks(peaks, amount, col):
     return(results)
 
 
+def get_random_peaks(peaks, amount):
+    results = random.choices(peaks, k=amount)
+    key = len(peaks[0]) < 4
+    for index, line in enumerate(results):
+        if key:
+            line.append('peaks_' + str(index))
+        else:
+            line[3] = 'peaks_' + str(index)
+    results = sorted(results, key=lambda i: int(i[3].split('_')[1]), reverse=False)
+    return(results)
+
+
 def get_legths(data):
     l = list()
     for line in data:
@@ -67,7 +79,10 @@ def write_top_peaks(path, output, col, tag, amount):
         os.mkdir(output)
     peaks = read_file(path)
     peaks = clear_peaks(peaks)
-    peaks = get_top_peaks(peaks, amount, col)
+    if len(peaks[0]) >= 5:
+        peaks = get_top_peaks(peaks, amount, col)
+    else:
+        peaks = get_random_peaks(peaks, amount)
     l = get_legths(peaks)
     write_length(output + '/' + tag + '.length.txt', l)
     with open(output + '/' + tag + '.bed', 'w') as file:

@@ -614,7 +614,7 @@ def parse_args():
                         required=False, default=None, help='path to motif database in meme format for TOMTOM. \
                         You can get motif database from http://meme-suite.org/doc/download.html')
     parser.add_argument('-tpr', '--lengthTPR', action='store', type=float, dest='tpr',
-                        required=False, default=0.3, help='TECHNICAL, Calculate fpr at the tpr for choose optimal length of model')
+                        required=False, default=0.5, help='TECHNICAL, Calculate fpr at the tpr for choose optimal length of model')
     parser.add_argument('-pfpr', '--partionalFPR', action='store', dest='pfpr', type=float,
                         required=False, default=0.001, help='TECHNICAL, Threshold for calculating pAUC')
 
@@ -650,6 +650,8 @@ def main():
         path_to_promoters = os.path.join(this_dir, "promoters", "mm10.fasta")
     elif organism == 'hg38':
         path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
+    elif organism == 'tair10':
+        path_to_promoters = os.path.join(this_dir, "promoters", "tair10.fasta")
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
