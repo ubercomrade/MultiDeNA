@@ -29,7 +29,7 @@ def get_top_peaks(peaks, amount, col):
             line[3] = 'peaks_' + str(index)
         results = sorted_peaks[:amount]
     else:
-        results = random.choices(peaks, k=amount)
+        results = random.sample(peaks, k=amount)
         for index, line in enumerate(results):
             line[3] = 'peaks_' + str(index)
         results = sorted(results, key=lambda i: int(i[3].split('_')[1]), reverse=False)
@@ -37,7 +37,7 @@ def get_top_peaks(peaks, amount, col):
 
 
 def get_random_peaks(peaks, amount):
-    results = random.choices(peaks, k=amount)
+    results = random.sample(peaks, k=amount)
     key = len(peaks[0]) < 4
     for index, line in enumerate(results):
         if key:
