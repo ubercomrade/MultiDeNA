@@ -588,7 +588,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
-    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38'], metavar='N',
+    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10'], metavar='N',
          help='promoters of organism (hg38, mm10)')
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
