@@ -11,30 +11,36 @@ import bisect
 
 def read_seqs(path):
     container = []
+    letters = {'A', 'C', 'G', 'T'}
     append = container.append
     with open(path) as file:
         for line in file:
             if not line.startswith('>'):
+                line = ''.join([l if l in letters else 'N' for l in line.strip().upper()])
                 append(line.strip().upper())
     return(container)
 
 
 def read_peaks(path):
     container = []
+    letters = {'A', 'C', 'G', 'T'}
     append = container.append
     with open(path) as file:
         for line in file:
             if not line.startswith('>'):
+                line = ''.join([l if l in letters else 'N' for l in line.strip().upper()])
                 append(line.strip().upper())
     return(container)
 
 
 def read_seqs_with_complement(path):
     container = []
+    letters = {'A', 'C', 'G', 'T'}
     append = container.append
     with open(path) as file:
         for line in file:
             if not line.startswith('>'):
+                line = ''.join([l if l in letters else 'N' for l in line.strip().upper()])
                 append(line.strip().upper())
                 append(complement(line.strip().upper()))
     return(container)
@@ -46,6 +52,7 @@ def complement(seq):
 
 def read_fasta(path):
     fasta = list()
+    letters = {'A', 'C', 'G', 'T'}
     with open(path, 'r') as file:
         for line in file:
             #print(line)
@@ -66,6 +73,7 @@ def read_fasta(path):
                 else:
                     record['strand'] = '+'
             else:
+                line = ''.join([l if l in letters else 'N' for l in line.strip().upper()])
                 record['seq'] = line.strip().upper()
                 fasta.append(record)
     file.close()
