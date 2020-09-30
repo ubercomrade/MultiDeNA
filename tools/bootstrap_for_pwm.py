@@ -4,7 +4,7 @@ import os
 import subprocess
 from lib.common import read_peaks, sites_to_pwm, \
 write_table_bootstrap, creat_background, write_fasta, complement, \
-write_table_bootstrap_wide
+write_table_bootstrap_wide, calculate_roc
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 

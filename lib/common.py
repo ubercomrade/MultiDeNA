@@ -354,7 +354,7 @@ def creat_table_bootstrap(true_scores, false_scores):
     false_scores.sort(reverse=True)
     false_length = len(false_scores)
     true_length = len(true_scores)
-    for tpr in [round(i * 0.01, 2) for i in range(5,105, 5)]:
+    for tpr in [round(i * 0.01, 2) for i in range(1, 101, 1)]:
         score = true_scores[round(true_length * tpr) - 1]
         actual_tpr = sum([1 if true_score >= score else 0 for true_score in true_scores]) / true_length
         fpr = sum([1 if false_score >= score else 0 for false_score in false_scores]) / false_length
@@ -445,6 +445,16 @@ def calculate_roc(true_scores, false_scores):
         tprs.append(tpr)
         fprs.append(fpr)
     return(tprs, fprs)
+
+
+def shorting_roc(roc):
+    table = []
+    for tpr in [round(i * 0.01, 2) for i in range(1, 100, 1)]:
+        index = bisect.bisect_left(roc[0], tpr)
+        actual_tpr = roc[0][index]
+        fpr = roc[1][index]
+        table.append({'TPR': tpr, 'ACTUAL_TPR': actual_tpr, 'FPR': fpr})
+    return(table)
 
 
 def calculate_particial_auc(tprs, fprs, pfpr):

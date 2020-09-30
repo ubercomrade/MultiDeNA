@@ -5,7 +5,8 @@ import math
 import shutil
 from operator import itemgetter
 from lib.common import read_peaks, write_table_bootstrap, \
-creat_background, complement, write_table_bootstrap_wide
+creat_background, complement, write_table_bootstrap_wide, \
+calculate_roc
 from lib.speedup import creat_table_bootstrap
 
 
