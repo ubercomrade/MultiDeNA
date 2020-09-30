@@ -449,7 +449,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             file.close()
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', \
                 bootstrap + '/inmode_model_full.tsv', motif_length, \
-                path_to_inmode, path_to_java, './inmode.tmp', counter=7000000, order=inmode_order)
+                path_to_inmode, path_to_java, './inmode.tmp', counter=1000000, order=inmode_order)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, motif_length,
