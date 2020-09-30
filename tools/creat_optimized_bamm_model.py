@@ -83,7 +83,7 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, outp
     print("Length {0}, Order {1};".format(length, order),
           "pAUC at {0} = {1};".format(pfpr, auc_current),
           "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
-    write_auc(output_dir + '/auc.txt', auc_new, length)
+    write_auc(output_dir + '/auc.txt', auc_current, length)
     for extend in range(1, 20):
         true_scores = []
         false_scores = []

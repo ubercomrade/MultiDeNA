@@ -150,7 +150,7 @@ def learn_optimized_inmode(peaks_path, counter, order, length,
     print("Length {0}, Order {1};".format(length, order),
           "pAUC at {0} = {1};".format(pfpr, auc_current),
           "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
-    write_auc(output_dir + '/auc.txt', auc_new, length)
+    write_auc(output_dir + '/auc.txt', auc_current, length)
     for length in range(length + 2, 34, 2):
         true_scores = []
         false_scores = []
