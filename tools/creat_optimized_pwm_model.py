@@ -7,7 +7,7 @@ from lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_meme, write_pwm, write_pfm, \
 calculate_roc, calculate_particial_auc, write_table_bootstrap, \
-shorting_roc
+shorting_roc, write_auc
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
@@ -97,12 +97,6 @@ def write_sites(output, tag, sites):
         for index, site in enumerate(sites):
             file.write(site + '\n')
     return(0)
-
-
-def write_auc(path, auc, length):
-    with open(path, 'a') as file:
-        file.write('{0}\t{1}\n'.format(length, auc))
-    pass
 
 
 def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr):

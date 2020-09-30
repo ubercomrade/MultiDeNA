@@ -457,6 +457,12 @@ def shorting_roc(roc):
     return(table)
 
 
+def write_auc(path, auc, length):
+    with open(path, 'a') as file:
+        file.write('{0}\t{1}\n'.format(length, auc))
+    pass
+
+
 def calculate_particial_auc(tprs, fprs, pfpr):
     auc = 0
     tpr_old = tprs[0]

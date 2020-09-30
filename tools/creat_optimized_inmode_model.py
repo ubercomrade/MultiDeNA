@@ -11,7 +11,7 @@ import glob
 from operator import itemgetter
 import argparse
 from lib.common import calculate_roc, calculate_particial_auc, \
-shorting_roc
+shorting_roc, write_auc
 
 
 def read_peaks(path):
