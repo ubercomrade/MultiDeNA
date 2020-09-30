@@ -5,7 +5,7 @@ import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
 creat_background, calculate_roc, calculate_particial_auc, \
 score_bamm, complement, make_pcm, make_pfm, write_meme, write_auc, \
-write_table_bootstrap
+write_table_bootstrap, shorting_roc
 from lib.speedup import creat_table_bootstrap
 
 
