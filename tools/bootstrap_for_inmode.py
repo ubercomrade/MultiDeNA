@@ -37,7 +37,7 @@ def true_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, tag)
             path_to_inmode, 'scan',
             'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
             'id={0}/{1}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
-    r = subprocess.run(args, capture_output=True)
+    r = subprocess.run(args, capture_output=False)
     scores = []
     table = read_inmode_bed('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED"))
     table.sort(key=itemgetter(0, 4))
@@ -65,7 +65,7 @@ def false_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, tag
             path_to_inmode, 'scan',
             'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
             'id={0}/{1}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
-    r = subprocess.run(args, capture_output=True)
+    r = subprocess.run(args, capture_output=False)
     with open('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED")) as file:
         for line in file:
             scores.append(math.log(float(line.split()[4]), 10))
