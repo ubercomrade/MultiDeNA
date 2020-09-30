@@ -30,12 +30,12 @@ def write_fasta(sites, tmp_dir, tag):
     return(0)
 
 
-def true_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, tag):
+def true_scores_inmode(path_to_inmode, path_to_java, motif_length, order, tmp_dir, tag):
     scores = []
     args = [path_to_java, '-Xmx16G', '-Xms1G', 
             '-jar',
             path_to_inmode, 'scan',
-            'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
+            'i={0}/Learned_DeNovo({1},{2},2)_motif/XML_of_DeNovo({1},{2},2)_motif.xml'.format(tmp_dir, motif_length, order),
             'id={0}/{1}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
     r = subprocess.run(args, capture_output=False)
     scores = []
@@ -58,12 +58,12 @@ def true_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, tag)
     return(scores)
 
 
-def false_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, tag):
+def false_scores_inmode(path_to_inmode, path_to_java, motif_length, order, tmp_dir, tag):
     scores = []
     args = [path_to_java, '-Xmx16G', '-Xms1G', 
             '-jar',
             path_to_inmode, 'scan',
-            'i={0}/Learned_DeNovo({1},2,2)_motif/XML_of_DeNovo({1},2,2)_motif.xml'.format(tmp_dir, motif_length),
+            'i={0}/Learned_DeNovo({1},{2},2)_motif/XML_of_DeNovo({1},{2},2)_motif.xml'.format(tmp_dir, motif_length, order),
             'id={0}/{1}.fa'.format(tmp_dir, tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
     r = subprocess.run(args, capture_output=False)
     with open('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED")) as file:
@@ -98,9 +98,9 @@ def bootstrap_inmode(peaks, length_of_site, counter, path_to_inmode, path_to_jav
         write_fasta(test_peaks, tmp_dir, "test")
         write_fasta(shuffled_peaks, tmp_dir, "shuffled")
         make_inmode(path_to_inmode, path_to_java, length_of_site, order, tmp_dir)
-        for true_score in true_scores_inmode(path_to_inmode, path_to_java, length_of_site, tmp_dir, "test"):
+        for true_score in true_scores_inmode(path_to_inmode, path_to_java, length_of_site, order, tmp_dir, "test"):
             true_scores.append(true_score)
-        for false_score in false_scores_inmode(path_to_inmode, path_to_java, length_of_site, tmp_dir, "shuffled"):
+        for false_score in false_scores_inmode(path_to_inmode, path_to_java, length_of_site, order, tmp_dir, "shuffled"):
             false_scores.append(false_score)
         shutil.rmtree(tmp_dir)
     table = creat_table_bootstrap(true_scores, false_scores)
