@@ -497,7 +497,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', \
                        bootstrap + '/bamm_model_full.tsv', motif_length, \
                        path_to_chipmunk, path_to_java, cpu_count, 
-                       tmp_dir, counter = 10000000, order=bamm_order)
+                       './bamm.tmp', counter = 10000000, order=bamm_order)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
