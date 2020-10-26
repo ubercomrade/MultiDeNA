@@ -23,7 +23,7 @@ from tools.get_top_peaks import write_top_peaks
 from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
 from tools.sites_intersection import sites_intersection
-from tools.combine_results import combine_results
+from tools.combine_results import combine_results_pro_format, combine_results_bed_format
 from tools.summary import write_peaks_classification
 from tools.scan_best_by_pwm import scan_best_by_pwm
 from tools.scan_best_by_bamm import scan_best_by_bamm
@@ -562,7 +562,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
     # COMBINE SCAN
     list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
     list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
-    combine_results(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
+    combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
+    combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
 
 
     # CALCULATE SUMMARY
