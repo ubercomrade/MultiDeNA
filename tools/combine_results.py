@@ -150,7 +150,7 @@ def combine_results_pro_format(fasta_path, list_bed_path, list_path_fpr_table, l
 def sites_to_pwm(peaks, model):
     sites = []
     for k in peaks.keys():
-        peak = bed[k]
+        peak = peaks[k]
         for i in peak:
             sites.append(i['site'].upper())
     pcm = make_pcm(sites)
