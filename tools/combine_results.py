@@ -2,6 +2,7 @@ import re
 import math
 from operator import itemgetter
 from lib.speedup import score_pwm
+from lib.common import make_pcm make_pfm make_pwm
 
 
 def read_bed(path_bed, fpr_thr_table, model):
