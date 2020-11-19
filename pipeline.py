@@ -398,7 +398,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         if not os.path.isfile(pwm_model):
             print('Training PWM model')
             de_novo_with_oprimization_pwm(fasta_train, path_to_java, path_to_chipmunk, 
-                './pwm.tmp', models + '/pwm_model/', cpu_count, tpr, pfpr)
+                models + './pwm.tmp', models + '/pwm_model/', cpu_count, tpr, pfpr)
         motif_length = get_motif_length(models)
 
         # BOOTSTRAP
@@ -406,7 +406,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             print('Run bootstrap for PWM model')
             bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', \
                 bootstrap + '/pwm_model_full.tsv', motif_length, \
-                path_to_java, path_to_chipmunk, './pwm.tmp', cpu_count, counter=10000000)
+                path_to_java, path_to_chipmunk, models + './pwm.tmp', cpu_count, counter=10000000)
 
         # THRESHOLD
         calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
@@ -437,7 +437,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 os.mkdir(models + '/inmode_model/')
             inmode_order = de_novo_with_oprimization_inmode(fasta_train, 
                 motif_length, path_to_inmode, \
-                path_to_java, './inmode.tmp', inmode_model, tpr, pfpr)
+                path_to_java, models + './inmode.tmp', inmode_model, tpr, pfpr)
             with open(models + '/inmode_model/order.txt', 'w') as file:
                 file.write(str(inmode_order))
             file.close()
@@ -449,7 +449,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             file.close()
             bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', \
                 bootstrap + '/inmode_model_full.tsv', motif_length, \
-                path_to_inmode, path_to_java, './inmode.tmp', counter=10000000, order=inmode_order)
+                path_to_inmode, path_to_java, models + './inmode.tmp', counter=10000000, order=inmode_order)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, motif_length,
@@ -483,7 +483,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
             bamm_order = de_novo_with_oprimization_bamm(fasta_train, \
-                motif_length, meme_model, './bamm.tmp', models + '/bamm_model',
+                motif_length, meme_model, models + './bamm.tmp', models + '/bamm_model',
                 tpr, pfpr)
             with open(models + '/bamm_model/order.txt', 'w') as file:
                 file.write(str(bamm_order))
@@ -497,7 +497,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', \
                        bootstrap + '/bamm_model_full.tsv', motif_length, \
                        path_to_chipmunk, path_to_java, cpu_count, 
-                       './bamm.tmp', counter = 10000000, order=bamm_order)
+                       models + './bamm.tmp', counter = 10000000, order=bamm_order)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
