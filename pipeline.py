@@ -462,7 +462,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             scan_best_by_inmode(scan_best + '/inmode.scores.txt',
                 inmode_model,
                 fasta_test,
-                path_to_inmode, path_to_java)
+                path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
         else:
@@ -563,7 +563,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
     list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
     list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
     combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
-    combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
+    #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
 
 
     # CALCULATE SUMMARY

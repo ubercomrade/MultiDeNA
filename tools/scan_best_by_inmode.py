@@ -50,8 +50,7 @@ def parse_inmode_results(inmode_bed, out):
     return(container)
 
 
-def scan_best_by_inmode(out, path_to_model, fasta_path, path_to_inmode, path_to_java):
-    tmp_dir = os.getcwd() + '/tmp'
+def scan_best_by_inmode(out, path_to_model, fasta_path, path_to_inmode, path_to_java, tmp_dir):
     inmode_scan(path_to_inmode, path_to_java, fasta_path, path_to_model, tmp_dir)
     inmode_bed = glob.glob(tmp_dir + '/*.BED')[0]
     parse_inmode_results(inmode_bed, out)
