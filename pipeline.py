@@ -436,7 +436,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
         else:
-            print('PWM model has poor table with thresholds')
+            print('WARNING! PWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
                         scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check)
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
@@ -444,8 +444,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                  fasta_test)
             extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
-            os.remove(scan + '/inmode_{:.2e}.bed')
-            open(scan + '/inmode_{:.2e}.bed'.format(fpr), 'w').close()
+            os.remove(scan + '/pwm_{:.2e}.bed'.format(fpr))
+            open(scan + '/pwm_{:.2e}.bed'.format(fpr), 'w').close()
     ### END PWM ###
 
 
@@ -489,7 +489,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
         else:
-            print('INMODE model has poor table with thresholds')
+            print('WARNING! INMODE model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
             scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
             check, path_to_java, path_to_inmode, path_to_promoters)
@@ -499,7 +499,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
-            os.remove(scan + '/inmode_{:.2e}.bed')
+            os.remove(scan + '/inmode_{:.2e}.bed'.format(fpr))
             open(scan + '/inmode_{:.2e}.bed'.format(fpr), 'w').close()
     ### END INMODE ###
 
@@ -551,7 +551,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
                 fasta_test)
             extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
             write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
-            os.remove(scan + '/bamm_{:.2e}.bed')
+            os.remove(scan + '/bamm_{:.2e}.bed'.format(fpr))
             open(scan + '/bamm_{:.2e}.bed'.format(fpr), 'w').close()
     ### END BAMM ###
 
@@ -568,10 +568,14 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         clear_from_n(fasta_train, sitega_model + '/train_sample_no_n.fa')
         # TRAIN SITEGA
         print('Training SITEGA model')
-        length, lpd = get_sitega_model(models, fasta_train)
+        sitega_length, lpd = get_sitega_model(models, sitega_length, fasta_train)
         # BOOTSTRAP
         if bootstrap_flag and not os.path.isfile(bootstrap + '/sitega_model.tsv'):
             print('Run bootstrap for SiteGA model')
+            bootstrap_for_sitega(sitega_model + '/train_sample_no_n.fa', 
+                bootstrap + '/sitega_model.tsv',
+                bootstrap + '/sitega_model_full.tsv',
+                sitega_length, lpd, bootstrap + '/sitega.tmp/', counter=5000000)
         calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds)
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
@@ -581,9 +585,14 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
             write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
         else:
-            tools.remove('sitega')
-            print('SITEGA model has poor table with thresholds')
-            print('GO to next model')
+            print('WARNING! SiteGA model has poor table with thresholds')
+            print('Best FPR for model is {}'.format(check))
+            scan_peaks_by_sitega(fasta_test, sitega_model, scan, 
+                sitega_threshold_table, check, scan_best_dir)
+            extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
+            write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
+            os.remove(scan + '/sitega_{:.2e}.bed'.format(fpr))
+            open(scan + '/sitega_{:.2e}.bed'.format(fpr), 'w').close()
     ### END SITEGA ###
 
 
@@ -603,10 +612,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
     combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
     #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
 
-
     # CALCULATE SUMMARY
     write_peaks_classification(results + '/combined_scan.pro', tools, results + '/peaks_classification.tsv')
-
 
     # TOMTOM
     if path_to_mdb != None:   
