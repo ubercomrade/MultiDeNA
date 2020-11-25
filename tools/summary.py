@@ -22,14 +22,24 @@ def read_profile(path):
     return(container)
 
 
-def get_tools_combinations(profile):
-    tools = []
-    for key in profile.keys():
-        for line in profile[key]:
-            tool = line['model']
-            if not tool in tools:
-                tools.append(tool)
-            else: continue
+# def get_tools_combinations(profile):
+#     tools = []
+#     for key in profile.keys():
+#         for line in profile[key]:
+#             tool = line['model']
+#             if not tool in tools:
+#                 tools.append(tool)
+#             else: continue
+#     container = []
+#     for i in range(1, len(tools) + 1):
+#         container += list(itertools.combinations(tools, i))
+#     combinations = []
+#     for i in container:
+#         combinations.append(sorted(list(i)))
+#    return(combinations)
+
+
+def get_tools_combinations(tools):
     container = []
     for i in range(1, len(tools) + 1):
         container += list(itertools.combinations(tools, i))
@@ -53,10 +63,10 @@ def peak_classifier(profile, combinations):
     return(statistics)
 
 
-def write_peaks_classification(profile_path, write_path):
+def write_peaks_classification(profile_path, tools, write_path):
     profile = read_profile(profile_path)
     number_of_peaks = len([k for k in profile.keys()])
-    combinations = get_tools_combinations(profile)
+    combinations = get_tools_combinations(tools)
     statistics = peak_classifier(profile, combinations)
     header = []
     for i in combinations:
