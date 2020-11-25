@@ -438,7 +438,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         else:
             print('WARNING! PWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-                        scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check)
+            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check)
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
                  fasta_test)
