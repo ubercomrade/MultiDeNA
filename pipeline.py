@@ -279,14 +279,14 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
     return(0)
 
 
-def scan_peaks_by_sitega(fasta_test, model_path, scan, threshold_table_path, fpr, scan_best_dir):
+def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_table_path, fpr, scan_best_dir):
     sitega_scan_tmp_dir = scan + '/sitega.tmp/'
     sitega_scan_path = scan + '/sitega_{:.2e}.bed'.format(fpr)
     thr_sitega = get_threshold(threshold_table_path, fpr)
     if not os.path.exists(sitega_scan_tmp_dir):
         os.mkdir(sitega_scan_tmp_dir)
     print('Scan peaks by SiteGA with FPR: {0} THR: {1}'.format(fpr, thr_sitega))
-    args = ['/Users/tsukanov/Documents/PhD/Programs/sitega/src/andy1_mat',
+    args = ['andy1_mat',
         '{}'.format(fasta_test),
         '{}'.format(model_path),
         '{}'.format(threshold_table_path),
@@ -294,7 +294,7 @@ def scan_peaks_by_sitega(fasta_test, model_path, scan, threshold_table_path, fpr
        '{}'.format(sitega_scan_tmp_dir + '/sitega.pro')]
     r = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_scan_tmp_dir + '/sitega.pro',
-                         sitega_scan_path)
+                         sitega_scan_path, sitega_length)
     shutil.copyfile(fasta_test + '_bestscosg', scan_best_dir + '/sitega.scores.txt')
     os.system("rm -r {}".format(sitega_scan_tmp_dir))
     return(0)
@@ -570,7 +570,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
             file.readline()
             lpd = int(file.readline().strip().split()[0])
-            length = int(file.readline().strip().split()[0])
+            sitega_length = int(file.readline().strip().split()[0])
         file.close()
         # BOOTSTRAP
         if bootstrap_flag and not os.path.isfile(bootstrap + '/sitega_model.tsv'):
@@ -583,8 +583,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_sitega(fasta_test, sitega_model_path, scan, 
-                sitega_threshold_table, fpr, scan_best)
+            scan_peaks_by_sitega(fasta_test, sitega_model_path, sitega_length,
+                scan, sitega_threshold_table, fpr, scan_best)
             extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
             write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
         else:

@@ -19,7 +19,8 @@ TOOLS:
 MODELS:
   * BaMM: https://github.com/soedinglab/BaMMmotif2  
   * ChIPmunk: http://autosome.ru/ChIPMunk/  
-  * InMoDe: http://jstacs.de/index.php/InMoDe
+  * InMoDe: http://jstacs.de/index.php/InMoDe (JAVA8 is nedeed)
+  * SiteGA: https://github.com/parthian-sterlet/sitega
 
 OPTIONAL:
   * TomTom: http://meme-suite.org/index.html

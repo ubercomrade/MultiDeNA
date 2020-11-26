@@ -4,9 +4,8 @@ import re
 import csv
 
 
-def parse_sitega(path):
+def parse_sitega(path, length):
     sitega = list()
-    length = 30
     with open(path, 'r') as file:
         for line in file:
             #print(line)
@@ -53,6 +52,6 @@ def write_bed(path_out, data):
     return(0)
 
 
-def parse_sitega_results(path_in, path_out):
-    sitega = parse_sitega(path_in)
+def parse_sitega_results(path_in, path_out, length):
+    sitega = parse_sitega(path_in, length)
     write_bed(path_out, sitega)
