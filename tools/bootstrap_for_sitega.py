@@ -107,6 +107,8 @@ def support(tmp_dir, peaks, length_of_site, lpd, counter):
 def bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir):
     true_scores = []
     false_scores = []
+    if tmp_dir[-1] == '/':
+        tmp_dir = tmp_dir[:-1]
     tmp_dirs = ["{0}_{1}".format(tmp_dir, i) for i in range(5)]
     with Pool(5) as p:
         results = p.map(functools.partial(support, peaks=peaks, length_of_site=length_of_site, lpd=lpd, counter=counter),
