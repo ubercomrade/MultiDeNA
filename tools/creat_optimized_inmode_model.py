@@ -10,7 +10,7 @@ import shutil
 import glob
 from operator import itemgetter
 import argparse
-from lib.common import calculate_roc, calculate_particial_auc, \
+from lib.common import calculate_particial_auc, \
 write_auc, calculate_merged_roc, write_roc, calculate_fprs
 
 

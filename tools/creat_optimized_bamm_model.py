@@ -3,7 +3,7 @@ import os
 import shutil
 import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
-creat_background, calculate_roc, calculate_particial_auc, \
+creat_background, calculate_particial_auc, \
 score_bamm, complement, make_pcm, make_pfm, write_meme, write_auc, \
 write_auc, calculate_merged_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap
