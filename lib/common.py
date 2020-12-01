@@ -3,6 +3,7 @@ import itertools
 import os
 import sys
 import math
+import coollections
 from math import log
 import re
 import random
@@ -125,21 +126,22 @@ def creat_background(peaks, length_of_site, counter):
     return(shuffled_peaks)
 
 
-def write_table_bootstrap(path, data):
-    with open(path, 'w') as csvfile:
-        fieldnames = data[0].keys()
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
-        writer.writeheader()
-        for line in data:
-            writer.writerow(line)
-    return(0)
+# def write_table_bootstrap(path, data):
+#     with open(path, 'w') as csvfile:
+#         fieldnames = data[0].keys()
+#         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
+#         writer.writeheader()
+#         for line in data:
+#             writer.writerow(line)
+#     return(0)
 
 
-def write_table_bootstrap_wide(path, data):
+def write_roc(path, data):
+    header = list(data.keys())
     with open(path, 'w') as file:
-        file.write("TPR\tFPR\n")
-        for tpr, fpr in zip(*data):
-            file.write('{0}\t{1}\n'.format(tpr, fpr))
+        file.write('\t'.join(header) + '\n')
+        for i in zip(*data.values()):
+            file.write('\t'.join((map(str,i))) + '\n')
     return(0)
 
 
@@ -430,7 +432,43 @@ def calculate_scores_bamm_thresholds(peaks, bamm, order, length_of_site, thresho
 
 # de-novo roc and auc
 
-def calculate_roc(true_scores, false_scores):
+
+def calculate_short_roc(fprs, step=1):
+    table = {'TPR': [0], 'FPR': [0]}#, 'SITES': [0]}
+    current_number_of_sites = 0
+    total_number_of_sites = len(fprs)
+    for i in range(1, 100, step):
+        position = round(total_number_of_sites * (i / 100))
+        table['TPR'].append(i / 100)
+        table['FPR'].append(fprs[position])
+        #table['SITES'].append(len(fprs[:position]))
+    return(table)
+
+
+def calculate_fool_roc(fprs):
+    table = {'TPR': [0], 'FPR': [0]}#, 'SITES': [0]}
+    current_number_of_sites = 0
+    total_number_of_sites = len(fprs)
+    for i in range(1, total_number_of_sites):
+            table['TPR'].append(i / total_number_of_sites)
+            table['FPR'].append(fprs[i])
+            #table['SITES'].append(i)
+    return(table)
+
+
+def calculate_merged_roc(fprs):
+    table = {'TPR': [0], 'FPR': [0], 'SITES': [0]}
+    current_number_of_sites = 0
+    total_number_of_sites = len(fprs)
+    for i in range(total_number_of_sites):
+        if fprs[i] > fprs[i - 1]:
+            table['TPR'].append(i / total_number_of_sites)
+            table['FPR'].append(fprs[i - 1])
+            table['SITES'].append(i)
+    return(table)
+
+
+def calculate_roc_train(true_scores, false_scores):
     tprs = []
     fprs = []
     true_scores.sort()
@@ -442,9 +480,43 @@ def calculate_roc(true_scores, false_scores):
     for score in true_scores_uniq:
         tpr = (true_length - bisect.bisect_right(true_scores, score)) / true_length
         fpr = (false_length - bisect.bisect_right(false_scores, score)) / false_length
+        if fpr == 0:
+            fpr = 0.5 / false_length
         tprs.append(tpr)
         fprs.append(fpr)
     return(tprs, fprs)
+
+
+def calculate_fprs(true_scores, false_scores):
+    fprs = []
+    false_scores.sort()
+    number_of_sites = len(false_scores)
+    true_scores_uniq = list(set(true_scores))
+    true_scores_uniq.sort(reverse=True)
+    for score in true_scores_uniq:
+        fpr = (false_length - bisect.bisect_right(false_scores, score)) / number_of_sites
+        if fpr == 0:
+            fprs.append(0.5 / number_of_sites)
+        else:
+            fprs.append(fpr)
+    return(fprs)
+
+
+def calculate_roc_bootstrap(fprs):
+    table = [{'TPR': 0, 'FPR': 0, 'SITES': 0}]
+    current_number_of_sites = 0
+    total_number_of_sites = len(fprs)
+    uniq_fprs = list(set(fprs))
+    uniq_fprs.sort(reverse=True)
+    counter = coollections.Counter(fprs)
+    for val in enumerate(uniq_fprs):
+        line = {}
+        current_number_of_sites += counter[val]
+        line['TPR'] = (current_number_of_sites / total_number_of_sites)
+        line['FPR'] = (val)
+        line['SITES'] = current_number_of_sites
+        table.append(line)
+    return(table)
 
 
 def shorting_roc(roc):

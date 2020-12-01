@@ -11,7 +11,7 @@ import glob
 from operator import itemgetter
 import argparse
 from lib.common import calculate_roc, calculate_particial_auc, \
-shorting_roc, write_auc, write_table_bootstrap
+write_auc, calculate_merged_roc, write_roc, calculate_fprs
 
 
 def read_peaks(path):
@@ -144,12 +144,10 @@ def learn_optimized_inmode(peaks_path, counter, order, length,
         true_scores.append(true_score)
     for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'current'):
         false_scores.append(false_score)
-    roc_current = calculate_roc(true_scores, false_scores)
-    fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
-    auc_current = calculate_particial_auc(roc_current[0], roc_current[1], pfpr)
-    print("Length {0}, Order {1};".format(length, order),
-          "pAUC at {0} = {1};".format(pfpr, auc_current),
-          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
+    fprs = calculate_fprs(true_scores, false_scores)
+    roc_current = calculate_merged_roc(fprs)
+    auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
+    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
     write_auc(output_dir + '/auc.txt', auc_current, length)
     for length in range(length + 2, 34, 2):
         true_scores = []
@@ -161,12 +159,10 @@ def learn_optimized_inmode(peaks_path, counter, order, length,
             true_scores.append(true_score)
         for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'new'):
             false_scores.append(false_score)
-        roc_new = calculate_roc(true_scores, false_scores)
-        fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        auc_new = calculate_particial_auc(roc_new[0], roc_new[1], pfpr)
-        print("Length {0}, Order {1};".format(length, order),
-              "pAUC at {0} = {1};".format(pfpr, auc_new),
-              "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
+        fprs = calculate_fprs(true_scores, false_scores)
+        roc_new = calculate_merged_roc(fprs)
+        auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
         write_auc(output_dir + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             shutil.copy(tmp_dir + '/new_inmode_model.xml',
@@ -176,8 +172,7 @@ def learn_optimized_inmode(peaks_path, counter, order, length,
             order += 1
         else:
             break
-    roc = shorting_roc(roc_current)
-    write_table_bootstrap(output_dir + "/training_bootstrap.txt", roc)
+    write_roc(output_dir + "/training_bootstrap.txt", roc_current)
     return(order)
 
 

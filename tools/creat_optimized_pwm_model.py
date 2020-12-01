@@ -7,7 +7,7 @@ from lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_meme, write_pwm, write_pfm, \
 calculate_roc, calculate_particial_auc, write_table_bootstrap, \
-shorting_roc, write_auc
+write_auc, calculate_merged_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
@@ -116,11 +116,10 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         true_scores.append(true_score)
     for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
         false_scores.append(false_score)
-    roc_current = calculate_roc(true_scores, false_scores)
-    fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
-    auc_current = calculate_particial_auc(roc_current[0], roc_current[1], pfpr)
-    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current),
-          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
+    fprs = calculate_fprs(true_scores, false_scores)
+    roc_current = calculate_merged_roc(fprs)
+    auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
+    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
     write_auc(output_dir + '/auc.txt', auc_current, length)
     for length in range(14, 34, 2):
         true_scores = []
@@ -137,11 +136,10 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
             true_scores.append(true_score)
         for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
             false_scores.append(false_score)
-        roc_new = calculate_roc(true_scores, false_scores)
-        fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        auc_new = calculate_particial_auc(roc_new[0], roc_new[1], pfpr)
-        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new),
-                  "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
+        fprs = calculate_fprs(true_scores, false_scores)
+        roc_new = calculate_merged_roc(fprs)
+        auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
         write_auc(output_dir + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             sites_current = sites_new[:]
@@ -149,8 +147,7 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
             roc_current = roc_new
         else:
             break
-    roc = shorting_roc(roc_current)
-    write_table_bootstrap(output_dir + "/training_bootstrap.txt", roc)
+    write_roc(output_dir + "/training_bootstrap.txt", roc_current)
     return(sites_current, length)
 
 

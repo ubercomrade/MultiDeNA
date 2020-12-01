@@ -5,7 +5,7 @@ import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
 creat_background, calculate_roc, calculate_particial_auc, \
 score_bamm, complement, make_pcm, make_pfm, write_meme, write_auc, \
-write_table_bootstrap, shorting_roc
+write_auc, calculate_merged_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap
 
 
@@ -77,14 +77,12 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, outp
         true_scores.append(true_score)
     for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
         false_scores.append(false_score)
-    roc_current = calculate_roc(true_scores, false_scores)
-    fpr_current = fpr_at_tpr(true_scores, false_scores, tpr)
-    auc_current = calculate_particial_auc(roc_current[0], roc_current[1], pfpr)
-    index = 0
-    print("Length {0}, Order {1};".format(length, order),
-          "pAUC at {0} = {1};".format(pfpr, auc_current),
-          "FPR = {0} at TPR = {1}".format(fpr_current, tpr))
+    fprs = calculate_fprs(true_scores, false_scores)
+    roc_current = calculate_merged_roc(fprs)
+    auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
+    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
     write_auc(output_dir + '/auc.txt', auc_current, length)
+    index = 0
     for extend in range(1, 20):
         true_scores = []
         false_scores = []
@@ -94,13 +92,11 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, outp
             true_scores.append(true_score)
         for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length + extend):
             false_scores.append(false_score)
-        roc_new = calculate_roc(true_scores, false_scores)
-        fpr_new = fpr_at_tpr(true_scores, false_scores, tpr)
-        auc_new = calculate_particial_auc(roc_new[0], roc_new[1], pfpr)
-        print("Length {0}, Order {1};".format(length + extend * 2, order),
-              "pAUC at {0} = {1};".format(pfpr, auc_new),
-              "FPR = {0} at TPR = {1}".format(fpr_new, tpr))
-        write_auc(output_dir + '/auc.txt', auc_new, length + extend * 2)
+        fprs = calculate_fprs(true_scores, false_scores)
+        roc_new = calculate_merged_roc(fprs)
+        auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
+        write_auc(output_dir + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             auc_current = auc_new
             index += 1
@@ -108,8 +104,7 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, outp
             order += 1
         else:
             break
-    roc = shorting_roc(roc_current)
-    write_table_bootstrap(output_dir + "/training_bootstrap.txt", roc)
+    write_roc(output_dir + "/training_bootstrap.txt", roc_current)
     return(order, index)
 
 

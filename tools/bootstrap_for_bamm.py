@@ -3,9 +3,8 @@ import os
 import shutil
 import random
 from lib.common import read_peaks, write_fasta, read_bamm, \
-write_table_bootstrap, creat_background, \
-score_bamm, complement, make_pcm, make_pfm, write_meme, \
-write_table_bootstrap_wide, calculate_roc
+creat_background, score_bamm, complement, make_pcm, make_pfm, write_meme, \
+write_roc, calculate_fprs, calculate_short_roc, calculate_merged_roc
 from lib.speedup import creat_table_bootstrap
 
 
@@ -91,14 +90,15 @@ def true_scores_bamm(peaks, bamm, order, length_of_site):
 
 
 def bootstrap_bamm(peaks, length_of_site, counter, order, path_to_chipmunk, path_to_java, cpu_count, tmp_dir):
-    true_scores = []
-    false_scores = []
+    fpr_of_every_site = []
     number_of_peaks = len(peaks)
     background = {'A':0.25, 'C':0.25, 'G':0.25, 'T':0.25}
     for i in range(5):
-        train_peaks = random.choices(peaks, k=round(0.9 * number_of_peaks))
+        true_scores = []
+        false_scores = []
+        train_peaks = random.sample(peaks, k=round(0.9 * number_of_peaks))
         test_peaks = [peak for peak in peaks if not peak in train_peaks]
-        shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 5)
+        shuffled_peaks = creat_background(test_peaks, length_of_site, counter)
         write_fasta(train_peaks, tmp_dir + '/train.fasta')
         run_chipmunk(path_to_java, path_to_chipmunk,
                     tmp_dir + '/train.fasta', tmp_dir + '/chipmunk_results.txt',
@@ -114,20 +114,22 @@ def bootstrap_bamm(peaks, length_of_site, counter, order, path_to_chipmunk, path
             true_scores.append(true_score)
         for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length_of_site):
             false_scores.append(false_score)
-    table = creat_table_bootstrap(true_scores, false_scores)
-    table_full = calculate_roc(true_scores, false_scores)
-    return(table, table_full)
+        fpr_of_every_site += calculate_fprs(true_scores, false_scores)
+    fpr_of_every_site.sort()
+    return(fpr_of_every_site)
 
 
 def bootstrap_for_bamm(peaks_path, results_path, results_path_wide, length_of_site, 
                        path_to_chipmunk, path_to_java, cpu_count, 
-                       tmp_dir, counter = 5000000, order=2):
+                       tmp_dir, counter=5000000, order=2):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     peaks = read_peaks(peaks_path)
-    table, table_full = bootstrap_bamm(peaks, length_of_site, counter, order, path_to_chipmunk, path_to_java, cpu_count, tmp_dir)
-    write_table_bootstrap(results_path, table)
-    write_table_bootstrap_wide(results_path_wide, table_full)
+    fprs = bootstrap_bamm(peaks, length_of_site, counter, order, path_to_chipmunk, path_to_java, cpu_count, tmp_dir)
+    short_roc = calculate_short_roc(fprs, step=1)
+    merged_roc = calculate_merged_roc(fprs)
+    write_roc(results_path, short_roc)
+    write_roc(results_path_wide, merged_roc)
     shutil.rmtree(tmp_dir)
     return(0)
 
