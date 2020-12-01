@@ -3,7 +3,7 @@ import itertools
 import os
 import sys
 import math
-import coollections
+import collections
 from math import log
 import re
 import random
