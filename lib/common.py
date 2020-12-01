@@ -494,7 +494,7 @@ def calculate_fprs(true_scores, false_scores):
     true_scores_uniq = list(set(true_scores))
     true_scores_uniq.sort(reverse=True)
     for score in true_scores_uniq:
-        fpr = (false_length - bisect.bisect_right(false_scores, score)) / number_of_sites
+        fpr = (number_of_sites - bisect.bisect_right(false_scores, score)) / number_of_sites
         if fpr == 0:
             fprs.append(0.5 / number_of_sites)
         else:
