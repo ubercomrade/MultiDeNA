@@ -8,7 +8,7 @@ import functools
 from multiprocessing import Pool
 from operator import itemgetter
 from tools.clear_from_n import clear_from_n
-from lib.common import read_peaks \
+from lib.common import read_peaks, \
 creat_background, complement, \
 write_roc, calculate_fprs, \
 calculate_short_roc, calculate_merged_roc
