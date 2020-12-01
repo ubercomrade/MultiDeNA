@@ -6,8 +6,7 @@ import bisect
 from lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_meme, write_pwm, write_pfm, \
-calculate_particial_auc, write_table_bootstrap, \
-write_auc, calculate_merged_roc, write_roc, calculate_fprs
+calculate_particial_auc, write_auc, calculate_merged_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
