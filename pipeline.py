@@ -10,16 +10,20 @@ import fnmatch
 from operator import itemgetter
 from shutil import copyfile
 from tools.creat_optimized_pwm_model import de_novo_with_oprimization_pwm
+from tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
 from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
 from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
 from tools.get_threshold_for_bamm import get_threshold_for_bamm
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
+from tools.get_threshold_for_dipwm import get_threshold_for_dipwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
 from tools.bootstrap_for_pwm import bootstrap_for_pwm
+from tools.bootstrap_for_dipwm import bootstrap_for_dipwm
 from tools.bootstrap_for_bamm import bootstrap_for_bamm
 from tools.bootstrap_for_inmode import bootstrap_for_inmode
 from tools.bootstrap_for_sitega import bootstrap_for_sitega
 from tools.scan_by_pwm import scan_by_pwm
+from tools.scan_by_dipwm import scan_by_dipwm
 from tools.scan_by_bamm import scan_by_bamm
 from tools.get_top_peaks import write_top_peaks
 from tools.parse_chipmunk_results import parse_chipmunk_results
@@ -28,6 +32,7 @@ from tools.sites_intersection import sites_intersection
 from tools.combine_results import combine_results_pro_format, combine_results_bed_format
 from tools.summary import write_peaks_classification
 from tools.scan_best_by_pwm import scan_best_by_pwm
+from tools.scan_best_by_dipwm import scan_best_by_dipwm
 from tools.scan_best_by_bamm import scan_best_by_bamm
 from tools.scan_best_by_inmode import scan_best_by_inmode
 from tools.extract_sites import extract_sites
@@ -444,6 +449,48 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             os.remove(scan + '/pwm_{:.2e}.bed'.format(check))
             open(scan + '/pwm_{:.2e}.bed'.format(fpr), 'w').close()
     ### END PWM ###
+
+
+    ### CALCULATE diPWM MODEL ###
+    if 'dipwm' in tools:
+        dipwm_model = models + '/dipwm_model/dipwm_model.dipwm'
+        dipwm_threshold_table = thresholds + '/dipwm_model_thresholds.txt'
+        if not os.path.isfile(dipwm_model):
+            print('Training diPWM model')
+            de_novo_with_oprimization_dipwm(fasta_train, path_to_java, path_to_chipmunk, 
+                models + '/dipwm.tmp', models + '/dipwm_model/', cpu_count, tpr, pfpr)
+        motif_length = get_motif_length(models)
+
+        # BOOTSTRAP
+        if bootstrap_flag and not os.path.isfile(bootstrap + '/dipwm_model.tsv'):
+            print('Run bootstrap for diPWM model')
+            bootstrap_for_dipwm(fasta_train, bootstrap + '/dipwm_model.tsv', \
+                bootstrap + '/dipwm_model_full.tsv', motif_length, \
+                path_to_java, path_to_chipmunk, models + '/dipwm.tmp', cpu_count, counter=10000000)
+
+        # THRESHOLD
+        calculate_thresholds_for_dipwm(path_to_promoters, models + '/dipwm_model', thresholds)
+        check = check_threshold_table(dipwm_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr)
+            scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
+                 dipwm_model,
+                 fasta_test)
+            extract_sites(scan + '/dipwm_{:.2e}.bed'.format(fpr), tomtom + '/dipwm.sites.txt')
+            write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
+        else:
+            print('WARNING! diPWM model has poor table with thresholds')
+            print('Best FPR for model is {}'.format(check))
+            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, check)
+            scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
+                 dipwm_model,
+                 fasta_test)
+            extract_sites(scan + '/dipwm_{:.2e}.bed'.format(check), tomtom + '/dipwm.sites.txt')
+            write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
+            os.remove(scan + '/dipwm_{:.2e}.bed'.format(check))
+            open(scan + '/dipwm_{:.2e}.bed'.format(fpr), 'w').close()
+    ### END diPWM ###
 
 
     ### CALCULATE INMODE MODEL WITH EM ALG ###

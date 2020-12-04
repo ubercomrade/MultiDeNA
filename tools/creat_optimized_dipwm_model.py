@@ -3,16 +3,16 @@ import shutil
 import os
 import subprocess
 import bisect
-from lib.common import read_peaks, sites_to_pwm, creat_background, \
+from lib.common import read_peaks, sites_to_dipwm, creat_background, \
 write_fasta, complement, make_dipcm, make_dipfm, \
 make_dipwm, write_dipwm, write_dipfm, \
 calculate_particial_auc, write_auc, calculate_merged_roc, write_roc, calculate_fprs
-from lib.speedup import creat_table_bootstrap, score_pwm
+from lib.speedup import creat_table_bootstrap, score_dipwm
 
 
 def run_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_length_start, motif_length_end, cpu_count):
     args = [path_to_java, '-cp', path_to_chipmunk,
-                   'ru.autosome.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
+                   'ru.autosome.di.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
                    's:{}'.format(fasta_path),
                   '100', '10', '1', str(cpu_count), 'random']
     p = subprocess.run(args, shell=False, capture_output=True)
@@ -46,7 +46,7 @@ def parse_chipmunk(path):
     return(seqs)
 
 
-def false_scores_pwm(peaks, pwm, length_of_site):
+def false_scores_dipwm(peaks, dipwm, length_of_site):
     false_scores = []
     append = false_scores.append
     for peak in peaks:
@@ -57,12 +57,12 @@ def false_scores_pwm(peaks, pwm, length_of_site):
             site = peak[i:length_of_site + i]
             if 'N' in site:
                 continue
-            score = score_pwm(site, pwm)
+            score = score_dipwm(site, dipwm)
             false_scores.append(score)
     return(false_scores)
 
 
-def true_scores_pwm(peaks, pwm, length_of_site):
+def true_scores_dipwm(peaks, dipwm, length_of_site):
     true_scores = []
     for peak in peaks:
         complement_peak = complement(peak)
@@ -73,7 +73,7 @@ def true_scores_pwm(peaks, pwm, length_of_site):
             site = full_peak[i:length_of_site + i]
             if 'N' in site:
                 continue
-            score = score_pwm(site, pwm)
+            score = score_dipwm(site, dipwm)
             if score >= best:
                 best = score
         true_scores.append(best)
@@ -98,7 +98,7 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr):
+def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr):
     length = 12
     true_scores = []
     false_scores = []
@@ -110,10 +110,10 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
                  length, length, cpu_count)
     sites_current = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
     sites_current = list(set(sites_current))
-    pwm = sites_to_pwm(sites_current)
-    for true_score in true_scores_pwm(peaks, pwm, length):
+    dipwm = sites_to_dipwm(sites_current)
+    for true_score in true_scores_dipwm(peaks, dipwm, length):
         true_scores.append(true_score)
-    for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
+    for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
         false_scores.append(false_score)
     fprs = calculate_fprs(true_scores, false_scores)
     roc_current = calculate_merged_roc(fprs)
@@ -130,10 +130,10 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
                      length, length, cpu_count)
         sites_new = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
         sites_new = list(set(sites_new))
-        pwm = sites_to_pwm(sites_new)
-        for true_score in true_scores_pwm(peaks, pwm, length):
+        dipwm = sites_to_dipwm(sites_new)
+        for true_score in true_scores_dipwm(peaks, dipwm, length):
             true_scores.append(true_score)
-        for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
+        for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
             false_scores.append(false_score)
         fprs = calculate_fprs(true_scores, false_scores)
         roc_new = calculate_merged_roc(fprs)
@@ -150,7 +150,7 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
     return(sites_current, length)
 
 
-def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, 
+def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk, 
     tmp_dir, output_dir, cpu_count, tpr, pfpr):
     counter = 6000000
     if not os.path.exists(tmp_dir):
@@ -158,21 +158,20 @@ def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk,
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
-    sites, length = learn_optimized_pwm(peaks_path, counter, path_to_java, 
+    sites, length = learn_optimized_dipwm(peaks_path, counter, path_to_java, 
         path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr)
     shutil.rmtree(tmp_dir)
-    pcm = make_pcm(sites)
-    pfm = make_pfm(pcm)
-    pwm = make_pwm(pfm)
+    dipcm = make_dipcm(sites)
+    dipfm = make_dipfm(dipcm)
+    dipwm = make_dipwm(dipfm)
 
     nsites = len(sites)
     background = {'A': 0.25,
                  'C': 0.25,
                  'G': 0.25,
                  'T': 0.25}
-    tag = 'pwm_model'
-    write_meme(output_dir, tag, pfm, background, nsites)
-    write_pwm(output_dir, tag, pwm)
-    write_pfm(output_dir, tag, pfm)
+    tag = 'dipwm_model'
+    write_dipwm(output_dir, tag, dipwm)
+    write_dipfm(output_dir, tag, dipfm)
     write_sites(output=output_dir, tag=tag, sites=sites)
     return(0)

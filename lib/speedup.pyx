@@ -21,8 +21,15 @@ def score_pwm(str seq, dict pwm):
     cdef str letter
     cdef int length = len(seq)
     for index in range(length):
-        score += pwm[seq[index]][position]
-        position += 1
+        score += pwm[seq[index]][index]
+    return(score)
+
+
+def score_dipwm(str seq, dict dipwm):
+    cdef float score = 0
+    cdef int length = len(seq) - 1
+    for i in range(length):
+        score += dipwm[seq[i:i+2]][i]
     return(score)
 
     
@@ -35,6 +42,18 @@ def calculate_scores_pwm_bootstrap(list sites, dict pwm):
         site = sites[i]
         scores.append(score_pwm(site, pwm))
     return(scores)
+
+
+def calculate_scores_dipwm_bootstrap(list sites, dict dipwm):
+    cdef str site
+    cdef list scores = []
+    cdef int number_of_sites = len(sites)
+    append = scores.append
+    for i in range(number_of_sites):
+        site = sites[i]
+        scores.append(score_dipwm(site, dipwm))
+    return(scores)
+
 
 
 def calculate_scores_pwm_thresholds(list peaks, dict pwm, int length_of_site, float threshold):

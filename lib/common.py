@@ -243,8 +243,141 @@ def read_pwm(path):
     return(pwm)
 
 
-# BAMM MODEL
+# diPWM MODEL
 
+def make_dipcm(motifs):
+    matrix = {}
+    nucleotides = itertools.product('ACGT', repeat=2)
+    for i in nucleotides:
+        matrix["".join(i)] = []
+    len_of_motif = len(motifs[0]) - 1
+    for i in matrix.keys():
+        matrix[i] = [0]*len_of_motif
+    for i in range(len_of_motif):
+        for l in motifs:
+            matrix[l[i:i + 2]][i] += 1
+    return(matrix)
+
+
+def make_dipfm(dipcm):
+    number_of_sites = [0] * len(dipcm['AA'])
+    for key in dipcm.keys():
+        for i in range(len(dipcm[key])):
+            number_of_sites[i] += dipcm[key][i]
+    dipfm = dict()
+    nucleotides = itertools.product('ACGT', repeat=2)
+    for i in nucleotides:
+        dipfm["".join(i)] = []
+    first_key = list(dipcm.keys())[0]
+    nuc_pseudo = 1/len(dipcm.keys())
+    for i in range(len(dipcm[first_key])):
+        for dinuc in dipcm.keys():
+            dipfm[dinuc].append((dipcm[dinuc][i] + nuc_pseudo) / (number_of_sites[i] + 1))
+    return(dipfm)
+
+
+def make_dipwm(dipfm):
+    dipwm = {}
+    background = 1 / 16
+    nucleotides = itertools.product('ACGT', repeat=2)
+    for i in nucleotides:
+        dipwm["".join(i)] = []
+    first_key = list(dipfm.keys())[0]
+    for i in range(len(dipfm[first_key])):
+        for j in dipfm.keys():
+            dipwm[j].append(math.log(dipfm[j][i] / background))
+    return(dipwm)
+
+
+def sites_to_dipwm(sites):
+    dipcm = make_dipcm(sites)
+    dipfm = make_dipfm(dipcm)
+    dipwm = make_dipwm(dipfm)
+    return(dipwm)
+
+
+# def read_dipwm(path):
+#     with open(path, 'r') as file:
+#         inf = file.readline()
+#         pwm = {'A': [], 'C': [], 'G': [], 'T': []}
+#         for line in file:
+#             line = line.strip().split('\t')
+#             for letter, value in zip(pwm.keys(), line):
+#                 pwm[letter].append(float(value))
+#     file.close()
+#     return(pwm)
+
+
+def read_dipwm(path):
+    dipwm = {}
+    nucleotides = itertools.product('ACGT', repeat=2)
+    for i in nucleotides:
+        dipwm["".join(i)] = []
+    with open(path, 'r') as file:
+        inf = file.readline()
+        for line in file:
+            line = line.strip().split('\t')
+            for letter, value in zip(dipwm.keys(), line):
+                dipwm[letter].append(float(value))
+    file.close()
+    return(dipwm)
+
+
+def write_dipwm(output, tag, dipwm):
+    container = []
+    for i in dipwm.keys():
+        container.append(dipwm[i])
+    with open(output + '/' + tag + '.pwm', 'w') as file:
+        file.write('>{0}\n'.format(tag))
+        for i in zip(*container):
+            file.write('\t'.join(map(str, i)) + '\n')
+        
+
+def write_dipfm(output, tag, dipfm):
+    container = []
+    for i in dipfm.keys():
+        container.append(dipfm[i])
+    with open(output + '/' + tag + '.pfm', 'w') as file:
+        file.write('>{0}\n'.format(tag))
+        for i in zip(*container):
+            file.write('\t'.join(map(str, i)) + '\n')
+ 
+            
+def score_dipwm(seq, dipwm):
+    score = 0
+    position = 0 
+    length = len(seq) - 1
+    for i in range(length):
+        score += dipwm[seq[i:i+2]][i]
+        position += 1
+    return(score)
+
+
+def calculate_scores_dipwm_thresholds(peaks, dipwm, length_of_site, threshold):
+    scores = []
+    number_of_sites = 0
+    append = scores.append
+    for peak in peaks:
+        N = len(peak) - length_of_site + 1
+        for i in range(N):
+            site = peak[i:length_of_site + i]
+            if 'N' in site:
+                continue
+            number_of_sites += 1
+            score = score_dipwm(site, dipwm)
+            if score >= threshold:
+                append(score)
+    return(scores, number_of_sites)
+
+
+def calculate_scores_dipwm_bootstrap(sites, dipwm):
+    scores = []
+    for site in sites:
+        scores.append(score_dipwm(site, dipwm))
+    return(scores)
+
+
+# BAMM MODEL
 def parse_bamm_and_bg_from_file(bamm_file, bg_file):
 
     # Read BaMM file
