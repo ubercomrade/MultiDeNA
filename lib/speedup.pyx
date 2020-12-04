@@ -77,6 +77,27 @@ def calculate_scores_pwm_thresholds(list peaks, dict pwm, int length_of_site, fl
     return(scores, number_of_sites)
 
 
+def calculate_scores_dipwm_thresholds(list peaks, dict dipwm, int length_of_site, float threshold):
+    cdef str site
+    cdef list scores = []
+    cdef int i, N
+    cdef int number_of_sites = 0
+    cdef int number_of_peaks = len(peaks)
+    append = scores.append
+    for index in range(number_of_peaks):
+        peak = peaks[index]
+        N = len(peak) - length_of_site + 1
+        for i in range(N):
+            site = peak[i:length_of_site + i]
+            if 'N' in site:
+                continue
+            number_of_sites += 1
+            score = score_dipwm(site, dipwm)
+            if score >= threshold:
+                append(score)
+    return(scores, number_of_sites)
+
+
 def score_bamm(str site, dict bamm, int order, int length_of_site):
     cdef float score = 0
     cdef int index
