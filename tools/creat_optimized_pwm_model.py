@@ -4,8 +4,8 @@ import os
 import subprocess
 import bisect
 from lib.common import read_peaks, sites_to_pwm, creat_background, \
-write_fasta, complement, make_dipcm, make_dipfm, \
-make_dipwm, write_dipwm, write_dipfm, \
+write_fasta, complement, make_pcm, make_pfm, \
+make_pwm, write_pwm, write_pfm, \
 calculate_particial_auc, write_auc, calculate_merged_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap, score_pwm
 
@@ -35,7 +35,7 @@ def parse_chipmunk(path):
                 d['start'] = int(line[1])
                 d['end'] = int(line[1]) + len(line[2])
                 d['seq'] = line[2]
-                if line[4] == 'direct':
+                if line[4] == 'rect':
                     d['strand'] = '+'
                 else:
                     d['strand'] = '-'
@@ -98,17 +98,17 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr):
+def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_r, cpu_count, tpr, pfpr):
     length = 12
     true_scores = []
     false_scores = []
-    open(output_dir + '/auc.txt', 'w').close()
+    open(output_r + '/auc.txt', 'w').close()
     peaks = read_peaks(peaks_path)
     shuffled_peaks = creat_background(peaks, length, counter)
     run_chipmunk(path_to_java, path_to_chipmunk,
-                 peaks_path, tmp_dir + '/chipmunk_results.txt',
+                 peaks_path, tmp_r + '/chipmunk_results.txt',
                  length, length, cpu_count)
-    sites_current = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
+    sites_current = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
     sites_current = list(set(sites_current))
     pwm = sites_to_pwm(sites_current)
     for true_score in true_scores_pwm(peaks, pwm, length):
@@ -119,16 +119,16 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
     roc_current = calculate_merged_roc(fprs)
     auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
     print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
-    write_auc(output_dir + '/auc.txt', auc_current, length)
+    write_auc(output_r + '/auc.txt', auc_current, length)
     for length in range(14, 34, 2):
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
         shuffled_peaks = creat_background(peaks, length, counter)
         run_chipmunk(path_to_java, path_to_chipmunk,
-                     peaks_path, tmp_dir + '/chipmunk_results.txt',
+                     peaks_path, tmp_r + '/chipmunk_results.txt',
                      length, length, cpu_count)
-        sites_new = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
+        sites_new = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
         sites_new = list(set(sites_new))
         pwm = sites_to_pwm(sites_new)
         for true_score in true_scores_pwm(peaks, pwm, length):
@@ -139,28 +139,28 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         roc_new = calculate_merged_roc(fprs)
         auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
         print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
-        write_auc(output_dir + '/auc.txt', auc_new, length)
+        write_auc(output_r + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             sites_current = sites_new[:]
             auc_current = auc_new
             roc_current = roc_new
         else:
             break
-    write_roc(output_dir + "/training_bootstrap.txt", roc_current)
+    write_roc(output_r + "/training_bootstrap.txt", roc_current)
     return(sites_current, length)
 
 
 def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, 
-    tmp_dir, output_dir, cpu_count, tpr, pfpr):
+    tmp_r, output_r, cpu_count, tpr, pfpr):
     counter = 6000000
-    if not os.path.exists(tmp_dir):
-        os.mkdir(tmp_dir)
-    if not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
+    if not os.path.exists(tmp_r):
+        os.mkr(tmp_r)
+    if not os.path.isr(output_r):
+        os.mkr(output_r)
 
     sites, length = learn_optimized_pwm(peaks_path, counter, path_to_java, 
-        path_to_chipmunk, tmp_dir, output_dir, cpu_count, tpr, pfpr)
-    shutil.rmtree(tmp_dir)
+        path_to_chipmunk, tmp_r, output_r, cpu_count, tpr, pfpr)
+    shutil.rmtree(tmp_r)
     pcm = make_pcm(sites)
     pfm = make_pfm(pcm)
     pwm = make_pwm(pfm)
@@ -171,8 +171,8 @@ def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk,
                  'G': 0.25,
                  'T': 0.25}
     tag = 'pwm_model'
-    write_meme(output_dir, tag, pfm, background, nsites)
-    write_pwm(output_dir, tag, pwm)
-    write_pfm(output_dir, tag, pfm)
-    write_sites(output=output_dir, tag=tag, sites=sites)
+    write_meme(output_r, tag, pfm, background, nsites)
+    write_pwm(output_r, tag, pwm)
+    write_pfm(output_r, tag, pfm)
+    write_sites(output=output_r, tag=tag, sites=sites)
     return(0)
