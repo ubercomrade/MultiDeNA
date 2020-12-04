@@ -199,6 +199,17 @@ def calculate_thresholds_for_pwm(path_to_promoters, pwm_model_dir, thresholds_di
     return(0)
 
 
+def calculate_thresholds_for_dipwm(path_to_promoters, dipwm_model_dir, thresholds_dir):
+    if not os.path.isfile(thresholds_dir + '/dipwm_model_thresholds.txt'):
+        print('Calculate threshold for diPWM based on promoters and fpr')
+        get_threshold_for_pwm(path_to_promoters,
+                dipwm_model_dir + '/dipwm_model.pwm',
+                thresholds_dir + '/dipwm_model_thresholds.txt')
+    else:
+        print('Thresholds for PWM already calculated')
+    return(0)
+    
+
 def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresholds_dir, motif_length, path_to_inmode, path_to_java):
     if not os.path.isfile(thresholds_dir + '/inmode_model_thresholds.txt'):
         print('Calculate threshold for InMoDe based on promoters and fpr')
