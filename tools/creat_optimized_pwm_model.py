@@ -155,7 +155,7 @@ def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk,
     counter = 6000000
     if not os.path.exists(tmp_r):
         os.mkdir(tmp_r)
-    if not os.path.isr(output_r):
+    if not os.path.isdir(output_r):
         os.mkdir(output_r)
 
     sites, length = learn_optimized_pwm(peaks_path, counter, path_to_java, 
