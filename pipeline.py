@@ -236,7 +236,7 @@ def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr):
 def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr):
     thr_pwm = get_threshold(threshold_table_path, fpr)
     dipwm_scan_path = scan + '/dipwm_{:.2e}.bed'.format(fpr)
-    print('Scan peaks by PWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
+    print('Scan peaks by diPWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
     scan_by_dipwm(fasta_test, model_path, thr_pwm, dipwm_scan_path)
     return(0)
 

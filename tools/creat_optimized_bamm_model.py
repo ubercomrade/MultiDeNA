@@ -95,7 +95,7 @@ def learn_optimized_bamm(peaks_path, counter, order, length, meme, tmp_dir, outp
         fprs = calculate_fprs(true_scores, false_scores)
         roc_new = calculate_merged_roc(fprs)
         auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
-        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
+        print("Length {};".format(length + extend), "pAUC at {0} = {1};".format(pfpr, auc_new))
         write_auc(output_dir + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             auc_current = auc_new
