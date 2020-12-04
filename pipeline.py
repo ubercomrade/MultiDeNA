@@ -208,7 +208,7 @@ def calculate_thresholds_for_dipwm(path_to_promoters, dipwm_model_dir, threshold
     else:
         print('Thresholds for PWM already calculated')
     return(0)
-    
+
 
 def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresholds_dir, motif_length, path_to_inmode, path_to_java):
     if not os.path.isfile(thresholds_dir + '/inmode_model_thresholds.txt'):
@@ -464,7 +464,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
 
     ### CALCULATE diPWM MODEL ###
     if 'dipwm' in tools:
-        dipwm_model = models + '/dipwm_model/dipwm_model.dipwm'
+        dipwm_model = models + '/dipwm_model/dipwm_model.pwm'
         dipwm_threshold_table = thresholds + '/dipwm_model_thresholds.txt'
         if not os.path.isfile(dipwm_model):
             print('Training diPWM model')
