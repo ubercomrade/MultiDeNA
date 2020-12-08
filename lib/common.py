@@ -573,19 +573,20 @@ def calculate_short_roc(fprs, step=1):
     for i in range(1, 100, step):
         position = round(total_number_of_sites * (i / 100))
         table['TPR'].append(i / 100)
-        table['FPR'].append(fprs[position])
+        table['FPR'].append(fprs[position - 1])
         #table['SITES'].append(len(fprs[:position]))
     return(table)
 
 
 def calculate_fool_roc(fprs):
     table = {'TPR': [0], 'FPR': [0]}#, 'SITES': [0]}
-    current_number_of_sites = 0
+    current_number_of_sites = 1
     total_number_of_sites = len(fprs)
-    for i in range(1, total_number_of_sites):
-            table['TPR'].append(i / total_number_of_sites)
+    for i in range(total_number_of_sites):
+            table['TPR'].append(current_number_of_sites / total_number_of_sites)
             table['FPR'].append(fprs[i])
-            #table['SITES'].append(i)
+            #table['SITES'].append(current_number_of_sites)
+            current_number_of_sites += 1
     return(table)
 
 
@@ -593,13 +594,17 @@ def calculate_merged_roc(fprs):
     table = {'TPR': [0], 'FPR': [0], 'SITES': [0]}
     current_number_of_sites = 0
     total_number_of_sites = len(fprs)
-    for i in range(total_number_of_sites):
+    for i in range(0, total_number_of_sites):
         if fprs[i] > fprs[i - 1]:
-            table['TPR'].append(i / total_number_of_sites)
+            table['TPR'].append(current_number_of_sites / total_number_of_sites)
             table['FPR'].append(fprs[i - 1])
-            table['SITES'].append(i)
+            table['SITES'].append(current_number_of_sites)
+        current_number_of_sites += 1
+    table['TPR'].append(current_number_of_sites / total_number_of_sites)
+    table['FPR'].append(fprs[i])
+    table['SITES'].append(current_number_of_sites)
     return(table)
-
+    
 
 def calculate_roc_train(true_scores, false_scores):
     tprs = []
@@ -624,9 +629,10 @@ def calculate_fprs(true_scores, false_scores):
     fprs = []
     false_scores.sort()
     number_of_sites = len(false_scores)
-    true_scores_uniq = list(set(true_scores))
-    true_scores_uniq.sort(reverse=True)
-    for score in true_scores_uniq:
+    #true_scores_uniq = list(set(true_scores))
+    #true_scores_uniq.sort(reverse=True)
+    true_scores.sort(reverse=True)
+    for score in true_scores:
         fpr = (number_of_sites - bisect.bisect_right(false_scores, score)) / number_of_sites
         if fpr == 0:
             fprs.append(0.5 / number_of_sites)
