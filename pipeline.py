@@ -478,7 +478,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             print('Training diPWM model')
             de_novo_with_oprimization_dipwm(fasta_train, path_to_java, path_to_chipmunk, 
                 models + '/dipwm.tmp', models + '/dipwm_model/', cpu_count, tpr, pfpr)
-        motif_length = get_motif_length(models)
+        #motif_length = get_motif_length(models)
 
         # BOOTSTRAP
         if bootstrap_flag and not os.path.isfile(bootstrap + '/dipwm_model.tsv'):
