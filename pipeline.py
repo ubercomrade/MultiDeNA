@@ -202,7 +202,7 @@ def calculate_thresholds_for_pwm(path_to_promoters, pwm_model_dir, thresholds_di
 def calculate_thresholds_for_dipwm(path_to_promoters, dipwm_model_dir, thresholds_dir):
     if not os.path.isfile(thresholds_dir + '/dipwm_model_thresholds.txt'):
         print('Calculate threshold for diPWM based on promoters and fpr')
-        get_threshold_for_pwm(path_to_promoters,
+        get_threshold_for_dipwm(path_to_promoters,
                 dipwm_model_dir + '/dipwm_model.pwm',
                 thresholds_dir + '/dipwm_model_thresholds.txt')
     else:
