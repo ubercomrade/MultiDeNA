@@ -119,12 +119,10 @@ def bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_di
 
 def bootstrap_for_sitega(peaks_path_no_n, results_path, results_path_wide, length_of_site, lpd, tmp_dir, counter=5000000):
     peaks = read_peaks(peaks_path_no_n)
-    fprs = bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir)
-    #fprs = bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir)
+    #fprs = bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir)
+    fprs = bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir)
     short_roc = calculate_short_roc(fprs, step=1)
     merged_roc = calculate_merged_roc(fprs)
     write_roc(results_path, short_roc)
     write_roc(results_path_wide, merged_roc)
-    write_table_bootstrap(results_path, table)
-    write_table_bootstrap_wide(results_path_wide, table_full)
     return(0)
