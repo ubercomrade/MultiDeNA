@@ -124,5 +124,5 @@ def write_model(fasta_path, output_dir, tag):
         write_pfm(output_dir, tag, pfm)
         write_meme(output_dir, tag, pfm, background, nsites)
     else:
-        print("INMODE model didn't fined sites -> cant't creat matrix models from sites")
+        print("Model didn't fined sites -> cant't creat matrix models from sites")
     return(0)
