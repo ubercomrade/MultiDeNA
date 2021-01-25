@@ -22,7 +22,7 @@ def write_fasta(sites, tmp_dir, tag):
     return(0)
 
 
-def best_scores_sitega(tmp_dir, tag):
+def true_scores_sitega(tmp_dir, tag):
     scores = []
     args = ['andy1_mat',
         '{}'.format(tmp_dir + '/{}.fa'.format(tag)),
@@ -31,9 +31,34 @@ def best_scores_sitega(tmp_dir, tag):
         '{}'.format(0),
        '{}'.format(tmp_dir + '/sitega_true.pro')]
     r = subprocess.run(args, capture_output=False)
-    with open(tmp_dir + '/{}.fa_bestscosg'.format(tag)) as file:
+    with open(tmp_dir + '/sitega_true.pro'.format(tag)) as file:
+        for index, line in enumerate(file):
+            if line.startswith('>'):
+                if index != 0: scores.append(best)
+                best = 0
+            else:
+                score = float(line.strip().split()[1])
+                if score > best: best = score
+        scores.append(best)
+    file.close()
+    return(scores)
+
+
+def false_scores_sitega(tmp_dir, tag):
+    scores = []
+    args = ['andy1_mat',
+        '{}'.format(tmp_dir + '/{}.fa'.format(tag)),
+        '{}'.format(tmp_dir + '/sitega.mat'),
+        '{}'.format(tmp_dir + '/thr_table.txt'),
+        '{}'.format(0),
+       '{}'.format(tmp_dir + '/sitega_false.pro')]
+    r = subprocess.run(args, capture_output=False)
+    with open(tmp_dir + '/sitega_false.pro'.format(tag)) as file:
         for line in file:
-            scores.append(float(line.strip()))
+            if line.startswith('>'):
+                continue
+            else:
+                scores.append(float(line.strip().split()[1]))
     file.close()
     return(scores)
 
@@ -58,18 +83,18 @@ def bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir):
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
             with open(tmp_dir + '/thr_table.txt', 'w') as file:
-                file.write("0.0\t0.0")
+                file.write("-100.0\t0.0\n1.0\t1.0")
             file.close()
-        train_peaks = random.choices(peaks, k=round(0.9 * number_of_peaks))
+        train_peaks = random.sample(peaks, k=round(0.9 * number_of_peaks))
         test_peaks = [peak for peak in peaks  if not peak in train_peaks]
         shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 5)
         write_fasta(train_peaks, tmp_dir, "train")
         write_fasta(test_peaks, tmp_dir, "test")
         write_fasta(shuffled_peaks, tmp_dir, "shuffled")
         make_sitega(tmp_dir, length_of_site, lpd)
-        for true_score in best_scores_sitega(tmp_dir, "test"):
+        for true_score in true_scores_sitega(tmp_dir, "test"):
             true_scores.append(true_score)
-        for false_score in best_scores_sitega(tmp_dir, "shuffled"):
+        for false_score in false_scores_sitega(tmp_dir, "shuffled"):
             false_scores.append(false_score)
         shutil.rmtree(tmp_dir)
         fpr_of_every_site += calculate_fprs(true_scores, false_scores)
@@ -78,49 +103,49 @@ def bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir):
 
 
 # MULTIPROCESS WORK IN PROGRESS (NEDEED???)
-def support(tmp_dir, peaks, length_of_site, lpd, counter):
-    true_scores = []
-    false_scores = []
-    number_of_peaks = len(peaks)
-    if not os.path.exists(tmp_dir):
-        os.mkdir(tmp_dir)
-        with open(tmp_dir + '/thr_table.txt', 'w') as file:
-            file.write("0.0\t0.0")
-        file.close()
-    train_peaks = random.sample(peaks, k=round(0.9 * number_of_peaks))
-    test_peaks = [peak for peak in peaks  if not peak in train_peaks]
-    shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 5)
-    write_fasta(train_peaks, tmp_dir, "train")
-    write_fasta(test_peaks, tmp_dir, "test")
-    write_fasta(shuffled_peaks, tmp_dir, "shuffled")
-    make_sitega(tmp_dir, length_of_site, lpd)
-    for true_score in best_scores_sitega(tmp_dir, "test"):
-        true_scores.append(true_score)
-    for false_score in best_scores_sitega(tmp_dir, "shuffled"):
-        false_scores.append(false_score)
-    shutil.rmtree(tmp_dir)
-    fpr_of_every_site = calculate_fprs(true_scores, false_scores)
-    fpr_of_every_site.sort()
-    return(fpr_of_every_site)
+# def support(tmp_dir, peaks, length_of_site, lpd, counter):
+#     true_scores = []
+#     false_scores = []
+#     number_of_peaks = len(peaks)
+#     if not os.path.exists(tmp_dir):
+#         os.mkdir(tmp_dir)
+#         with open(tmp_dir + '/thr_table.txt', 'w') as file:
+#             file.write("-100.0\t0.0\n1.0\t1.0")
+#         file.close()
+#     train_peaks = random.sample(peaks, k=round(0.9 * number_of_peaks))
+#     test_peaks = [peak for peak in peaks  if not peak in train_peaks]
+#     shuffled_peaks = creat_background(test_peaks, length_of_site, counter / 5)
+#     write_fasta(train_peaks, tmp_dir, "train")
+#     write_fasta(test_peaks, tmp_dir, "test")
+#     write_fasta(shuffled_peaks, tmp_dir, "shuffled")
+#     make_sitega(tmp_dir, length_of_site, lpd)
+#     for true_score in true_scores_sitega(tmp_dir, "test"):
+#         true_scores.append(true_score)
+#     for false_score in false_scores_sitega(tmp_dir, "shuffled"):
+#         false_scores.append(false_score)
+#     #shutil.rmtree(tmp_dir)
+#     fpr_of_every_site = calculate_fprs(true_scores, false_scores)
+#     fpr_of_every_site.sort()
+#     return(fpr_of_every_site)
 
 
-def bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir):
-    true_scores = []
-    false_scores = []
-    if tmp_dir[-1] == '/':
-        tmp_dir = tmp_dir[:-1]
-    tmp_dirs = ["{0}_{1}".format(tmp_dir, i) for i in range(5)]
-    with Pool(5) as p:
-        fpr_of_every_site = p.map(functools.partial(support, peaks=peaks, length_of_site=length_of_site, lpd=lpd, counter=counter),
-              tmp_dirs)
-    fprs = [fpr for attempt in fpr_of_every_site for fpr in attempt]
-    return(fprs)
+# def bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir):
+#     true_scores = []
+#     false_scores = []
+#     if tmp_dir[-1] == '/':
+#         tmp_dir = tmp_dir[:-1]
+#     tmp_dirs = ["{0}_{1}".format(tmp_dir, i) for i in range(5)]
+#     with Pool(5) as p:
+#         fpr_of_every_site = p.map(functools.partial(support, peaks=peaks, length_of_site=length_of_site, lpd=lpd, counter=counter),
+#               tmp_dirs)
+#     fprs = [fpr for attempt in fpr_of_every_site for fpr in attempt]
+#     return(fprs)
 
 
 def bootstrap_for_sitega(peaks_path_no_n, results_path, results_path_wide, length_of_site, lpd, tmp_dir, counter=5000000):
     peaks = read_peaks(peaks_path_no_n)
-    #fprs = bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir)
-    fprs = bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir)
+    fprs = bootstrap_sitega(peaks, length_of_site, lpd, counter, tmp_dir)
+    #fprs = bootstrap_sitega_multiprocessing(peaks, length_of_site, lpd, counter, tmp_dir)
     short_roc = calculate_short_roc(fprs, step=1)
     merged_roc = calculate_merged_roc(fprs)
     write_roc(results_path, short_roc)
