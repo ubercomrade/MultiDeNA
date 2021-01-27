@@ -282,6 +282,15 @@ def get_sitega_model(sitega_model_dir, sitega_length, fasta_path):
         for file in os.listdir(sitega_model_dir):
             if fnmatch.fnmatch(file, 'train_sample_no_n.fa_mat_*'):
                 shutil.move('{0}/{1}'.format(sitega_model_dir, file), '{0}/sitega.mat'.format(sitega_model_dir))
+        container = []
+        with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
+            for line in file:
+                container.append(line)
+        file.close()
+        with open('{0}/sitega.mat'.format(sitega_model_dir), 'w') as file:
+            file.write('sitega\n')
+            for line in container[1:]:
+                file.write(line)
     else:
         print('{0} already exists (initial model exists)'.format(sitega_model_dir + '/sitega.mat'))
     pass
