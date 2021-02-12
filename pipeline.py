@@ -384,7 +384,7 @@ def get_motif_length(models):
 
 def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                      path_to_promoters, path_to_genome, path_to_mdb, cpu_count, tpr, pfpr):
+                      path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr):
 
     main_out = path_to_out
     model_order = 2
@@ -772,7 +772,7 @@ def main():
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                          path_to_promoters, path_to_genome, path_to_mdb, cpu_count, tpr, pfpr)
+                          path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr)
 
 if __name__ == '__main__':
     main()
