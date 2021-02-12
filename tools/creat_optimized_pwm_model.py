@@ -3,6 +3,8 @@ import shutil
 import os
 import subprocess
 import bisect
+from shutil import copyfile
+from operator import itemgetter
 from lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_pwm, write_pfm, write_meme, \
@@ -98,11 +100,11 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_r, cpu_count, tpr, pfpr):
+def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, tpr, pfpr):
     length = 12
     true_scores = []
     false_scores = []
-    open(output_r + '/auc.txt', 'w').close()
+    open(output_auc + '/auc.txt', 'w').close()
     peaks = read_peaks(peaks_path)
     shuffled_peaks = creat_background(peaks, length, counter)
     run_chipmunk(path_to_java, path_to_chipmunk,
@@ -119,7 +121,7 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
     roc_current = calculate_merged_roc(fprs)
     auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
     print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
-    write_auc(output_r + '/auc.txt', auc_current, length)
+    write_auc(output_auc + '/auc.txt', auc_current, length)
     for length in range(14, 34, 2):
         true_scores = []
         false_scores = []
@@ -139,32 +141,94 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         roc_new = calculate_merged_roc(fprs)
         auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
         print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
-        write_auc(output_r + '/auc.txt', auc_new, length)
+        write_auc(output_auc + '/auc.txt', auc_new, length)
         if auc_new > auc_current:
             sites_current = sites_new[:]
             auc_current = auc_new
             roc_current = roc_new
         else:
             break
-    write_roc(output_r + "/training_bootstrap.txt", roc_current)
+    write_roc(output_auc + "/training_bootstrap.txt", roc_current)
     return(sites_current, length)
 
 
+
+def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr):
+    if not os.path.exists(tmp_r):
+        os.mkdir(tmp_r)
+    if not os.path.isdir(output_auc):
+        os.mkdir(output_auc)
+    for length in range(10, 41, 2):
+        true_scores = []
+        false_scores = []
+        peaks = read_peaks(peaks_path)
+        shuffled_peaks = creat_background(peaks, length, counter)
+        run_chipmunk(path_to_java, path_to_chipmunk,
+                     peaks_path, tmp_r + '/chipmunk_results.txt',
+                     length, length, cpu_count)
+        sites = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
+        sites = list(set(sites))
+        pwm = sites_to_pwm(sites)
+        for true_score in true_scores_pwm(peaks, pwm, length):
+            true_scores.append(true_score)
+        for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
+            false_scores.append(false_score)
+        fprs = calculate_fprs(true_scores, false_scores)
+        roc = calculate_merged_roc(fprs)
+        auc = calculate_particial_auc(roc['TPR'], roc['FPR'], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc))
+        write_auc(output_auc + '/auc.txt', auc, length)
+        write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
+        pcm = make_pcm(sites)
+        pfm = make_pfm(pcm)
+        pwm = make_pwm(pfm)
+        nsites = len(sites)
+        background = {'A': 0.25,
+                     'C': 0.25,
+                     'G': 0.25,
+                     'T': 0.25}
+        tag = 'pwm_model_{}'.format(length)
+        write_meme(output_auc, tag, pfm, background, nsites)
+        write_pwm(output_auc, tag, pwm)
+        write_pfm(output_auc, tag, pfm)
+        write_sites(output=output_auc, tag=tag, sites=sites)
+    shutil.rmtree(tmp_r)
+    return(0)
+
+
+def choose_best_model(output_auc):
+    auc = []
+    with open(output_auc + '/auc.txt') as file:
+        for line in file:
+            auc.append(tuple(line.strip().split()))
+        file.close()
+    auc.sort(key=itemgetter(1))
+    length = auc[-1][0]
+    sites = []
+    with open(output_auc + '/pwm_model_{}.fasta'.format(length)) as file:
+        for line in file:
+            if not line.startswith('>'):
+                sites.append(line.strip())
+    return(sites, length)
+
+
 def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, 
-    tmp_r, output_r, cpu_count, tpr, pfpr):
+    tmp_r, output_r, output_auc, cpu_count, pfpr):
     counter = 6000000
     if not os.path.exists(tmp_r):
         os.mkdir(tmp_r)
+    if not os.path.isdir(output_auc):
+        os.mkdir(output_auc)
     if not os.path.isdir(output_r):
         os.mkdir(output_r)
-
-    sites, length = learn_optimized_pwm(peaks_path, counter, path_to_java, 
-        path_to_chipmunk, tmp_r, output_r, cpu_count, tpr, pfpr)
-    shutil.rmtree(tmp_r)
+    learn_optimized_pwm(peaks_path, counter, path_to_java, 
+        path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr)
+    sites, length = choose_best_model(output_auc)
+    copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
+             output_r + '/training_bootstrap.txt')
     pcm = make_pcm(sites)
     pfm = make_pfm(pcm)
     pwm = make_pwm(pfm)
-
     nsites = len(sites)
     background = {'A': 0.25,
                  'C': 0.25,
@@ -175,4 +239,4 @@ def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk,
     write_pwm(output_r, tag, pwm)
     write_pfm(output_r, tag, pfm)
     write_sites(output=output_r, tag=tag, sites=sites)
-    return(0)
+    return(length)
