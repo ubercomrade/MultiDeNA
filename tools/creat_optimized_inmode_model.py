@@ -49,7 +49,7 @@ def true_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, fast
     args = [path_to_java, '-Xmx16G', '-Xms1G', 
             '-jar',
             path_to_inmode, 'scan',
-            'i={0}/{1}_inmode_model.xml'.format(tmp_dir, model_tag),
+            'i={0}/inmode_model_{1}.xml'.format(tmp_dir, model_tag),
             'id={0}/{1}.fa'.format(tmp_dir, fasta_tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
     r = subprocess.run(args, capture_output=True)
     scores = []
@@ -77,7 +77,7 @@ def false_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, fas
     args = [path_to_java, '-Xmx16G', '-Xms1G', 
             '-jar',
             path_to_inmode, 'scan',
-            'i={0}/{1}_inmode_model.xml'.format(tmp_dir, model_tag),
+            'i={0}/inmode_model_{1}.xml'.format(tmp_dir, model_tag),
             'id={0}/{1}.fa'.format(tmp_dir, fasta_tag), 'f=1.0', 'outdir={}'.format(tmp_dir), 'bs=false']
     r = subprocess.run(args, capture_output=True)
     with open('{0}/{1}'.format(tmp_dir, "/Motif_hits_from_SequenceScan(1.0).BED")) as file:
@@ -96,7 +96,7 @@ def make_inmode(peaks_path, path_to_inmode, path_to_java, motif_length, order, t
     'mo={}'.format(order)]
     r = subprocess.run(args, capture_output=True)
     shutil.copy(tmp_dir + '/Learned_DeNovo({0},{1},2)_motif/XML_of_DeNovo({0},{1},2)_motif.xml'.format(motif_length,order),
-                tmp_dir + '/{}_inmode_model.xml'.format(tag))
+                tmp_dir + '/inmode_model_{}.xml'.format(tag))
     os.remove(tmp_dir + '/protocol_denovo.txt')
     os.remove(tmp_dir + '/Logfile_of_DeNovo({0},{1},2)_stochastic_search.txt'.format(motif_length,order))
     os.remove(tmp_dir + '/Latent_variables_of_DeNovo({0},{1},2).txt'.format(motif_length,order))
@@ -130,61 +130,63 @@ def complement(seq):
     return(seq.replace('A', 't').replace('T', 'a').replace('C', 'g').replace('G', 'c').upper()[::-1])
 
 
-def learn_optimized_inmode(peaks_path, counter, order, length, 
-    path_to_inmode, path_to_java, tmp_dir, output_dir, tpr, pfpr):
-    true_scores = []
-    false_scores = []
-    open(output_dir + '/auc.txt', 'w').close()
-    peaks = read_peaks(peaks_path)
-    shuffled_peaks = creat_background(peaks, length, counter)
-    write_fasta(shuffled_peaks, tmp_dir, "shuffled")
-    write_fasta(peaks, tmp_dir, "train")
-    make_inmode(peaks_path, path_to_inmode, path_to_java, length, order, tmp_dir, 'current')
-    for true_score in true_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "train", 'current'):
-        true_scores.append(true_score)
-    for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'current'):
-        false_scores.append(false_score)
-    fprs = calculate_fprs(true_scores, false_scores)
-    roc_current = calculate_merged_roc(fprs)
-    auc_current = calculate_particial_auc(roc_current['TPR'], roc_current['FPR'], pfpr)
-    print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_current))
-    write_auc(output_dir + '/auc.txt', auc_current, length)
-    for length in range(length + 2, 34, 2):
-        true_scores = []
-        false_scores = []
-        shuffled_peaks = creat_background(peaks, length, counter)
-        write_fasta(shuffled_peaks, tmp_dir, "shuffled")
-        make_inmode(peaks_path, path_to_inmode, path_to_java, length, order, tmp_dir, 'new')
-        for true_score in true_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "train", 'new'):
-            true_scores.append(true_score)
-        for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", 'new'):
-            false_scores.append(false_score)
-        fprs = calculate_fprs(true_scores, false_scores)
-        roc_new = calculate_merged_roc(fprs)
-        auc_new = calculate_particial_auc(roc_new['TPR'], roc_new['FPR'], pfpr)
-        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_new))
-        write_auc(output_dir + '/auc.txt', auc_new, length)
-        if auc_new > auc_current:
-            shutil.copy(tmp_dir + '/new_inmode_model.xml',
-                       tmp_dir + '/current_inmode_model.xml')
-            auc_current = auc_new
-        elif auc_new < auc_current and order <= 2:
-            order += 1
-        else:
-            break
-    write_roc(output_dir + "/training_bootstrap.txt", roc_current)
-    return(order)
-
-
-def de_novo_with_oprimization_inmode(peaks_path, length, path_to_inmode, 
-    path_to_java, tmp_dir, output_path, tpr, pfpr):
-    counter = 6000000
-    order = 2
+def learn_optimized_inmode(peaks_path, counter, order, 
+    path_to_inmode, path_to_java, tmp_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
-    output_dir = os.path.dirname(output_path)
-    inmode_order = learn_optimized_inmode(peaks_path, counter, order, length, 
-        path_to_inmode, path_to_java, tmp_dir, output_dir, tpr, pfpr)
-    shutil.copy(tmp_dir + '/new_inmode_model.xml', output_path)
+    if not os.path.isdir(output_auc):
+        os.mkdir(output_auc)
+    open(output_auc + '/auc.txt', 'w').close()
+    for length in range(10, 41, 2):
+        true_scores = []
+        false_scores = []
+        peaks = read_peaks(peaks_path)
+        shuffled_peaks = creat_background(peaks, length, counter)
+        write_fasta(shuffled_peaks, tmp_dir, "shuffled")
+        write_fasta(peaks, tmp_dir, "train")
+        make_inmode(peaks_path, path_to_inmode, path_to_java, length, order, tmp_dir, str(length))
+        for true_score in true_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "train", str(length)):
+            true_scores.append(true_score)
+        for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", str(length)):
+            false_scores.append(false_score)
+        fprs = calculate_fprs(true_scores, false_scores)
+        roc = calculate_merged_roc(fprs)
+        auc = calculate_particial_auc(roc['TPR'], roc['FPR'], pfpr)
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc))
+        write_auc(output_auc + '/auc.txt', auc, length)
+        write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
+        shutil.copy(tmp_dir + '/inmode_model_{}.xml'.format(length),
+                       output_auc + '/inmode_model_{}.xml'.format(length))
     shutil.rmtree(tmp_dir)
-    return(inmode_order)
+    return(0)
+
+
+def choose_best_model(output_auc):
+    auc = []
+    with open(output_auc + '/auc.txt') as file:
+        for line in file:
+            auc.append(tuple(line.strip().split()))
+        file.close()
+    auc.sort(key=itemgetter(1))
+    length = auc[-1][0]
+    return(length)
+
+
+def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode, 
+    path_to_java, tmp_dir, output_dir, output_auc, pfpr, order):
+    counter = 6000000
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    if not os.path.exists(output_auc):
+        os.mkdir(output_auc)
+
+    learn_optimized_inmode(peaks_path, counter, order, 
+                           path_to_inmode, path_to_java, 
+                           tmp_dir, output_auc, pfpr)
+    length = choose_best_model(output_auc)
+    shutil.copy(output_auc + '/inmode_model_{}.xml'.format(length), output_dir + '/inmode_model.xml')
+    shutil.copy(output_auc + '/training_bootstrap_{}.txt'.format(length), output_dir + '/training_bootstrap.txt')
+    shutil.copy(output_auc + '/auc.txt', output_dir + '/auc.txt')
+    return(length)
