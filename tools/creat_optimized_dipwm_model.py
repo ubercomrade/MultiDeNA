@@ -170,7 +170,7 @@ def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk,
              output_dir + '/bootstrap.txt')
     copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
-    run_dichipmunk(
+    run_di_chipmunk(
         path_to_java, path_to_chipmunk,
         peaks_path, 
         output_dir + '/chipmunk_results.txt', 
