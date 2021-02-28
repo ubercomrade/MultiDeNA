@@ -394,7 +394,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
     if not os.path.isdir(main_out):
         os.mkdir(main_out)
     models = main_out + '/models'
-    bootstrap = models + '/bootstrap'
+    #bootstrap = models + '/bootstrap'
     thresholds = models + '/thresholds'
     fasta = main_out + '/fasta'
     bed = main_out + '/bed'
@@ -411,8 +411,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
 
     if not os.path.isdir(models):
         os.mkdir(models)
-    if not os.path.isdir(bootstrap):
-        os.mkdir(bootstrap)
+    # if not os.path.isdir(bootstrap):
+    #     os.mkdir(bootstrap)
     if not os.path.isdir(thresholds):
         os.mkdir(thresholds)
     if not os.path.isdir(fasta):
@@ -449,14 +449,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             pwm_length = de_novo_with_oprimization_pwm(fasta_train, path_to_java, path_to_chipmunk, 
                 models + '/pwm.tmp', models + '/pwm_model/', 
                 output_auc + '/pwm', cpu_count, pfpr)
-
-        # BOOTSTRAP
-        if bootstrap_flag and not os.path.isfile(bootstrap + '/pwm_model.tsv'):
-            print('Run bootstrap for PWM model')
-            bootstrap_for_pwm(fasta_train, bootstrap + '/pwm_model.tsv', \
-                bootstrap + '/pwm_model_full.tsv', pwm_length, \
-                path_to_java, path_to_chipmunk, models + '/pwm.tmp', cpu_count, counter=10000000)
-
         # THRESHOLD
         calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
         check = check_threshold_table(pwm_threshold_table)
@@ -491,14 +483,6 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
             dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, path_to_java, path_to_chipmunk, 
                 models + '/dipwm.tmp', models + '/dipwm_model/',
                 output_auc + '/dipwm', cpu_count, pfpr)
-
-        # BOOTSTRAP
-        if bootstrap_flag and not os.path.isfile(bootstrap + '/dipwm_model.tsv'):
-            print('Run bootstrap for diPWM model')
-            bootstrap_for_dipwm(fasta_train, bootstrap + '/dipwm_model.tsv', \
-                bootstrap + '/dipwm_model_full.tsv', dipwm_length, \
-                path_to_java, path_to_chipmunk, models + '/dipwm.tmp', cpu_count, counter=10000000)
-
         # THRESHOLD
         calculate_thresholds_for_dipwm(path_to_promoters, models + '/dipwm_model', thresholds)
         check = check_threshold_table(dipwm_threshold_table)
@@ -530,21 +514,15 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         inmode_model_dir = models + '/inmode_model/'
         inmode_model = models + '/inmode_model/inmode_model.xml'
         inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
-        inmode_order = 3
         if not os.path.isfile(inmode_model):
             print('Training INMODE model')
             if not os.path.isdir(models + '/inmode_model/'):
                 os.mkdir(models + '/inmode_model/')
-                inmode_length = de_novo_with_oprimization_inmode(fasta_train, path_to_inmode, 
+                inmode_length, inmode_order = de_novo_with_oprimization_inmode(
+                                                fasta_train, path_to_inmode, 
                                                 path_to_java, models + '/inmode.tmp', 
                                                 inmode_model_dir, output_auc + '/inmode', 
-                                                pfpr, inmode_order)
-        # BOOTSTRAP
-        if bootstrap_flag and not os.path.isfile(bootstrap + '/inmode_model.tsv'):
-            print('Run bootstrap for INMODE model')
-            bootstrap_for_inmode(fasta_train, bootstrap + '/inmode_model.tsv', \
-                bootstrap + '/inmode_model_full.tsv', inmode_length, \
-                path_to_inmode, path_to_java, models + '/inmode.tmp', counter=10000000, order=inmode_order)
+                                                pfpr)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, motif_length,
@@ -583,21 +561,13 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstra
         bamm_model_dir = models + '/bamm_model/'
         bamm_model = models + '/bamm_model/bamm_model.ihbcp'
         bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-        bamm_order = 2
         if not os.path.isfile(bamm_model):
             print('Training BAMM model')
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
-                bamm_length = de_novo_with_oprimization_bamm(fasta_train, output_auc + '/pwm', 
+                bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, output_auc + '/pwm', 
                     models + '/bamm.tmp', models + '/bamm_model', 
-                    output_auc + '/bamm', pfpr, bamm_order)
-        # BOOTSTRAP
-        if bootstrap_flag and not os.path.isfile(bootstrap + '/bamm_model.tsv'):
-            print('Run bootstrap for BAMM model')
-            bootstrap_for_bamm(fasta_train, bootstrap + '/bamm_model.tsv', \
-                       bootstrap + '/bamm_model_full.tsv', bamm_length, \
-                       path_to_chipmunk, path_to_java, cpu_count, 
-                       models + '/bamm.tmp', counter = 10000000, order=bamm_order)
+                    output_auc + '/bamm', pfpr)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
@@ -720,8 +690,6 @@ def parse_args():
                         required=False, default=1.9*10**(-4), help='FPR, def=1.9*10^(-4)')
     parser.add_argument('-T', '--test', action='store', type=int, dest='test_size',
                         required=False, default=2000, help='size of testing sample, by default size is equal to 4000')
-    parser.add_argument('-b', '--bootstrap', action='store_true', dest='bootstrap',
-                        required=False, help='Flag to calculate ROC for models, default is False')
     parser.add_argument('-I', '--inmode', action='store', dest='inmode',
                         required=True, help='path to inmode')
     parser.add_argument('-J', '--java', action='store', dest='java',
@@ -750,7 +718,6 @@ def main():
     test_sample_size = args.test_size
     fpr = args.fpr
     tools = args.models
-    bootstrap_flag = args.bootstrap
 
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk

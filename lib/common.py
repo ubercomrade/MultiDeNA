@@ -674,6 +674,12 @@ def write_auc(path, auc, length):
     pass
 
 
+def write_auc_with_order(path, auc, length, order):
+    with open(path, 'a') as file:
+        file.write('{0}\t{1}\n'.format(order, length, auc))
+    pass
+
+
 def calculate_particial_auc(tprs, fprs, pfpr):
     auc = 0
     tpr_old = tprs[0]

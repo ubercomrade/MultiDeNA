@@ -104,13 +104,16 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
-    for length in range(10, 41, 2):
+    for length in range(12, 41, 4):
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
-        shuffled_peaks = creat_background(peaks, length, counter)
+        train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
+        test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+        shuffled_peaks = creat_background(test_peaks, length, counter)
+        write_fasta(train_peaks, tmp_dir + '/train.fasta')
         run_di_chipmunk(path_to_java, path_to_chipmunk,
-                     peaks_path, tmp_dir + '/chipmunk_results.txt',
+                     tmp_dir + '/train.fasta', tmp_dir + '/chipmunk_results.txt',
                      length, length, cpu_count)
         sites = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
         sites = list(set(sites))
@@ -120,8 +123,9 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
         for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
             false_scores.append(false_score)
         fprs = calculate_fprs(true_scores, false_scores)
-        roc = calculate_merged_roc(fprs)
-        auc = calculate_particial_auc(roc['TPR'], roc['FPR'], pfpr)
+        roc = calculate_short_roc(fprs, step=1)
+        merged_roc = calculate_merged_roc(fprs)
+        auc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
         print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc))
         write_auc(output_auc + '/auc.txt', auc, length)
         dipcm = make_dipcm(sites)
@@ -130,7 +134,8 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
         tag = 'dipwm_model_{}'.format(length)
         write_dipwm(output_auc, tag, dipwm)
         write_dipfm(output_auc, tag, dipfm)
-        write_sites(output=output_auc, tag=tag, sites=sites)
+        write_sites(output=output_auc, tag=tag, sites=sites)        
+        write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
     shutil.rmtree(tmp_dir)
     return(0)
@@ -144,17 +149,12 @@ def choose_best_model(output_auc):
         file.close()
     auc.sort(key=itemgetter(1))
     length = auc[-1][0]
-    sites = []
-    with open(output_auc + '/dipwm_model_{}.fasta'.format(length)) as file:
-        for line in file:
-            if not line.startswith('>'):
-                sites.append(line.strip())
-    return(sites, length)
+    return(length)
 
 
 def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk, 
     tmp_dir, output_dir, output_auc, cpu_count, pfpr):
-    counter = 6000000
+    counter = 10000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
@@ -162,9 +162,17 @@ def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk,
 
     learn_optimized_dipwm(peaks_path, counter, path_to_java, 
         path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
-    sites, length = choose_best_model(output_auc)
+    length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
-             output_dir + '/training_bootstrap.txt')
+             output_r + '/bootstrap.txt')
+    copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
+             output_r + '/bootstrap_merged.txt')
+    run_dichipmunk(
+        path_to_java, path_to_chipmunk,
+        peaks_path, 
+        output_dir + '/chipmunk_results.txt', 
+        length, length, cpu_count)
+    sites = parse_chipmunk(output_dir + '/chipmunk_results.txt')
     dipcm = make_dipcm(sites)
     dipfm = make_dipfm(dipcm)
     dipwm = make_dipwm(dipfm)
