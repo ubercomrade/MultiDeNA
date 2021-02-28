@@ -676,7 +676,7 @@ def write_auc(path, auc, length):
 
 def write_auc_with_order(path, auc, length, order):
     with open(path, 'a') as file:
-        file.write('{0}\t{1}\n'.format(order, length, auc))
+        file.write('{0}\t{1}\t{2}\n'.format(order, length, auc))
     pass
 
 
