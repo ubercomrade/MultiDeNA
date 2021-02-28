@@ -8,7 +8,8 @@ from operator import itemgetter
 from lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_pwm, write_pfm, write_meme, \
-calculate_particial_auc, write_auc, calculate_merged_roc, calculate_short_roc, write_roc, calculate_fprs
+calculate_particial_auc, write_auc, calculate_merged_roc, \
+calculate_short_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap, score_pwm
 
 
