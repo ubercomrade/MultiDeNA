@@ -167,9 +167,9 @@ def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk,
         path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
-             output_r + '/bootstrap.txt')
+             output_dir + '/bootstrap.txt')
     copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
-             output_r + '/bootstrap_merged.txt')
+             output_dir + '/bootstrap_merged.txt')
     run_dichipmunk(
         path_to_java, path_to_chipmunk,
         peaks_path, 
