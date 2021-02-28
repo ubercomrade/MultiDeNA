@@ -124,6 +124,9 @@ def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir,
     output_dir, output_auc, pfpr, order):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
+    else:
+        shutil.rmtree(tmp_dir)
+        os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     if not os.path.isdir(output_auc):

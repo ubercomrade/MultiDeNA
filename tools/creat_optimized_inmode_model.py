@@ -184,6 +184,9 @@ def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode,
     counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
+    else:
+        shutil.rmtree(tmp_dir)
+        os.mkdir(tmp_dir)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     if not os.path.exists(output_auc):
