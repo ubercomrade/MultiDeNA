@@ -121,7 +121,7 @@ def choose_best_model(output_auc):
 
 
 def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir, 
-    output_dir, output_auc, pfpr, order):
+    output_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     else:
