@@ -382,7 +382,7 @@ def get_motif_length(models):
     return(motif_length)
 
 
-def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
+def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr):
 
@@ -737,7 +737,7 @@ def main():
     elif organism == 'tair10':
         path_to_promoters = os.path.join(this_dir, "promoters", "tair10.fasta")
 
-    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size, bootstrap_flag,
+    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr)
 
