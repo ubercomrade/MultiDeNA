@@ -162,7 +162,7 @@ def choose_best_model(output_auc):
 
 def de_novo_with_oprimization_pwm(peaks_path, path_to_java, path_to_chipmunk, 
     tmp_dir, output_dir, output_auc, cpu_count, pfpr):
-    counter = 10000000
+    counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):

@@ -133,7 +133,7 @@ def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir,
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
 
-    counter = 6000000
+    counter = 5000000
     learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_{}.meme'.format(length)
