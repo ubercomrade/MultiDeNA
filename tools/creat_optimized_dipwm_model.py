@@ -3,6 +3,7 @@ import shutil
 import os
 import subprocess
 import bisect
+from operator import itemgetter
 from shutil import copyfile
 from lib.common import read_peaks, sites_to_dipwm, creat_background, \
 write_fasta, complement, make_dipcm, make_dipfm, \
