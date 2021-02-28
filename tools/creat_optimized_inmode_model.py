@@ -181,7 +181,7 @@ def choose_best_model(output_auc):
 
 def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode, 
     path_to_java, tmp_dir, output_dir, output_auc, pfpr):
-    counter = 10000000
+    counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.exists(output_dir):
@@ -194,9 +194,9 @@ def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode,
                            tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     
-    copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_{}.txt'.format(length), 
              output_dir + '/bootstrap.txt')
-    copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
     
     args = [path_to_java, '-Xmx16G', '-Xms1G', '-jar', path_to_inmode,
