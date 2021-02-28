@@ -518,11 +518,11 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             print('Training INMODE model')
             if not os.path.isdir(models + '/inmode_model/'):
                 os.mkdir(models + '/inmode_model/')
-                inmode_length, inmode_order = de_novo_with_oprimization_inmode(
-                                                fasta_train, path_to_inmode, 
-                                                path_to_java, models + '/inmode.tmp', 
-                                                inmode_model_dir, output_auc + '/inmode', 
-                                                pfpr)
+            inmode_length, inmode_order = de_novo_with_oprimization_inmode(
+                                            fasta_train, path_to_inmode, 
+                                            path_to_java, models + '/inmode.tmp', 
+                                            inmode_model_dir, output_auc + '/inmode', 
+                                            pfpr)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, motif_length,
