@@ -204,7 +204,7 @@ def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode,
     'mo={}'.format(order)]
     r = subprocess.run(args, capture_output=True)
     shutil.copy(output_dir + '/Learned_DeNovo({0},{1},2)_motif/XML_of_DeNovo({0},{1},2)_motif.xml'.format(length,order),
-                output_dir + '/inmode_model.xml'.format(order, tag))
+                output_dir + '/inmode_model.xml')
     os.remove(output_dir + '/protocol_denovo.txt')
     os.remove(output_dir + '/Logfile_of_DeNovo({0},{1},2)_stochastic_search.txt'.format(length,order))
     os.remove(output_dir + '/Latent_variables_of_DeNovo({0},{1},2).txt'.format(length,order))
