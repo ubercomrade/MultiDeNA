@@ -191,7 +191,8 @@ def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode,
         os.mkdir(output_dir)
     if not os.path.exists(output_auc):
         os.mkdir(output_auc)
-
+    if os.path.exists(output_auc + '/auc.txt'):
+        os.remove(output_auc + '/auc.txt')
     learn_optimized_inmode(peaks_path, counter,
                            path_to_inmode, path_to_java, 
                            tmp_dir, output_auc, pfpr)

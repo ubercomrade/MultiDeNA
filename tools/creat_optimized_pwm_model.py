@@ -106,6 +106,8 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         os.mkdir(tmp_r)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
+    if os.path.exists(output_auc + '/auc.txt'):
+        os.remove(output_auc + '/auc.txt')
     for length in range(12, 41, 4):
         true_scores = []
         false_scores = []

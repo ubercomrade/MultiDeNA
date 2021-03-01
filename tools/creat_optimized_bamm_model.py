@@ -101,6 +101,8 @@ def learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, 
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
+    if os.path.exists(output_auc + '/auc.txt'):
+        os.remove(output_auc + '/auc.txt')
     for order in range(1,4):
         for length in range(12, 41, 4):
             meme = pwm_auc_dir + '/pwm_model_{}.meme'.format(length)
