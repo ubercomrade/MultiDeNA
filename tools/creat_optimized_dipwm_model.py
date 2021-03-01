@@ -148,7 +148,7 @@ def choose_best_model(output_auc):
     auc = []
     with open(output_auc + '/auc.txt') as file:
         for line in file:
-            auc.append(tuple(line.strip().split()))
+            auc.append(tuple(map(float, line.strip().split())))
         file.close()
     auc.sort(key=itemgetter(1))
     length = auc[-1][0]
