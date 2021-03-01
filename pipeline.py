@@ -566,8 +566,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
             bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, output_auc + '/pwm', 
-                models + '/bamm.tmp', models + '/bamm_model', 
-                output_auc + '/bamm', pfpr)
+                models + '/bamm.tmp', models + '/bamm_model', output_auc + '/bamm', pfpr)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:

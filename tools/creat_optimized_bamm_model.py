@@ -146,4 +146,4 @@ def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir,
              output_dir + '/bootstrap.txt')
     shutil.copy(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
-    return(length)
+    return(length, order)
