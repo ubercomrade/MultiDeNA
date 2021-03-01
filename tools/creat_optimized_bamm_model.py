@@ -88,7 +88,7 @@ def learn_optimized_bamm_support(peaks_path, counter, order, length, meme, tmp_d
     print("Length {0}; Order {1}".format(length, order), "pAUC at {0} = {1};".format(pfpr, auc))
     write_auc_with_order(output_dir + '/auc.txt', auc, length, order)
     write_roc(output_dir + "/training_bootstrap_{0}.txt".format(length), roc)
-    write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
+    write_roc(output_dir + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
        output_dir + '/bamm_model_{0}_{1}.ihbcp'.format(order, length))
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
