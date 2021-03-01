@@ -156,7 +156,7 @@ def choose_best_model(output_auc):
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
     auc.sort(key=itemgetter(1))
-    length = auc[-1][0]
+    length = int(auc[-1][0])
     return(length)
 
 
