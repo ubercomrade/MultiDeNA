@@ -68,19 +68,29 @@ def fpr_at_tpr(true_scores, false_scores, tpr):
     return(fpr)
 
 
-def learn_optimized_bamm_support(peaks_path, counter, order, length, meme, tmp_dir, output_dir, pfpr):
+def learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir, tmp_dir, output_dir, pfpr):
     true_scores = []
     false_scores = []
     peaks = read_peaks(peaks_path)
-    train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
-    test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-    shuffled_peaks = creat_background(test_peaks, length, counter)
-    write_fasta(train_peaks, tmp_dir + '/train.fasta')
-    bamm, order = create_bamm_model(tmp_dir + '/train.fasta', tmp_dir, order, meme, 0, length)
-    for true_score in true_scores_bamm(test_peaks, bamm, order, length):
-        true_scores.append(true_score)
-    for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
-        false_scores.append(false_score)
+    for step in ['odd', 'even']:
+        meme = pwm_auc_dir + '/pwm_model_{0}_{1}.meme'.format(step, length)
+        if step == 'odd':
+            train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
+            test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+        else:
+            train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+            test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+        shuffled_peaks = creat_background(test_peaks, length, counter)
+        write_fasta(train_peaks, tmp_dir + '/train.fasta')
+        bamm, order = create_bamm_model(tmp_dir + '/train.fasta', tmp_dir, order, meme, 0, length)
+        for true_score in true_scores_bamm(test_peaks, bamm, order, length):
+            true_scores.append(true_score)
+        for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
+            false_scores.append(false_score)
+        shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
+               output_dir + '/bamm_model_{0}_{1}_{2}.ihbcp'.format(step, order, length))
+        shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
+               output_dir + '/bamm_{0}_{1}_{2}.hbcp'.format(step, order, length))
     fprs = calculate_fprs(true_scores, false_scores)
     roc = calculate_short_roc(fprs, step=1)
     merged_roc = calculate_merged_roc(fprs)
@@ -89,10 +99,6 @@ def learn_optimized_bamm_support(peaks_path, counter, order, length, meme, tmp_d
     write_auc_with_order(output_dir + '/auc.txt', auc, length, order)
     write_roc(output_dir + "/training_bootstrap_{0}.txt".format(length), roc)
     write_roc(output_dir + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
-    shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
-       output_dir + '/bamm_model_{0}_{1}.ihbcp'.format(order, length))
-    shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
-       output_dir + '/bamm_{0}_{1}.hbcp'.format(order, length))
     return(0)
 
 
@@ -105,8 +111,7 @@ def learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, 
         os.remove(output_auc + '/auc.txt')
     for order in range(1,4):
         for length in range(12, 41, 4):
-            meme = pwm_auc_dir + '/pwm_model_{}.meme'.format(length)
-            learn_optimized_bamm_support(peaks_path, counter, order, length, meme, tmp_dir, output_auc, pfpr)
+            learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     shutil.rmtree(tmp_dir)
     pass
 

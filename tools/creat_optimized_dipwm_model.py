@@ -113,33 +113,38 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
-        train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
-        test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-        shuffled_peaks = creat_background(test_peaks, length, counter)
-        write_fasta(train_peaks, tmp_dir + '/train.fasta')
-        run_di_chipmunk(path_to_java, path_to_chipmunk,
-                     tmp_dir + '/train.fasta', tmp_dir + '/chipmunk_results.txt',
-                     length, length, cpu_count)
-        sites = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
-        sites = list(set(sites))
-        dipwm = sites_to_dipwm(sites)
-        for true_score in true_scores_dipwm(peaks, dipwm, length):
-            true_scores.append(true_score)
-        for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
-            false_scores.append(false_score)
+        for step in ['odd', 'even']:
+            if step == 'odd':
+                train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+            else:
+                train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+            shuffled_peaks = creat_background(test_peaks, length, counter)
+            write_fasta(train_peaks, tmp_dir + '/train.fasta')
+            run_di_chipmunk(path_to_java, path_to_chipmunk,
+                         tmp_dir + '/train.fasta', tmp_dir + '/chipmunk_results.txt',
+                         length, length, cpu_count)
+            sites = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
+            sites = list(set(sites))
+            dipwm = sites_to_dipwm(sites)
+            for true_score in true_scores_dipwm(peaks, dipwm, length):
+                true_scores.append(true_score)
+            for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
+                false_scores.append(false_score)
+            dipcm = make_dipcm(sites)
+            dipfm = make_dipfm(dipcm)
+            dipwm = make_dipwm(dipfm)
+            tag = 'dipwm_model_{0}_{1}'.format(step, length)
+            write_dipwm(output_auc, tag, dipwm)
+            write_dipfm(output_auc, tag, dipfm)
+            write_sites(output=output_auc, tag=tag, sites=sites)        
         fprs = calculate_fprs(true_scores, false_scores)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
         auc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
         print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc))
         write_auc(output_auc + '/auc.txt', auc, length)
-        dipcm = make_dipcm(sites)
-        dipfm = make_dipfm(dipcm)
-        dipwm = make_dipwm(dipfm)
-        tag = 'dipwm_model_{}'.format(length)
-        write_dipwm(output_auc, tag, dipwm)
-        write_dipfm(output_auc, tag, dipfm)
-        write_sites(output=output_auc, tag=tag, sites=sites)        
         write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
     shutil.rmtree(tmp_dir)

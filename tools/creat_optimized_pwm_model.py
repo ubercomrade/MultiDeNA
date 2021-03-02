@@ -112,20 +112,38 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
-        train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
-        test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-        shuffled_peaks = creat_background(test_peaks, length, counter)
-        write_fasta(train_peaks, tmp_r + '/train.fasta')
-        run_chipmunk(path_to_java, path_to_chipmunk,
-                     tmp_r + '/train.fasta', tmp_r + '/chipmunk_results.txt',
-                     length, length, cpu_count)
-        sites = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
-        sites = list(set(sites))
-        pwm = sites_to_pwm(sites)
-        for true_score in true_scores_pwm(test_peaks, pwm, length):
-            true_scores.append(true_score)
-        for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
-            false_scores.append(false_score)
+        for step in ['odd', 'even']:
+            if step == 'odd':
+                train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+            else:
+                train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+            shuffled_peaks = creat_background(test_peaks, length, counter)
+            write_fasta(train_peaks, tmp_r + '/train.fasta')
+            run_chipmunk(path_to_java, path_to_chipmunk,
+                         tmp_r + '/train.fasta', tmp_r + '/chipmunk_results.txt',
+                         length, length, cpu_count)
+            sites = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
+            sites = list(set(sites))
+            pwm = sites_to_pwm(sites)
+            for true_score in true_scores_pwm(test_peaks, pwm, length):
+                true_scores.append(true_score)
+            for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
+                false_scores.append(false_score)
+            pcm = make_pcm(sites)
+            pfm = make_pfm(pcm)
+            pwm = make_pwm(pfm)
+            nsites = len(sites)
+            background = {'A': 0.25,
+                         'C': 0.25,
+                         'G': 0.25,
+                         'T': 0.25}
+            tag = 'pwm_model_{0}_{1}'.format(step, length)
+            write_meme(output_auc, tag, pfm, background, nsites)
+            write_pwm(output_auc, tag, pwm)
+            write_pfm(output_auc, tag, pfm)
+            write_sites(output=output_auc, tag=tag, sites=sites)
         fprs = calculate_fprs(true_scores, false_scores)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
@@ -134,19 +152,6 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
         write_auc(output_auc + '/auc.txt', auc, length)
         write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
-        pcm = make_pcm(sites)
-        pfm = make_pfm(pcm)
-        pwm = make_pwm(pfm)
-        nsites = len(sites)
-        background = {'A': 0.25,
-                     'C': 0.25,
-                     'G': 0.25,
-                     'T': 0.25}
-        tag = 'pwm_model_{}'.format(length)
-        write_meme(output_auc, tag, pfm, background, nsites)
-        write_pwm(output_auc, tag, pwm)
-        write_pfm(output_auc, tag, pfm)
-        write_sites(output=output_auc, tag=tag, sites=sites)
     shutil.rmtree(tmp_r)
     return(0)
 

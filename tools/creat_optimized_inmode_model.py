@@ -142,17 +142,24 @@ def learn_optimized_inmode(peaks_path, counter,
             true_scores = []
             false_scores = []
             peaks = read_peaks(peaks_path)
-            train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
-            test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-            shuffled_peaks = creat_background(test_peaks, length, counter)
-            write_fasta(shuffled_peaks, tmp_dir, "shuffled")
-            write_fasta(train_peaks, tmp_dir, "train")
-            write_fasta(test_peaks, tmp_dir, "test")
-            make_inmode('{0}/{1}.fa'.format(tmp_dir, 'train'), path_to_inmode, path_to_java, length, order, tmp_dir, str(length))
-            for true_score in true_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "test", str(length), str(order)):
-                true_scores.append(true_score)
-            for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", str(length), str(order)):
-                false_scores.append(false_score)
+            for step in ['odd', 'even']:
+                if step == 'odd':
+                    train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
+                    test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+                else:
+                    train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
+                    test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+                shuffled_peaks = creat_background(test_peaks, length, counter)
+                write_fasta(shuffled_peaks, tmp_dir, "shuffled")
+                write_fasta(train_peaks, tmp_dir, "train")
+                write_fasta(test_peaks, tmp_dir, "test")
+                make_inmode('{0}/{1}.fa'.format(tmp_dir, 'train'), path_to_inmode, path_to_java, length, order, tmp_dir, str(length))
+                for true_score in true_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "test", str(length), str(order)):
+                    true_scores.append(true_score)
+                for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", str(length), str(order)):
+                    false_scores.append(false_score)
+                shutil.copy(tmp_dir + '/inmode_model_{0}_{1}.xml'.format(order, length),
+                            output_auc + '/inmode_model_{0}_{1}_{2}.xml'.format(step, order, length))
             fprs = calculate_fprs(true_scores, false_scores)
             roc = calculate_short_roc(fprs, step=1)
             merged_roc = calculate_merged_roc(fprs)
@@ -161,8 +168,6 @@ def learn_optimized_inmode(peaks_path, counter,
             write_auc_with_order(output_auc + '/auc.txt', auc, length, order)
             write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
             write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
-            shutil.copy(tmp_dir + '/inmode_model_{0}_{1}.xml'.format(order, length),
-                           output_auc + '/inmode_model_{0}_{1}.xml'.format(order, length))
     shutil.rmtree(tmp_dir)
     return(0)
 
