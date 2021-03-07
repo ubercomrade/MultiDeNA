@@ -143,7 +143,7 @@ def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir,
     counter = 5000000
     learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
-    meme = pwm_auc_dir + '/pwm_model_{}.meme'.format(length)
+    meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
     create_bamm_model(peaks_path, tmp_dir, order, meme, 0, length)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
            output_dir + '/bamm_model.ihbcp')
