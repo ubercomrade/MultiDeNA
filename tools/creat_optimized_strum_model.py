@@ -98,14 +98,11 @@ def learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, p
             shuffled_peaks = creat_background(test_peaks, length, counter)
             write_fasta(train_peaks, tmp_dir + '/train.fasta')
             strum_model = strum_de_novo(tmp_dir + '/train.fasta', length, cpu_count)
-            print(1)
             for true_score, site in zip(*true_scores_strum(test_peaks, strum_model, length)):
                 true_scores.append(true_score)
                 sites.append(site)
-            print(2)
             for false_score in false_scores_strum(shuffled_peaks, strum_model):
                 false_scores.append(false_score)
-            print(3)
         fprs = calculate_fprs(true_scores, false_scores)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
@@ -123,7 +120,7 @@ def learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, p
                      'C': 0.25,
                      'G': 0.25,
                      'T': 0.25}
-        write_strum(strum_model, output_auc + '/{}'.format(tag))
+        write_strum(strum_model, output_auc + '/{}.pickle'.format(tag))
         write_meme(output_auc, tag, pfm, background, nsites)
     shutil.rmtree(tmp_dir)
     return(0)
@@ -166,5 +163,5 @@ def de_novo_with_oprimization_strum(peaks_path, tmp_dir, output_dir, output_auc,
                  'T': 0.25}
     tag = 'strum_model'
     write_meme(output_dir, tag, pfm, background, nsites)
-    write_strum(strum_model, output_dir + '/{}'.format(tag))
+    write_strum(strum_model, output_dir + '/{}.pickle'.format(tag))
     return(length)
