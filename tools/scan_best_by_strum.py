@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 from strum import strum
 from lib.common import read_strum
 
