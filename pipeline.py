@@ -13,18 +13,21 @@ from tools.creat_optimized_pwm_model import de_novo_with_oprimization_pwm
 from tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
 from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
 from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
+from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
 from tools.get_threshold_for_bamm import get_threshold_for_bamm
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_dipwm import get_threshold_for_dipwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
-from tools.bootstrap_for_pwm import bootstrap_for_pwm
-from tools.bootstrap_for_dipwm import bootstrap_for_dipwm
-from tools.bootstrap_for_bamm import bootstrap_for_bamm
-from tools.bootstrap_for_inmode import bootstrap_for_inmode
-from tools.bootstrap_for_sitega import bootstrap_for_sitega
+from tools.get_threshold_for_strum import get_threshold_for_strum
+# from tools.bootstrap_for_pwm import bootstrap_for_pwm
+# from tools.bootstrap_for_dipwm import bootstrap_for_dipwm
+# from tools.bootstrap_for_bamm import bootstrap_for_bamm
+# from tools.bootstrap_for_inmode import bootstrap_for_inmode
+# from tools.bootstrap_for_sitega import bootstrap_for_sitega
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_dipwm import scan_by_dipwm
 from tools.scan_by_bamm import scan_by_bamm
+from tools.scan_by_strum import scan_by_strum
 from tools.get_top_peaks import write_top_peaks
 from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
@@ -101,81 +104,6 @@ def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_s
     return(0)
 
 
-def get_inmode_model(models_path, fasta_path, path_to_java, path_to_inmode, motif_length, model_order):
-    inmode_model_path = models_path + '/inmode_model'
-    if not os.path.isdir(inmode_model_path):
-        os.mkdir(inmode_model_path)
-    if glob.glob(inmode_model_path + '/Learned_DeNovo*') == []:
-        args = [path_to_java, '-jar', path_to_inmode, 'denovo',
-                'i={}'.format(fasta_path),
-                'm={}'.format(motif_length),
-               'mo={}'.format(model_order),
-               'outdir={}'.format(inmode_model_path)]
-        r = subprocess.run(args, capture_output=True)
-    else:
-        print('INMODE model already exists')
-    copyfile(glob.glob(inmode_model_path + '/Learned_DeNovo*/XML*')[0], inmode_model_path + '/inmode_model.xml')
-    copyfile(glob.glob(inmode_model_path + '/Learned_DeNovo*/Binding_sites*')[0], inmode_model_path + '/inmode_sites.txt')
-    return(0)
-
-
-def run_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_length_start, motif_length_end, cpu_count):
-    args = [path_to_java, '-cp', path_to_chipmunk,
-                   'ru.autosome.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
-                   's:{}'.format(fasta_path),
-                  '100', '10', '1', str(cpu_count), 'random']
-    p = subprocess.run(args, shell=False, capture_output=True)
-    out = p.stdout
-    with open(path_out, 'wb') as file:
-        file.write(out)
-    return(0)
-
-
-def get_pwm_model(models_path, fasta_path,  path_to_java, path_to_chipmunk, motif_length_start, motif_length_end, cpu_count):
-    chipmunk_model_path = models_path + '/pwm_model'
-    if not os.path.isdir(chipmunk_model_path):
-        os.mkdir(chipmunk_model_path)
-    # FIND MODEL BY CHIPMUNK #
-    if not os.path.isfile(chipmunk_model_path + '/initial_pwm_model.pwm'):
-        run_chipmunk(path_to_java, path_to_chipmunk,
-        fasta_path,
-        chipmunk_model_path + '/initial_pwm_model.txt',
-        motif_length_start, motif_length_end, cpu_count)
-    else:
-        print('{0} already exists (initial model exists)'.format(chipmunk_model_path + '/initial_pwm_model.pwm'))
-    # Parse results of chipmunk into files .meme, .pwm and .fasta (multi fasta) #
-    parse_chipmunk_results(chipmunk_model_path + '/initial_pwm_model.txt',
-        chipmunk_model_path, 'initial_pwm_model')
-    # Get oPWM from chipmunk results. OUTPUT: .meme, .pwm and .fasta (multi fasta) #
-    if not os.path.isfile(chipmunk_model_path + '/pwm_model.pwm'):
-        make_pwm(chipmunk_model_path + '/initial_pwm_model.txt',
-            fasta_path, chipmunk_model_path, 5000, 'pwm_model', cpu_count)
-    else:
-        print('{0} already exists'.format(chipmunk_model_path + '/pwm_model.pwm'))
-    return(0)
-
-
-def get_bamm_model(models_path, fasta_train, meme_model, model_order):
-    #Get BaMM motif
-    bamm_model_path = models_path + '/bamm_model'
-    if not os.path.isfile(bamm_model_path + '/bamm_motif_1.ihbcp'):
-        if not os.path.isdir(bamm_model_path):
-            os.mkdir(bamm_model_path)
-        args = ['BaMMmotif', bamm_model_path,
-                fasta_train,
-               '--PWMFile', meme_model,
-                '--basename', 'bamm',
-               '--EM',
-               '--Order', str(model_order),
-               '--order', str(model_order),
-               '--scoreSeqset',
-               '--saveLogOdds']
-        r = subprocess.run(args, capture_output=True)
-    else:
-        print('BAMM model already exists')
-    return(0)
-
-
 def calculate_thresholds_for_bamm(path_to_promoters, bamm_model_dir, thresholds_dir):
     if not os.path.isfile(thresholds_dir + '/bamm_model_thresholds.txt'):
         print('Calculate threshold for BaMM based on promoters and fpr')
@@ -225,6 +153,17 @@ def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresho
     return(0)
 
 
+def calculate_thresholds_for_strum(path_to_promoters, pwm_model_dir, thresholds_dir):
+    if not os.path.isfile(thresholds_dir + '/strum_model_thresholds.txt'):
+        print('Calculate threshold for StruM based on promoters and fpr')
+        get_threshold_for_strum(path_to_promoters,
+                strum_model_dir + '/strum_model.pickle',
+                thresholds_dir + '/strum_model_thresholds.txt')
+    else:
+        print('Thresholds for StruM already calculated')
+    return(0)
+
+
 def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr):
     thr_pwm = get_threshold(threshold_table_path, fpr)
     pwm_scan_path = scan + '/pwm_{:.2e}.bed'.format(fpr)
@@ -265,6 +204,14 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     parse_inmode_results(fasta_test, glob.glob(inmode_scan_dir + '/*.BED')[0],
         inmode_scan_path, thr_inmode)
     os.system("rm -r {}".format(inmode_scan_dir))
+    return(0)
+
+
+def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr):
+    thr_strum = get_threshold(threshold_table_path, fpr)
+    strum_scan_path = scan + '/strum_{:.2e}.bed'.format(fpr)
+    print('Scan peaks by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum))
+    scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
     return(0)
 
 
@@ -637,6 +584,40 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             os.remove(scan + '/sitega_{:.2e}.bed'.format(check))
             open(scan + '/sitega_{:.2e}.bed'.format(fpr), 'w').close()
     ### END SITEGA ###
+
+
+    ### CALCULATE StruM MODEL ###
+    if 'strum' in tools:
+        strum_model = models + '/strum_model/strum_model.pickle'
+        strum_threshold_table = thresholds + '/strum_model_thresholds.txt'
+        if not os.path.isfile(strum_model):
+            print('Training StruM model')
+            strum_length = de_novo_with_oprimization_strum(fasta_train, 
+                models + '/strum.tmp', models + '/strum_model/', 
+                output_auc + '/strum', cpu_count, pfpr)
+        # THRESHOLD
+        calculate_thresholds_for_strum(path_to_promoters, models + '/strum_model', thresholds)
+        check = check_threshold_table(strum_threshold_table)
+        if check < fpr:
+            # SCAN
+            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr)
+            # scan_best_by_strum(scan_best + '/strum.scores.txt',
+            #      strum_model,
+            #      fasta_test)
+            extract_sites(scan + '/strum_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
+            write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
+        else:
+            print('WARNING! StruM model has poor table with thresholds')
+            print('Best FPR for model is {}'.format(check))
+            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, check)
+            # scan_best_by_strum(scan_best + '/strum.scores.txt',
+            #      strum_model,
+            #      fasta_test)
+            extract_sites(scan + '/strum_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
+            write_model(tomtom + '/strum.sites.txt', tomtom, 'pwm')
+            os.remove(scan + '/strum_{:.2e}.bed'.format(check))
+            open(scan + '/strum_{:.2e}.bed'.format(fpr), 'w').close()
+    ### END StruM ###
 
 
     # COMPARE SITES

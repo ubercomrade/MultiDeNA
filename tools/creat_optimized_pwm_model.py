@@ -57,7 +57,7 @@ def false_scores_pwm(peaks, pwm, length_of_site):
         full_peak = peak + 'N' * length_of_site + complement_peak
         n = len(full_peak) - length_of_site + 1
         for i in range(n):
-            site = peak[i:length_of_site + i]
+            site = full_peak[i:length_of_site + i]
             if 'N' in site:
                 continue
             score = score_pwm(site, pwm)

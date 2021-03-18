@@ -8,6 +8,8 @@ from math import log
 import re
 import random
 import bisect
+import pickle
+from strum import strum
 
 
 def read_seqs(path):
@@ -691,3 +693,18 @@ def calculate_particial_auc(tprs, fprs, pfpr):
         fpr_old = fpr_new
         tpr_old = tpr_new
     return(auc)
+
+
+
+# Strum
+
+def write_strum(strum_model, write_path):
+    with open(write_path, 'wb') as f:
+        pickle.dump(strum_model, f)
+    pass
+
+
+def read_strum(strum_path):
+    with open(strum_path, 'rb') as f:
+        strum_model = pickle.load(f)
+    return(strum_model)
