@@ -601,18 +601,18 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if check < fpr:
             # SCAN
             scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr)
-            # scan_best_by_strum(scan_best + '/strum.scores.txt',
-            #      strum_model,
-            #      fasta_test)
+            scan_best_by_strum(scan_best + '/strum.scores.txt',
+                 strum_model,
+                 fasta_test)
             extract_sites(scan + '/strum_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
             write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
         else:
             print('WARNING! StruM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
             scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, check)
-            # scan_best_by_strum(scan_best + '/strum.scores.txt',
-            #      strum_model,
-            #      fasta_test)
+            scan_best_by_strum(scan_best + '/strum.scores.txt',
+                 strum_model,
+                 fasta_test)
             extract_sites(scan + '/strum_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
             write_model(tomtom + '/strum.sites.txt', tomtom, 'pwm')
             os.remove(scan + '/strum_{:.2e}.bed'.format(check))
