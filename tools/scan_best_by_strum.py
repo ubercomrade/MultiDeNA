@@ -7,7 +7,7 @@ def read_fasta(path):
     with open(path, 'r') as file:
         for line in file:
             if not line.startswith('>'):
-                fasta.append(line.strip())
+                fasta.append(line.strip().upper())
     file.close()
     return(fasta)
 
