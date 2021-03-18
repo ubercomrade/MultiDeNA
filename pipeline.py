@@ -38,6 +38,7 @@ from tools.scan_best_by_pwm import scan_best_by_pwm
 from tools.scan_best_by_dipwm import scan_best_by_dipwm
 from tools.scan_best_by_bamm import scan_best_by_bamm
 from tools.scan_best_by_inmode import scan_best_by_inmode
+from tools.scan_best_by_strum import scan_best_by_strum
 from tools.extract_sites import extract_sites
 from tools.write_model import write_model
 from tools.clear_from_n import clear_from_n
