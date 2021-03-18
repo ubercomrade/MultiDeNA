@@ -5,7 +5,7 @@ from Cython.Build import cythonize
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-install_requires = ['setuptools>=18.0', 'cython']
+install_requires = ['setuptools>=18.0', 'cython', 'numpy', 'scipy', 'matplotlib']
 ext_modules = [Extension('lib.speedup', sources=['lib/speedup.pyx'],)]
 
 

@@ -153,7 +153,7 @@ def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresho
     return(0)
 
 
-def calculate_thresholds_for_strum(path_to_promoters, pwm_model_dir, thresholds_dir):
+def calculate_thresholds_for_strum(path_to_promoters, strum_model_dir, thresholds_dir):
     if not os.path.isfile(thresholds_dir + '/strum_model_thresholds.txt'):
         print('Calculate threshold for StruM based on promoters and fpr')
         get_threshold_for_strum(path_to_promoters,
