@@ -154,6 +154,7 @@ def de_novo_with_oprimization_strum(peaks_path, tmp_dir, output_dir, output_auc,
     strum_model = strum_de_novo(peaks_path, length, cpu_count)
     peaks = read_peaks(peaks_path)
     true_scores, sites = true_scores_strum(peaks, strum_model, length)
+    sites = [i for i in sites if not 'N' in i]
     pcm = make_pcm(sites)
     pfm = make_pfm(pcm)
     nsites = len(sites)
