@@ -550,24 +550,24 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isdir(sitega_model_dir):
             os.mkdir(sitega_model_dir)
         # PREPARE FASTA 
-        clear_from_n(fasta_train, sitega_model_dir + '/train_sample_no_n.fa')
+        # clear_from_n(fasta_train, sitega_model_dir + '/train_sample_no_n.fa')
         # TRAIN SITEGA
-        if not os.path.isfile(sitega_model_path):
-            print('Training SiteGA model')
-            get_sitega_model(sitega_model_dir, sitega_length, fasta_train)
-        with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
-            file.readline()
-            lpd = int(file.readline().strip().split()[0])
-            sitega_length = int(file.readline().strip().split()[0])
-        file.close()
-        # BOOTSTRAP
-        if bootstrap_flag and not os.path.isfile(bootstrap + '/sitega_model.tsv'):
-            print('Run bootstrap for SiteGA model')
-            bootstrap_for_sitega(sitega_model_dir + '/train_sample_no_n.fa', 
-                bootstrap + '/sitega_model.tsv',
-                bootstrap + '/sitega_model_full.tsv',
-                sitega_length, lpd, bootstrap + '/sitega.tmp/', counter=5000000)
-        calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
+        # if not os.path.isfile(sitega_model_path):
+        #     print('Training SiteGA model')
+        #     get_sitega_model(sitega_model_dir, sitega_length, fasta_train)
+        # with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
+        #     file.readline()
+        #     lpd = int(file.readline().strip().split()[0])
+        #     sitega_length = int(file.readline().strip().split()[0])
+        # file.close()
+        # # BOOTSTRAP
+        # if bootstrap_flag and not os.path.isfile(bootstrap + '/sitega_model.tsv'):
+        #     print('Run bootstrap for SiteGA model')
+        #     bootstrap_for_sitega(sitega_model_dir + '/train_sample_no_n.fa', 
+        #         bootstrap + '/sitega_model.tsv',
+        #         bootstrap + '/sitega_model_full.tsv',
+        #         sitega_length, lpd, bootstrap + '/sitega.tmp/', counter=5000000)
+        # calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
             # SCAN
