@@ -271,10 +271,10 @@ def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_
         '{}'.format(fasta_test),
         '{}'.format(model_path),
         '{}'.format(threshold_table_path),
-        '1',
+        '0',
         '{}'.format(fpr),
        '{}'.format(sitega_scan_tmp_dir + '/sitega.pro')]
-    r = subprocess.run(args, capture_output=False)
+    r = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_scan_tmp_dir + '/sitega.pro',
                          sitega_scan_path, sitega_length)
     shutil.copyfile(fasta_test + '_bestscosg', scan_best_dir + '/sitega.scores.txt')
