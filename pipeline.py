@@ -414,7 +414,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(pwm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr, 'train')
+            scan_peaks_by_pwm(fasta_train, pwm_model, scan, pwm_threshold_table, fpr, 'train')
             scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr, 'test')
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
@@ -424,7 +424,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         else:
             print('WARNING! PWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check, 'train')
+            scan_peaks_by_pwm(fasta_train, pwm_model, scan, pwm_threshold_table, check, 'train')
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
                  fasta_train)
@@ -450,7 +450,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(dipwm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr, 'train')
+            scan_peaks_by_dipwm(fasta_train, dipwm_model, scan, dipwm_threshold_table, fpr, 'train')
             scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr, 'test')
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
@@ -460,7 +460,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         else:
             print('WARNING! diPWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, check, 'train')
+            scan_peaks_by_dipwm(fasta_train, dipwm_model, scan, dipwm_threshold_table, check, 'train')
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
                  fasta_train)
@@ -494,7 +494,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(inmode_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
+            scan_peaks_by_inmode(fasta_train, inmode_model, scan, inmode_threshold_table,
             fpr, path_to_java, path_to_inmode, path_to_promoters, 'train')
             scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
             fpr, path_to_java, path_to_inmode, path_to_promoters, 'test')
@@ -507,7 +507,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         else:
             print('WARNING! INMODE model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
+            scan_peaks_by_inmode(fasta_train, inmode_model, scan, inmode_threshold_table,
             check, path_to_java, path_to_inmode, path_to_promoters, 'train')
             scan_best_by_inmode(scan_best + '/inmode.scores.txt',
                 inmode_model,
@@ -538,7 +538,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr, 'train')
+            scan_peaks_by_bamm(fasta_train, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr, 'train')
             scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr, 'test')
             scan_best_by_bamm(scan_best + '/bamm.scores.txt',
                 bamm_model,
@@ -549,7 +549,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         else:
             print('WARNING! BAMM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, check, 'train')
+            scan_peaks_by_bamm(fasta_train, bamm_model, bg_bamm_model, scan, bamm_threshold_table, check, 'train')
             scan_best_by_bamm(scan_best + '/bamm.scores.txt',
                 bamm_model,
                 bg_bamm_model,
@@ -592,7 +592,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_sitega(fasta_test, sitega_model_path, sitega_length,
+            scan_peaks_by_sitega(fasta_train, sitega_model_path, sitega_length,
                 scan, sitega_threshold_table, fpr, scan_best, 'train')
             scan_peaks_by_sitega(fasta_test, sitega_model_path, sitega_length,
                 scan, sitega_threshold_table, fpr, scan_best, 'test')
@@ -625,7 +625,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(strum_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr, 'train')
+            scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, fpr, 'train')
+            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr, 'test')
             scan_best_by_strum(scan_best + '/strum.scores.txt',
                  strum_model,
                  fasta_train)
@@ -634,7 +635,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         else:
             print('WARNING! StruM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, check, 'train')
+            scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, check, 'train')
             scan_best_by_strum(scan_best + '/strum.scores.txt',
                  strum_model,
                  fasta_train)
