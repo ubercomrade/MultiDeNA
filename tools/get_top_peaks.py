@@ -19,20 +19,33 @@ def clear_peaks(peaks):
     peaks = [i for i in peaks if len(i[0]) < 6 and i[0] != "chrMT"]
     return(peaks)
 
+# OLD
+# def get_top_peaks(peaks, amount, col):
+#     scores = list(set([i[col] for i in peaks]))
+#     #print(len(scores))
+#     if len(scores) > amount * 0.15:
+#         sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
+#         for index, line in enumerate(sorted_peaks):
+#             line[3] = 'peaks_' + str(index)
+#         results = sorted_peaks[:amount]
+#     else:
+#         results = random.sample(peaks, k=amount)
+#         for index, line in enumerate(results):
+#             line[3] = 'peaks_' + str(index)
+#         results = sorted(results, key=lambda i: int(i[3].split('_')[1]), reverse=False)
+#     return(results)
+
 
 def get_top_peaks(peaks, amount, col):
     scores = list(set([i[col] for i in peaks]))
-    #print(len(scores))
-    if len(scores) > amount * 0.15:
-        sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
-        for index, line in enumerate(sorted_peaks):
-            line[3] = 'peaks_' + str(index)
-        results = sorted_peaks[:amount]
-    else:
-        results = random.sample(peaks, k=amount)
-        for index, line in enumerate(results):
-            line[3] = 'peaks_' + str(index)
-        results = sorted(results, key=lambda i: int(i[3].split('_')[1]), reverse=False)
+    if len(peaks) < amount:
+        print("Number of peaks ({0}) less than threshold amount ({1})".format(len(peaks), 
+            amount))
+        amount = len(peaks)
+    sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
+    for index, line in enumerate(sorted_peaks):
+        line[3] = 'peaks_' + str(index)
+    results = sorted_peaks[:amount]
     return(results)
 
 

@@ -165,17 +165,17 @@ def calculate_thresholds_for_strum(path_to_promoters, strum_model_dir, threshold
     return(0)
 
 
-def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr):
+def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
     thr_pwm = get_threshold(threshold_table_path, fpr)
-    pwm_scan_path = scan + '/pwm_{:.2e}.bed'.format(fpr)
-    print('Scan peaks by PWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
+    pwm_scan_path = scan + '/pwm_{0}_{1:.2e}.bed'.format(tag, fpr)
+    print('Scan peaks ({2}) by PWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm, tag))
     scan_by_pwm(fasta_test, model_path, thr_pwm, pwm_scan_path)
     return(0)
 
 
 def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr):
     thr_pwm = get_threshold(threshold_table_path, fpr)
-    dipwm_scan_path = scan + '/dipwm_{:.2e}.bed'.format(fpr)
+    dipwm_scan_path = scan + '/dipwm_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by diPWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
     scan_by_dipwm(fasta_test, model_path, thr_pwm, dipwm_scan_path)
     return(0)
@@ -183,7 +183,7 @@ def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr)
 
 def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_table_path, fpr):
     thr_bamm = get_threshold(threshold_table_path, fpr)
-    bamm_scan_path = scan + '/bamm_{:.2e}.bed'.format(fpr)
+    bamm_scan_path = scan + '/bamm_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by BAMM with FPR: {0} THR: {1}'.format(fpr, thr_bamm))
     scan_by_bamm(fasta_test, model_path, bg_model_path, thr_bamm, bamm_scan_path)
     return(0)
@@ -191,7 +191,7 @@ def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_ta
 
 def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr, path_to_java, path_to_inmode, path_to_promoters):
     inmode_scan_dir = scan + '/tmp'
-    inmode_scan_path = scan + '/inmode_{:.2e}.bed'.format(fpr)
+    inmode_scan_path = scan + '/inmode_{0}_{1:.2e}.bed'.format(tag, fpr)
     thr_inmode = get_threshold(threshold_table_path, fpr)
     print('Scan peaks by INMODE with FPR: {0} THR: {1}'.format(fpr, thr_inmode))
     args = [path_to_java, '-Xmx6G', '-Xms1024m', '-jar', path_to_inmode, 'scan',
@@ -210,7 +210,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
 
 def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr):
     thr_strum = get_threshold(threshold_table_path, fpr)
-    strum_scan_path = scan + '/strum_{:.2e}.bed'.format(fpr)
+    strum_scan_path = scan + '/strum_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum))
     scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
     return(0)
@@ -260,9 +260,9 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
     return(0)
 
 
-def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_table_path, fpr, scan_best_dir):
+def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_table_path, fpr, scan_best_dir, tag):
     sitega_scan_tmp_dir = scan + '/sitega.tmp/'
-    sitega_scan_path = scan + '/sitega_{:.2e}.bed'.format(fpr)
+    sitega_scan_path = scan + '/sitega_{0}_{1:.2e}.bed'.format(tag, fpr)
     thr_sitega = get_threshold(threshold_table_path, fpr)
     if not os.path.exists(sitega_scan_tmp_dir):
         os.mkdir(sitega_scan_tmp_dir)
@@ -403,23 +403,25 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(pwm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr)
+            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr, 'train')
+            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, fpr, 'test')
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
-                 fasta_test)
+                 fasta_train)
             extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
         else:
             print('WARNING! PWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check)
+            scan_peaks_by_pwm(fasta_test, pwm_model, scan, pwm_threshold_table, check, 'train')
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
-                 fasta_test)
+                 fasta_train)
             extract_sites(scan + '/pwm_{:.2e}.bed'.format(check), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
             os.remove(scan + '/pwm_{:.2e}.bed'.format(check))
-            open(scan + '/pwm_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/pwm_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/pwm_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END PWM ###
 
 
@@ -437,23 +439,25 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(dipwm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr)
+            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr, 'train')
+            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, fpr, 'test')
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
-                 fasta_test)
+                 fasta_train)
             extract_sites(scan + '/dipwm_{:.2e}.bed'.format(fpr), tomtom + '/dipwm.sites.txt')
             write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
         else:
             print('WARNING! diPWM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, check)
+            scan_peaks_by_dipwm(fasta_test, dipwm_model, scan, dipwm_threshold_table, check, 'train')
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
-                 fasta_test)
+                 fasta_train)
             extract_sites(scan + '/dipwm_{:.2e}.bed'.format(check), tomtom + '/dipwm.sites.txt')
             write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
             os.remove(scan + '/dipwm_{:.2e}.bed'.format(check))
-            open(scan + '/dipwm_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/dipwm_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/dipwm_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END diPWM ###
 
 
@@ -480,10 +484,12 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if check < fpr:
             # SCAN
             scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
-            fpr, path_to_java, path_to_inmode, path_to_promoters)
+            fpr, path_to_java, path_to_inmode, path_to_promoters, 'train')
+            scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
+            fpr, path_to_java, path_to_inmode, path_to_promoters, 'test')
             scan_best_by_inmode(scan_best + '/inmode.scores.txt',
                 inmode_model,
-                fasta_test,
+                fasta_train,
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
@@ -491,15 +497,16 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             print('WARNING! INMODE model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
             scan_peaks_by_inmode(fasta_test, inmode_model, scan, inmode_threshold_table,
-            check, path_to_java, path_to_inmode, path_to_promoters)
+            check, path_to_java, path_to_inmode, path_to_promoters, 'train')
             scan_best_by_inmode(scan_best + '/inmode.scores.txt',
                 inmode_model,
-                fasta_test,
+                fasta_train,
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
             extract_sites(scan + '/inmode_{:.2e}.bed'.format(check), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
             os.remove(scan + '/inmode_{:.2e}.bed'.format(check))
-            open(scan + '/inmode_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/inmode_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/inmode_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END INMODE ###
 
 
@@ -520,25 +527,27 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr)
+            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr, 'train')
+            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, fpr, 'test')
             scan_best_by_bamm(scan_best + '/bamm.scores.txt',
                 bamm_model,
                 bg_bamm_model,
-                fasta_test)
+                fasta_train)
             extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
             write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
         else:
             print('WARNING! BAMM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, check)
+            scan_peaks_by_bamm(fasta_test, bamm_model, bg_bamm_model, scan, bamm_threshold_table, check, 'train')
             scan_best_by_bamm(scan_best + '/bamm.scores.txt',
                 bamm_model,
                 bg_bamm_model,
-                fasta_test)
-            extract_sites(scan + '/bamm_{:.2e}.bed'.format(check), tomtom + '/bamm.sites.txt')
+                fasta_train)
+            extract_sites(scan + '/bamm_train_{:.2e}.bed'.format(check), tomtom + '/bamm.sites.txt')
             write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
-            os.remove(scan + '/bamm_{:.2e}.bed'.format(check))
-            open(scan + '/bamm_{:.2e}.bed'.format(fpr), 'w').close()
+            os.remove(scan + '/bamm_train_{:.2e}.bed'.format(check))
+            open(scan + '/bamm_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/bamm_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END BAMM ###
 
 
@@ -573,18 +582,21 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if check < fpr:
             # SCAN
             scan_peaks_by_sitega(fasta_test, sitega_model_path, sitega_length,
-                scan, sitega_threshold_table, fpr, scan_best)
-            extract_sites(scan + '/sitega_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
+                scan, sitega_threshold_table, fpr, scan_best, 'train')
+            scan_peaks_by_sitega(fasta_test, sitega_model_path, sitega_length,
+                scan, sitega_threshold_table, fpr, scan_best, 'test')
+            extract_sites(scan + '/sitega_train_{:.2e}.bed'.format(fpr), tomtom + '/sitega.sites.txt')
             write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
         else:
             print('WARNING! SiteGA model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
             scan_peaks_by_sitega(fasta_test, sitega_model_path, scan, 
-                sitega_threshold_table, check, scan_best)
-            extract_sites(scan + '/sitega_{:.2e}.bed'.format(check), tomtom + '/sitega.sites.txt')
+                sitega_threshold_table, check, scan_best , 'train')
+            extract_sites(scan + '/sitega_train_{:.2e}.bed'.format(check), tomtom + '/sitega.sites.txt')
             write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
-            os.remove(scan + '/sitega_{:.2e}.bed'.format(check))
-            open(scan + '/sitega_{:.2e}.bed'.format(fpr), 'w').close()
+            os.remove(scan + '/sitega_train_{:.2e}.bed'.format(check))
+            open(scan + '/sitega_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/sitega_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END SITEGA ###
 
 
@@ -602,44 +614,56 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         check = check_threshold_table(strum_threshold_table)
         if check < fpr:
             # SCAN
-            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr)
+            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr, 'train')
             scan_best_by_strum(scan_best + '/strum.scores.txt',
                  strum_model,
-                 fasta_test)
-            extract_sites(scan + '/strum_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
+                 fasta_train)
+            extract_sites(scan + '/strum_train_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
             write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
         else:
             print('WARNING! StruM model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, check)
+            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, check, 'train')
             scan_best_by_strum(scan_best + '/strum.scores.txt',
                  strum_model,
-                 fasta_test)
-            extract_sites(scan + '/strum_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
+                 fasta_train)
+            extract_sites(scan + '/strum_train_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
             write_model(tomtom + '/strum.sites.txt', tomtom, 'pwm')
-            os.remove(scan + '/strum_{:.2e}.bed'.format(check))
-            open(scan + '/strum_{:.2e}.bed'.format(fpr), 'w').close()
+            os.remove(scan + '/strum_train_{:.2e}.bed'.format(check))
+            open(scan + '/strum_train_{:.2e}.bed'.format(fpr), 'w').close()
+            open(scan + '/strum_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END StruM ###
 
 
     # COMPARE SITES
     print('COMPARE SITES')
+    #TRAIN
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
-        tag = 'compare'
+        tag = 'compare_train_{:.2e}'.format(fpr)
+        scan1 = scan + '/{0}_{1:.2e}.bed'.format(tool1, fpr)
+        scan2 = scan + '/{0}_{1:.2e}.bed'.format(tool2, fpr)
+        sites_intersection(bed_train, scan1, scan2, tag, tool1, tool2, results)
+    #TEST
+    pair_tools = list(itertools.combinations(tools, 2))
+    for tool1, tool2 in pair_tools:
+        tag = 'compare_test_{:.2e}'.format(fpr)
         scan1 = scan + '/{0}_{1:.2e}.bed'.format(tool1, fpr)
         scan2 = scan + '/{0}_{1:.2e}.bed'.format(tool2, fpr)
         sites_intersection(bed_test, scan1, scan2, tag, tool1, tool2, results)
 
 
     # COMBINE SCAN
-    list_bed_path = [scan + '/{0}_{1:.2e}.bed'.format(i, fpr) for i in tools]
-    list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
-    combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.pro')
-    #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
+    for tag in ['train', 'test']:
+        list_bed_path = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
+        list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
+        combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, 
+            tools, results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr))
+        #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
 
-    # CALCULATE SUMMARY
-    write_peaks_classification(results + '/combined_scan.pro', tools, results + '/peaks_classification.tsv')
+        # CALCULATE SUMMARY
+        write_peaks_classification(results + '/combined_{0}_{1}.pro'.format(tag, fpr), 
+            tools, results + '/peaks_classification_{0}_{1}.tsv'.format(tag, fpr))
 
     # TOMTOM
     if path_to_mdb != None:   
