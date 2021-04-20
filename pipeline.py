@@ -186,7 +186,7 @@ def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr, t
 def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
     thr_pwm = get_threshold(threshold_table_path, fpr)
     dipwm_scan_path = scan + '/dipwm_{0}_{1:.2e}.bed'.format(tag, fpr)
-    print('Scan peaks by diPWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
+    print('Scan peaks ({2}) by diPWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm, tag))
     scan_by_dipwm(fasta_test, model_path, thr_pwm, dipwm_scan_path)
     return(0)
 
@@ -194,7 +194,7 @@ def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr,
 def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_table_path, fpr, tag):
     thr_bamm = get_threshold(threshold_table_path, fpr)
     bamm_scan_path = scan + '/bamm_{0}_{1:.2e}.bed'.format(tag, fpr)
-    print('Scan peaks by BAMM with FPR: {0} THR: {1}'.format(fpr, thr_bamm))
+    print('Scan peaks ({2}) by BAMM with FPR: {0} THR: {1}'.format(fpr, thr_bamm, tag))
     scan_by_bamm(fasta_test, model_path, bg_model_path, thr_bamm, bamm_scan_path)
     return(0)
 
@@ -204,7 +204,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     inmode_scan_dir = scan + '/tmp'
     inmode_scan_path = scan + '/inmode_{0}_{1:.2e}.bed'.format(tag, fpr)
     thr_inmode = get_threshold(threshold_table_path, fpr)
-    print('Scan peaks by INMODE with FPR: {0} THR: {1}'.format(fpr, thr_inmode))
+    print('Scan peaks ({2}) by INMODE with FPR: {0} THR: {1}'.format(fpr, thr_inmode, tag))
     args = [path_to_java, '-Xmx6G', '-Xms1024m', '-jar', path_to_inmode, 'scan',
             'i={}'.format(model_path),
             'id={}'.format(fasta_test),
@@ -222,7 +222,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
 def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
     thr_strum = get_threshold(threshold_table_path, fpr)
     strum_scan_path = scan + '/strum_{0}_{1:.2e}.bed'.format(tag, fpr)
-    print('Scan peaks by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum))
+    print('Scan peaks ({2}) by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum, tag))
     scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
     return(0)
 
@@ -277,7 +277,7 @@ def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_
     thr_sitega = get_threshold(threshold_table_path, fpr)
     if not os.path.exists(sitega_scan_tmp_dir):
         os.mkdir(sitega_scan_tmp_dir)
-    print('Scan peaks by SiteGA with FPR: {0} THR: {1}'.format(fpr, thr_sitega))
+    print('Scan peaks ({2}) by SiteGA with FPR: {0} THR: {1}'.format(fpr, thr_sitega, tag))
     args = ['andy1_mat',
         '{}'.format(fasta_test),
         '{}'.format(model_path),
@@ -673,7 +673,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
 
         # CALCULATE SUMMARY
-        write_peaks_classification(results + '/combined_{0}_{1}.pro'.format(tag, fpr), 
+        write_peaks_classification(results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr), 
             tools, results + '/peaks_classification_{0}_{1}.tsv'.format(tag, fpr))
 
     # TOMTOM
