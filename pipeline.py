@@ -183,7 +183,7 @@ def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr, t
     return(0)
 
 
-def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr):
+def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
     thr_pwm = get_threshold(threshold_table_path, fpr)
     dipwm_scan_path = scan + '/dipwm_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by diPWM with FPR: {0} THR: {1}'.format(fpr, thr_pwm))
@@ -191,7 +191,7 @@ def scan_peaks_by_dipwm(fasta_test, model_path, scan, threshold_table_path, fpr)
     return(0)
 
 
-def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_table_path, fpr):
+def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_table_path, fpr, tag):
     thr_bamm = get_threshold(threshold_table_path, fpr)
     bamm_scan_path = scan + '/bamm_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by BAMM with FPR: {0} THR: {1}'.format(fpr, thr_bamm))
@@ -199,7 +199,8 @@ def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_ta
     return(0)
 
 
-def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr, path_to_java, path_to_inmode, path_to_promoters):
+def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr, 
+    path_to_java, path_to_inmode, path_to_promoters, tag):
     inmode_scan_dir = scan + '/tmp'
     inmode_scan_path = scan + '/inmode_{0}_{1:.2e}.bed'.format(tag, fpr)
     thr_inmode = get_threshold(threshold_table_path, fpr)
@@ -218,7 +219,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     return(0)
 
 
-def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr):
+def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
     thr_strum = get_threshold(threshold_table_path, fpr)
     strum_scan_path = scan + '/strum_{0}_{1:.2e}.bed'.format(tag, fpr)
     print('Scan peaks by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum))
