@@ -667,15 +667,16 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
     # COMBINE SCAN
     for tag in ['train', 'test']:
+        f = fasta + '/{}_sample.fa'.format(tag)
         list_bed_path = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
         list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
-        combine_results_pro_format(fasta_test, list_bed_path, list_path_fpr_table, 
-            tools, results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr))
-        #combine_results_bed_format(fasta_test, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan.bed')
+        combine_results_pro_format(f, list_bed_path, list_path_fpr_table, 
+            tools, results + '/combined_scan_{0}_{1:.2e}.pro'.format(tag, fpr))
+        #combine_results_bed_format(f, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan_{0}_{1:.2e}.bed'.format(tag, fpr))
 
         # CALCULATE SUMMARY
         write_peaks_classification(results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr), 
-            tools, results + '/peaks_classification_{0}_{1}.tsv'.format(tag, fpr))
+            tools, results + '/peaks_classification_{0}_{1:.2e}.tsv'.format(tag, fpr))
 
     # TOMTOM
     if path_to_mdb != None:   

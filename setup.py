@@ -22,7 +22,8 @@ setup(
         'lib',
         'tools'
     ],
-    scripts=['pipeline.py',],
+    scripts=['pipeline.py',
+    'scripts/cross-validation.py',],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
