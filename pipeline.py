@@ -344,6 +344,8 @@ def get_motif_length(models):
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     main_directory = os.path.dirname(__file__)
+    r_path = os.path.join(main_directory,
+        'scripts/annotation.R')
     args = [r_path,
         '--input_scans', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
