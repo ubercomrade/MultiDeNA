@@ -724,8 +724,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     list_of_models = [name_converter[t] for t in tools]
     for tag in ['train', 'test']:
         output_dir = annotation + '/{}'.format(tag)
-        if not os.path.isdir(annotation):
-            os.mkdir(annotation)
+        if not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
         list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
         run_annotation(list_of_scans, list_of_models, organism, output_dir)
 
