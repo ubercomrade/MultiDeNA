@@ -114,7 +114,7 @@ enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                         return(NA)
                       }
                       )
-if (is.S4(enrich_go)) {
+if (isS4(enrich_go)) {
   write.table(x = enrich_go@compareClusterResult,
               file = paste(writeDirectory, 'model_compare_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
@@ -154,7 +154,7 @@ enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                        }
                        )
 
-if (is.S4(enrich_pwm)) {
+if (isS4(enrich_pwm)) {
   write.table(x = enrich_pwm@result,
               file = paste(writeDirectory, 'pwm_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
@@ -179,7 +179,7 @@ enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
                        }
                        )
 
-if (is.S4(enrich_all)) {
+if (isS4(enrich_all)) {
   write.table(x = enrich_pwm@result,
               file = paste(writeDirectory, 'all_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
