@@ -12,7 +12,24 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 PYTHON:
   * cython: `pip3 install cython`
+  * StruM:
 
+R:
+  * ChIPseek and additional packeges for peaks/scan annotation:
+  ```
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("ChIPseeker")
+BiocManager::install("clusterProfiler")
+BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene")
+BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene")
+BiocManager::install("TxDb.Athaliana.BioMart.plantsmart28")
+BiocManager::install("org.Mm.eg.db")
+BiocManager::install("org.Hs.eg.db")
+BiocManager::install("org.At.tair.db")
+BiocManager::install("ReactomePA")
+  ```
+  
 TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0
 
@@ -21,6 +38,7 @@ MODELS:
   * ChIPmunk: http://autosome.ru/ChIPMunk/  
   * InMoDe: http://jstacs.de/index.php/InMoDe (JAVA8 is nedeed)
   * SiteGA: https://github.com/parthian-sterlet/sitega
+  * StruM:
 
 OPTIONAL:
   * TomTom: http://meme-suite.org/index.html
@@ -37,8 +55,9 @@ pip3 install -e .
 The command `pipeline.py -h` return:
 
 ```
-usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] [-b] -I INMODE
+usage: pipeline.py [-h] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE] -I INMODE
                    [-J JAVA] -c CHIPMUNK [-C CPU_COUNT] [-m PATH_TO_MDB]
+                   [-pfpr PFPR]
                    bed N genome output N [N ...]
 
 positional arguments:
@@ -46,7 +65,8 @@ positional arguments:
   N                     promoters of organism (hg38, mm10)
   genome                path to genome fasta file
   output                output dir
-  N                     list of models to use (pwm, bamm, inmode, sitega)
+  N                     list of models to use (pwm, dipwm, bamm, inmode,
+                        sitega, strum)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -57,7 +77,6 @@ optional arguments:
   -T TEST_SIZE, --test TEST_SIZE
                         size of testing sample, by default size is equal to
                         4000
-  -b, --bootstrap       Flag to calculate ROC for models, default is False
   -I INMODE, --inmode INMODE
                         path to inmode
   -J JAVA, --java JAVA  path to Java
@@ -69,6 +88,8 @@ optional arguments:
                         path to motif database in meme format for TOMTOM. You
                         can get motif database from http://meme-
                         suite.org/doc/download.html
+  -pfpr PFPR, --partionalFPR PFPR
+                        TECHNICAL, Threshold for calculating pAUC
 ```
 ### Example run
 ```

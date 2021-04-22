@@ -145,7 +145,7 @@ def calculate_thresholds_for_dipwm(path_to_promoters, dipwm_model_dir, threshold
                 dipwm_model_dir + '/dipwm_model.pwm',
                 thresholds_dir + '/dipwm_model_thresholds.txt')
     else:
-        print('Thresholds for PWM already calculated')
+        print('Thresholds for diPWM already calculated')
     return(0)
 
 
@@ -344,7 +344,8 @@ def get_motif_length(models):
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     main_directory = os.path.dirname(__file__)
-    r_path = os.path.join(main_directory, '/scripts/annotation.R')
+    print(main_directory, 'DIR')
+    r_path = os.path.join(main_directory, 'scripts/annotation.R')
     args = [r_path,
         '--input_scans', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
@@ -710,6 +711,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
 
     # ANNOTATION AND GO
+    print('Annotaion results by ChIPseeker')
     name_converter = {
     'pwm': 'PWM',
     'dipwm': 'diPWM',
