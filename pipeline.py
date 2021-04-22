@@ -694,7 +694,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         #combine_results_bed_format(f, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan_{0}_{1:.2e}.bed'.format(tag, fpr))
 
         # CALCULATE SUMMARY
-        write_peaks_classification(results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr), 
+        write_peaks_classification(results + '/combined_scan_{0}_{1:.2e}.pro'.format(tag, fpr), 
             tools, results + '/peaks_classification_{0}_{1:.2e}.tsv'.format(tag, fpr))
 
 
