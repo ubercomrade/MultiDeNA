@@ -119,7 +119,8 @@ if (isS4(enrich_go)) {
               file = paste(writeDirectory, 'model_compare_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   pdf(paste(writeDirectory, 'model_compare_GO.pdf', sep = '/'), width=10)
-  dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
+  p <- dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
+  print(p)
   dev.off()
 }
 #enrich_kegg <- tryCatch(compareCluster(geneCluster   = genes,
@@ -159,7 +160,8 @@ if (isS4(enrich_pwm)) {
               file = paste(writeDirectory, 'pwm_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   pdf(paste(writeDirectory, 'pwm_GO.pdf', sep = '/'), width=10)
-  dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
+  p <- dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
+  print(p)
   dev.off()
 }
 
@@ -184,7 +186,8 @@ if (isS4(enrich_all)) {
               file = paste(writeDirectory, 'all_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   pdf(paste(writeDirectory, 'all_model_GO.pdf', sep = '/'), width=10)
-  dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
+  p <- dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
+  print(p)
   dev.off()
 }
 

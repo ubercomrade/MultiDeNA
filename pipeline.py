@@ -666,7 +666,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
 
     # COMPARE SITES
-    print('COMPARE SITES')
+    print('Compare sites')
     #TRAIN
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
