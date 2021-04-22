@@ -346,6 +346,7 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     main_directory = os.path.dirname(__file__)
     print(main_directory, 'DIR')
     r_path = os.path.join(main_directory, 'scripts/annotation.R')
+    print(r_path, 'DIR')
     args = [r_path,
         '--input_scans', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),

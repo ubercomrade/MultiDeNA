@@ -33,7 +33,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 files <-  opt[["input_scans"]]
 tools <-  opt[["models_names"]]
 genome <-  opt[["genome"]]
-dirToWriteGO <- opt[["output_dir"]]
+writeDirectory <- opt[["output_dir"]]
 
 files <-  strsplit(files, ";")[[1]]
 tools <-  strsplit(tools, ";")[[1]]
