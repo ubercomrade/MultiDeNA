@@ -118,8 +118,8 @@ if (isS4(enrich_go)) {
   write.table(x = enrich_go@compareClusterResult,
               file = paste(writeDirectory, 'model_compare_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  pdf(paste(writeDirectory, 'model_compare_GO.pdf', sep = '/'), width=10)
   p <- dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
+  pdf(paste(writeDirectory, 'model_compare_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 }
@@ -159,8 +159,8 @@ if (isS4(enrich_pwm)) {
   write.table(x = enrich_pwm@result,
               file = paste(writeDirectory, 'pwm_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  pdf(paste(writeDirectory, 'pwm_GO.pdf', sep = '/'), width=10)
   p <- dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
+  pdf(paste(writeDirectory, 'pwm_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 }
@@ -185,8 +185,8 @@ if (isS4(enrich_all)) {
   write.table(x = enrich_pwm@result,
               file = paste(writeDirectory, 'all_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  pdf(paste(writeDirectory, 'all_model_GO.pdf', sep = '/'), width=10)
   p <- dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
+  pdf(paste(writeDirectory, 'all_model_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 }
