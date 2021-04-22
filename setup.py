@@ -22,6 +22,9 @@ setup(
         'lib',
         'tools'
     ],
+    package_data={
+        'scripts': ['annotation.R'],
+    },
     scripts=['pipeline.py',
     'scripts/cross-validation.py',],
     classifiers=[

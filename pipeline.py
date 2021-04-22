@@ -342,9 +342,22 @@ def get_motif_length(models):
     return(motif_length)
 
 
+def run_annotation(list_of_scans, list_of_models, genome, output_dir):
+    main_directory = os.path.dirname(__file__)
+    r_path = os.path.join(main_directory, '/scripts/annotation.R')
+    args = [r_path,
+        '--input_scans', ';'.join(list_of_scans),
+        '--models_names', ';'.join(list_of_models),
+        '--genome', genome,
+        '--output_dir', output_dir]
+    r = subprocess.run(args, capture_output=False)
+    #subprocess.check_call(['r', os.path.join(main_directory, '/scripts/annotation.R')])
+    return(0)
+
+
 def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                      path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr):
+                      path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr):
 
     main_out = path_to_out
     model_order = 2
@@ -363,7 +376,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     results = main_out + '/results'
     tomtom = main_out + '/tomtom'
     montecarlo = main_out + '/montecarlo'
+    annotation = main_out + '/annotation'
     output_auc = main_out + '/auc'
+
     
     ########################
     #      CREATE DIRS     #
@@ -389,6 +404,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         os.mkdir(output_auc)
     if not os.path.isdir(tomtom):
         os.mkdir(tomtom)
+    if not os.path.isdir(annotation):
+        os.mkdir(annotation)
+
     # if not os.path.isdir(montecarlo):
     #     os.mkdir(montecarlo)
 
@@ -678,6 +696,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         write_peaks_classification(results + '/combined_scan_{0}_{1}.pro'.format(tag, fpr), 
             tools, results + '/peaks_classification_{0}_{1:.2e}.tsv'.format(tag, fpr))
 
+
     # TOMTOM
     if path_to_mdb != None:   
         print('Runing TomTom')
@@ -689,10 +708,27 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             print('Tomtom failed. Check your PATH if you have already installed TomTom,\
                 or install TomTom. If the problem rise again check your meme file (data base). \
                 You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
+
+    # ANNOTATION AND GO
+    name_converter = {
+    'pwm': 'PWM',
+    'dipwm': 'diPWM',
+    'inmode': 'InMoDe',
+    'bamm': 'BaMM',
+    'sitega': 'SiteGA'
+    }
+    list_of_models = [name_converter[t] for t in tools]
+    for tag in ['train', 'test']:
+        output_dir = annotation + '/{}'.format(tag)
+        if not os.path.isdir(annotation):
+            os.mkdir(annotation)
+        list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
+        run_annotation(list_of_scans, list_of_models, organism, output_dir)
+
+    # FINISH
     print('Pipeline is finished!')
     tools = [t.upper() for t in tools]
     print('Results calculated for the next models:', *tools)
-    
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -758,7 +794,7 @@ def main():
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                          path_to_promoters, path_to_genome, path_to_mdb, cpu_count, pfpr)
+                          path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr)
 
 if __name__ == '__main__':
     main()
