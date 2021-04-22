@@ -351,7 +351,7 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
         '--models_names', ';'.join(list_of_models),
         '--genome', genome,
         '--output_dir', os.path.abspath(output_dir)]
-    r = subprocess.run(args, capture_output=False)
+    r = subprocess.run(args, capture_output=True)
     return(0)
 
 
