@@ -86,10 +86,9 @@ writeAnnotaion <- function(peakAnnoList, writeDirectory) {
   }
 }
 
-dirToWriteReults <- '~/Downloads/'
 peakAnnoList <- lapply(files, annotatePeak, TxDb=txdb,
                       tssRegion=c(-3000, 3000), verbose=FALSE)
-writeAnnotaion(peakAnnoList, dirToWriteReults)
+writeAnnotaion(peakAnnoList, writeDirectory)
 
 genes <-  lapply(peakAnnoList, getGeneNamesByPromoters)
 names(genes) <-  sub("_", "\n", names(genes))
@@ -114,30 +113,26 @@ enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                         return(NA)
                       }
                       )
+
 if (isS4(enrich_go)) {
-  write.table(x = enrich_go@compareClusterResult,
-              file = paste(writeDirectory, 'model_compare_GO.tsv', sep = '/'),
+  df <- enrich_go@compareClusterResult
+  df <- df[df$p.adjust <= 0.05,]
+  write.table(x = df,
+              file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
-  pdf(paste(writeDirectory, 'model_compare_GO.pdf', sep = '/'), width=10)
+  pdf(paste(writeDirectory, 'compare_model_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
+} else {
+  colNames <- c("Cluster", "ID", "Description", "GeneRatio",
+                "BgRatio", "pvalue", "p.adjust", "qvalue",
+                "geneID", "Count")
+  df <- data.frame(col.names = colNames)
+  write.table(x = df,
+              file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
+              sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
 }
-#enrich_kegg <- tryCatch(compareCluster(geneCluster   = genes,
-#                         fun           = "enrichKEGG",
-#                         pvalueCutoff  = 0.05,
-#                         pAdjustMethod = "BH"),
-#                        error=function(cond) {
-#                          message("There is no enrichment for current data")
-#                          message("Here's the original error message:")
-#                          message(cond)
-#                          return(NA)
-#                        },
-#                        finally=function(cond) {
-#                          return(NA)
-#                        }
-#                        )
-#dotplot(enrich_kegg, showCategory = 15, title = "Enrichment Analysis (KEGG)")
 
 enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                        pvalueCutoff  = 0.05,
@@ -156,7 +151,9 @@ enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                        )
 
 if (isS4(enrich_pwm)) {
-  write.table(x = enrich_pwm@result,
+  df <- enrich_pwm@result
+  df <- df[df$p.adjust <= 0.05,]
+  write.table(x = df,
               file = paste(writeDirectory, 'pwm_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
@@ -182,7 +179,9 @@ enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
                        )
 
 if (isS4(enrich_all)) {
-  write.table(x = enrich_pwm@result,
+  df <- enrich_all@result
+  df <- df[df$p.adjust <= 0.05,]
+  write.table(x = df,
               file = paste(writeDirectory, 'all_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
