@@ -121,16 +121,17 @@ if (isS4(enrich_go)) {
               file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
-  pdf(paste(writeDirectory, 'compare_model_GO.pdf', sep = '/'), width=10)
+  pdf(paste(writeDirectory, 'compare_models_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 } else {
   colNames <- c("Cluster", "ID", "Description", "GeneRatio",
                 "BgRatio", "pvalue", "p.adjust", "qvalue",
                 "geneID", "Count")
-  df <- data.frame(col.names = colNames)
+  df <- data.frame(matrix(ncol=10,nrow=0,
+                          dimnames=list(NULL, colNames)))
   write.table(x = df,
-              file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
+              file = paste(writeDirectory, 'compare_models_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
 }
 
@@ -154,10 +155,10 @@ if (isS4(enrich_pwm)) {
   df <- enrich_pwm@result
   df <- df[df$p.adjust <= 0.05,]
   write.table(x = df,
-              file = paste(writeDirectory, 'pwm_GO.tsv', sep = '/'),
+              file = paste(writeDirectory, 'pwm_model_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
-  pdf(paste(writeDirectory, 'pwm_GO.pdf', sep = '/'), width=10)
+  pdf(paste(writeDirectory, 'pwm_model_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 }
@@ -182,10 +183,10 @@ if (isS4(enrich_all)) {
   df <- enrich_all@result
   df <- df[df$p.adjust <= 0.05,]
   write.table(x = df,
-              file = paste(writeDirectory, 'all_GO.tsv', sep = '/'),
+              file = paste(writeDirectory, 'all_models_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   p <- dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
-  pdf(paste(writeDirectory, 'all_model_GO.pdf', sep = '/'), width=10)
+  pdf(paste(writeDirectory, 'all_models_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
 }
