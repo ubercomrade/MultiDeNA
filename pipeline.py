@@ -437,7 +437,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
                  fasta_train)
-            extract_sites(scan + '/pwm_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
+            extract_sites(scan + '/pwm_train_{:.2e}.bed'.format(fpr), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
         else:
             print('WARNING! PWM model has poor table with thresholds')
@@ -446,9 +446,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             scan_best_by_pwm(scan_best + '/pwm.scores.txt',
                  pwm_model,
                  fasta_train)
-            extract_sites(scan + '/pwm_{:.2e}.bed'.format(check), tomtom + '/pwm.sites.txt')
+            extract_sites(scan + '/pwm_train_{:.2e}.bed'.format(check), tomtom + '/pwm.sites.txt')
             write_model(tomtom + '/pwm.sites.txt', tomtom, 'pwm')
-            os.remove(scan + '/pwm_{:.2e}.bed'.format(check))
+            os.remove(scan + '/pwm_train_{:.2e}.bed'.format(check))
             open(scan + '/pwm_train_{:.2e}.bed'.format(fpr), 'w').close()
             open(scan + '/pwm_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END PWM ###
@@ -473,7 +473,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
                  fasta_train)
-            extract_sites(scan + '/dipwm_{:.2e}.bed'.format(fpr), tomtom + '/dipwm.sites.txt')
+            extract_sites(scan + '/dipwm_train_{:.2e}.bed'.format(fpr), tomtom + '/dipwm.sites.txt')
             write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
         else:
             print('WARNING! diPWM model has poor table with thresholds')
@@ -482,7 +482,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             scan_best_by_dipwm(scan_best + '/dipwm.scores.txt',
                  dipwm_model,
                  fasta_train)
-            extract_sites(scan + '/dipwm_{:.2e}.bed'.format(check), tomtom + '/dipwm.sites.txt')
+            extract_sites(scan + '/dipwm_train_{:.2e}.bed'.format(check), tomtom + '/dipwm.sites.txt')
             write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
             os.remove(scan + '/dipwm_{:.2e}.bed'.format(check))
             open(scan + '/dipwm_train_{:.2e}.bed'.format(fpr), 'w').close()
@@ -520,7 +520,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 inmode_model,
                 fasta_train,
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
-            extract_sites(scan + '/inmode_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
+            extract_sites(scan + '/inmode_train_{:.2e}.bed'.format(fpr), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
         else:
             print('WARNING! INMODE model has poor table with thresholds')
@@ -531,7 +531,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 inmode_model,
                 fasta_train,
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
-            extract_sites(scan + '/inmode_{:.2e}.bed'.format(check), tomtom + '/inmode.sites.txt')
+            extract_sites(scan + '/inmode_train_{:.2e}.bed'.format(check), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
             os.remove(scan + '/inmode_{:.2e}.bed'.format(check))
             open(scan + '/inmode_train_{:.2e}.bed'.format(fpr), 'w').close()
@@ -562,7 +562,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 bamm_model,
                 bg_bamm_model,
                 fasta_train)
-            extract_sites(scan + '/bamm_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
+            extract_sites(scan + '/bamm_train_{:.2e}.bed'.format(fpr), tomtom + '/bamm.sites.txt')
             write_model(tomtom + '/bamm.sites.txt', tomtom, 'bamm')
         else:
             print('WARNING! BAMM model has poor table with thresholds')
