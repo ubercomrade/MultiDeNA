@@ -671,15 +671,15 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
         tag = 'compare_train_{:.2e}'.format(fpr)
-        scan1 = scan + '/{0}_{1:.2e}.bed'.format(tool1, fpr)
-        scan2 = scan + '/{0}_{1:.2e}.bed'.format(tool2, fpr)
+        scan1 = scan + '/{0}_{2}_{1:.2e}.bed'.format(tool1, fpr, 'train')
+        scan2 = scan + '/{0}_{2}_{1:.2e}.bed'.format(tool2, fpr, 'train')
         sites_intersection(bed_train, scan1, scan2, tag, tool1, tool2, results)
     #TEST
     pair_tools = list(itertools.combinations(tools, 2))
     for tool1, tool2 in pair_tools:
         tag = 'compare_test_{:.2e}'.format(fpr)
-        scan1 = scan + '/{0}_{1:.2e}.bed'.format(tool1, fpr)
-        scan2 = scan + '/{0}_{1:.2e}.bed'.format(tool2, fpr)
+        scan1 = scan + '/{0}_{2}_{1:.2e}.bed'.format(tool1, fpr, 'test')
+        scan2 = scan + '/{0}_{2}_{1:.2e}.bed'.format(tool2, fpr, 'test')
         sites_intersection(bed_test, scan1, scan2, tag, tool1, tool2, results)
 
 
