@@ -716,7 +716,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     'dipwm': 'diPWM',
     'inmode': 'InMoDe',
     'bamm': 'BaMM',
-    'sitega': 'SiteGA'
+    'sitega': 'SiteGA',
+    'strum': 'StruM'
     }
     list_of_models = [name_converter[t] for t in tools]
     for tag in ['train', 'test']:
