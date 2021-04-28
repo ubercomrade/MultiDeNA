@@ -484,7 +484,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                  fasta_train)
             extract_sites(scan + '/dipwm_train_{:.2e}.bed'.format(check), tomtom + '/dipwm.sites.txt')
             write_model(tomtom + '/dipwm.sites.txt', tomtom, 'dipwm')
-            os.remove(scan + '/dipwm_{:.2e}.bed'.format(check))
+            os.remove(scan + '/dipwm_train_{:.2e}.bed'.format(check))
             open(scan + '/dipwm_train_{:.2e}.bed'.format(fpr), 'w').close()
             open(scan + '/dipwm_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END diPWM ###
@@ -533,7 +533,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 path_to_inmode, path_to_java, scan_best + '/inmode.tmp')
             extract_sites(scan + '/inmode_train_{:.2e}.bed'.format(check), tomtom + '/inmode.sites.txt')
             write_model(tomtom + '/inmode.sites.txt', tomtom, 'inmode')
-            os.remove(scan + '/inmode_{:.2e}.bed'.format(check))
+            os.remove(scan + '/inmode_train_{:.2e}.bed'.format(check))
             open(scan + '/inmode_train_{:.2e}.bed'.format(fpr), 'w').close()
             open(scan + '/inmode_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END INMODE ###
