@@ -3,6 +3,7 @@
 #  install.packages("BiocManager")
 #BiocManager::install("motifStack")
 library(motifStack)
+library(optparse)
 
 option_list = list(
   make_option(c("--dir_with_motifs"), dest="dir_with_motifs", action="store",
