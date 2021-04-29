@@ -29,6 +29,12 @@ BiocManager::install("org.Hs.eg.db")
 BiocManager::install("org.At.tair.db")
 BiocManager::install("ReactomePA")
   ```
+  * motifStack (plot motifs):
+  ```
+if (!requireNamespace("BiocManager", quietly = TRUE))
+   install.packages("BiocManager")
+BiocManager::install("motifStack")
+  ```
   
 TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0

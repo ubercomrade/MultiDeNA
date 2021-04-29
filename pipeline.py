@@ -355,6 +355,17 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     return(0)
 
 
+def plot_motifs(dir_with_meme, output_dir):
+    main_directory = os.path.dirname(__file__)
+    r_path = os.path.join(main_directory,
+        'scripts/motifCompare.R')
+    args = [r_path,
+        '--dir_with_motifs', dir_with_meme,
+        '--dir_to_write', output_dir]
+    r = subprocess.run(args, capture_output=True)
+    return(0)    
+
+
 def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr):
@@ -726,6 +737,9 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             os.mkdir(output_dir)
         list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
         run_annotation(list_of_scans, list_of_models, organism, output_dir)
+
+    # PLOT MOTIFS
+    plot_motifs(tomtom, results)
 
     # FINISH
     print('Pipeline is finished!')
