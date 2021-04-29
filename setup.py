@@ -23,8 +23,8 @@ setup(
         'tools'
     ],
     package_data={
-        'scripts': ['annotation.R',
-        'motifCompare.R'],
+        'scripts': ['annotation.R'],
+        'scripts': ['motifCompare.R'],
     },
     scripts=['pipeline.py',
     'scripts/cross-validation.py',],

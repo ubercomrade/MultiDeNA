@@ -12,7 +12,7 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 PYTHON:
   * cython: `pip3 install cython`
-  * StruM:
+  * StruM: https://github.com/pdeford/StructuralMotifs
 
 R:
   * ChIPseek and additional packeges for peaks/scan annotation:
@@ -35,7 +35,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
    install.packages("BiocManager")
 BiocManager::install("motifStack")
   ```
-  
+
 TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0
 
