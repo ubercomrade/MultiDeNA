@@ -23,8 +23,7 @@ setup(
         'tools'
     ],
     package_data={
-        'scripts': ['annotation.R'],
-        'scripts': ['motifCompare.R'],
+        'scripts': ['*.R'],
     },
     scripts=['pipeline.py',
     'scripts/cross-validation.py',],
@@ -43,6 +42,7 @@ setup(
         "Topic :: Scientific/Engineering :: Bio-Informatics"
     ],
     zip_safe=False,
+    include_package_data=True,
     install_requires=install_requires,
     setup_requires=install_requires,
     python_requires='>=3.6',
