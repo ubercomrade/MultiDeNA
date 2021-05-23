@@ -15,7 +15,7 @@
 #remotes::install_version("RSQLite", version = "2.2.5")
 library(ChIPseeker)
 library(clusterProfiler)
-library(ReactomePA)
+#library(ReactomePA)
 library(optparse)
 
 option_list = list(

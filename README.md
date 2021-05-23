@@ -27,7 +27,6 @@ BiocManager::install("TxDb.Athaliana.BioMart.plantsmart28")
 BiocManager::install("org.Mm.eg.db")
 BiocManager::install("org.Hs.eg.db")
 BiocManager::install("org.At.tair.db")
-BiocManager::install("ReactomePA")
   ```
   * motifStack (plot motifs):
   ```
