@@ -27,16 +27,42 @@ def write_fasta(sites, tmp_dir, tag):
     return(0)
 
 
-def get_motif_length(path):
-    with open(path, 'r') as file: ####
-        for i in file:
-            if i.startswith('>'):
-                continue
-            else:
-                motif_length = len(i.strip())
-                break
-    file.close()
-    return(motif_length)
+# def get_motif_length(path):
+#     with open(path, 'r') as file: ####
+#         for i in file:
+#             if i.startswith('>'):
+#                 continue
+#             else:
+#                 motif_length = len(i.strip())
+#                 break
+#     file.close()
+#     return(motif_length)
+
+
+def get_model_length(auc_path):
+    auc = []
+    with open(auc_path) as file:
+        for line in file:
+            auc.append(tuple(map(float, line.strip().split())))
+        file.close()
+    auc.sort(key=itemgetter(1))
+    best_auc = auc[-1][1]
+    best_length = int(auc[-1][0])
+    return(best_length)
+
+
+def get_model_length_mm(auc_path):
+    auc = []
+    with open(auc_path) as file:
+        for line in file:
+            auc.append(tuple(map(float, line.strip().split())))
+        file.close()
+    auc.sort(key=itemgetter(2))
+    best_auc = auc[-1][2]
+    best_length = int(auc[-1][1])
+    best_order = int(auc[-1][0])
+    return(best_length)
+
 
 
 def write_auc(path, auc):
@@ -383,7 +409,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
     counter = 1000000
     pfpr = 0.001
     models = '{0}/{1}/models'.format(data_dir, t1)
-    tomtom = '{0}/{1}/tomtom'.format(data_dir, t1)
+    auc_dir = '{0}/{1}/auc'.format(data_dir, t1)
     pwm_model = read_pwm(models + '/pwm_model/pwm_model.pwm')
     dipwm_model = read_dipwm(models + '/dipwm_model/dipwm_model.pwm')
     inmode_model = models + '/inmode_model/inmode_model.xml'
@@ -401,7 +427,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
         if 'pwm' in tools:
             if t1 != t2:
                 print('{0} PWM model on data {1}'.format(t1, t2))
-                motif_length = get_motif_length(tomtom + '/pwm.sites.txt')
+                motif_length = get_model_length(auc_dir + '/pwm/auc.txt')
                 cross_validation_pwm(pwm_model, motif_length, peaks_path, counter, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'pwm', pfpr)
@@ -409,7 +435,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
         if 'dipwm' in tools:
             if t1 != t2:
                 print('{0} diPWM model on data {1}'.format(t1, t2))
-                motif_length = get_motif_length(tomtom + '/dipwm.sites.txt')
+                motif_length = get_model_length(auc_dir + '/dipwm/auc.txt')
                 cross_validation_dipwm(dipwm_model,  motif_length, peaks_path, counter, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'dipwm', pfpr)
@@ -417,7 +443,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
         if 'inmode' in tools:
             if t1 != t2:
                 print('{0} InMoDe model on data {1}'.format(t1, t2))
-                motif_length = get_motif_length(tomtom + '/inmode.sites.txt')
+                motif_length = get_model_length_mm(auc_dir + '/inmode/auc.txt')
                 cross_validation_inmode(inmode_model, peaks_path, counter, motif_length, 
                                         path_to_inmode, path_to_java, results + '/inmode.tmp', results, pfpr)
             else:
@@ -426,7 +452,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
         if 'bamm' in tools:
             if t1 != t2:
                 print('{0} BaMM model on data {1}'.format(t1, t2))
-                motif_length = get_motif_length(tomtom + '/bamm.sites.txt')
+                motif_length = get_model_length_mm(auc_dir + '/bamm/auc.txt')
                 cross_validation_bamm(bamm_model, bg_bamm_model, peaks_path, counter, motif_length, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'bamm', pfpr)
@@ -434,7 +460,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
         if 'strum' in tools:
             if t1 != t2:
                 print('{0} StruM model on data {1}'.format(t1, t2))
-                motif_length = get_motif_length(tomtom + '/strum.sites.txt')
+                motif_length = get_model_length(auc_dir + '/strum/auc.txt')
                 cross_validation_strum(strum_model, length, peaks_path, counter, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'strum', pfpr)
