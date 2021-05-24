@@ -461,7 +461,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
             if t1 != t2:
                 print('{0} StruM model on data {1}'.format(t1, t2))
                 motif_length = get_model_length(auc_dir + '/strum/auc.txt')
-                cross_validation_strum(strum_model, length, peaks_path, counter, results, pfpr)
+                cross_validation_strum(strum_model, motif_length, peaks_path, counter, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'strum', pfpr)
     pass
