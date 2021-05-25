@@ -415,7 +415,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
     inmode_model = models + '/inmode_model/inmode_model.xml'
     bamm_model = models + '/bamm_model/bamm_model.ihbcp'
     bg_bamm_model = models + '/bamm_model/bamm.hbcp'
-    strum_model = models + '/strum_model/strum.pickle'
+    strum_model = models + '/strum_model/strum_model.pickle'
     for t2 in tags:
         fasta = '{0}/{1}/fasta'.format(data_dir, t2)
         peaks_path = fasta + '/train_sample.fa'
