@@ -62,7 +62,7 @@ def get_threshold_for_pwm(fasta_path, pwm_path, path_out):
     peaks = read_seqs_with_complement(fasta_path)
     pwm = read_pwm(pwm_path)
     length_of_site = len(pwm['A'])
-    threshold = to_score(0.7, pwm)
+    threshold = to_score(0.6, pwm)
     scores, number_of_sites = calculate_scores_pwm_thresholds(peaks, pwm, length_of_site, threshold)
     get_threshold(scores, number_of_sites, path_out)
     return(0)

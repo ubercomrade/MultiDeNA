@@ -62,7 +62,7 @@ def get_threshold_for_dipwm(fasta_path, dipwm_path, path_out):
     peaks = read_seqs_with_complement(fasta_path)
     dipwm = read_dipwm(dipwm_path)
     length_of_site = len(dipwm['AA']) + 1
-    threshold = to_score(0.7, dipwm)
+    threshold = to_score(0.6, dipwm)
     scores, number_of_sites = calculate_scores_dipwm_thresholds(peaks, dipwm, length_of_site, threshold)
     get_threshold(scores, number_of_sites, path_out)
     return(0)

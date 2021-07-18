@@ -71,7 +71,7 @@ def get_threshold_for_bamm(fasta_path, bamm_path, bg_path, path_out):
     peaks = read_seqs_with_complement(fasta_path)
     bamm, order = read_bamm(bamm_path, bg_path)
     length_of_site = len(bamm['A'])
-    threshold = to_score(0.7, bamm, order, length_of_site)
+    threshold = to_score(0.6, bamm, order, length_of_site)
     scores, number_of_sites = calculate_scores_bamm_thresholds(peaks, bamm, order, length_of_site, threshold)
     get_threshold(scores, number_of_sites, path_out)
     return(0)

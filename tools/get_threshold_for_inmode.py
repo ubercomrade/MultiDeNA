@@ -13,10 +13,10 @@ def calculate_scores_inmode_thresholds(path_to_inmode, path_to_model, path_to_fa
         'id={}'.format(path_to_fasta),
         'b={}'.format('From file'),
         'd={}'.format(path_to_fasta),
-       'f={}'.format(0.001),
+       'f={}'.format(0.005),
        'outdir={}'.format(tmp_dir)]
     r = subprocess.run(args, capture_output=True)
-    with open(tmp_dir + "/Motif_hits_from_SequenceScan(0.001).BED") as file:
+    with open(tmp_dir + "/Motif_hits_from_SequenceScan(0.005).BED") as file:
         for line in file:
             append(math.log10(float(line.strip().split()[4])))
     return(container)
