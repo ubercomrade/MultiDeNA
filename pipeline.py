@@ -363,7 +363,15 @@ def plot_motifs(dir_with_meme, output_dir):
         '--dir_with_motifs', dir_with_meme,
         '--dir_to_write', output_dir]
     r = subprocess.run(args, capture_output=True)
-    return(0)    
+    return(0)
+
+
+def get_length_sitega_model(path):
+    with open(path) as file:
+        file.readline()
+        file.readline()
+        length = int(file.readline().strip().split()[0])
+    return(length)
 
 
 def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
@@ -593,10 +601,10 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 
     ### CALCULATE SITEGA MODEL ###
     if 'sitega' in tools:
-        sitega_length = 60
         sitega_model_dir =  models + '/sitega_model/'
         sitega_model_path = sitega_model_dir + 'sitega.mat'
         sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
+        sitega_length = get_length_sitega_model(sitega_model_path)
         if not os.path.isdir(sitega_model_dir):
             os.mkdir(sitega_model_dir)
         # PREPARE FASTA 
