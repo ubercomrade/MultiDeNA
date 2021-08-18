@@ -45,7 +45,7 @@ def parse_chipmunk(path):
                 container.append(d)
             else:
                 continue
-    seqs = [i['seq'] for i in container if not 'N' in i['seq']]
+    seqs = [i['seq'] for i in container if {'A', 'C', 'G', 'T'} == set(i['seq'])]
     return(seqs)
 
 
