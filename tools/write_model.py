@@ -6,7 +6,7 @@ from collections import Counter
 def read_sites(path):
     with open(path, 'r') as file:
         sequences = [i.strip().upper() for i in file if i.strip()[0] != '>']
-        sequences = [i for i in sequences if not 'N' in i]
+        sequences = [i for i in sequences if {'A', 'C', 'G', 'T'} == set(i)]
     return(sequences)
 
 
