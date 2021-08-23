@@ -22,7 +22,7 @@ def get_sequences(path):
                 container.append(d)
             else:
                 continue
-    seqs = [i['seq'] for i in container if not 'N' in i['seq']]
+    seqs = [i['seq'] for i in container if len(set(i['seq']) - {'A', 'C', 'G', 'T'}) == 0]
     return(seqs)
 
 

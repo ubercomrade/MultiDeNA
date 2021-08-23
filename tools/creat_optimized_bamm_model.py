@@ -32,7 +32,7 @@ def false_scores_bamm(peaks, bamm, order, length_of_site):
         n = len(full_peak) - length_of_site + 1
         for i in range(n):
             site = full_peak[i:length_of_site + i] 
-            if {'A', 'C', 'G', 'T'} != set(site):
+            if not len(set(site) - {'A', 'C', 'G', 'T'}) == 0:
                 continue
             score = score_bamm(site, bamm, order, length_of_site)
             false_scores.append(score)
@@ -48,7 +48,7 @@ def true_scores_bamm(peaks, bamm, order, length_of_site):
         n = len(full_peak) - length_of_site + 1
         for i in range(n):
             site = full_peak[i:length_of_site + i]
-            if {'A', 'C', 'G', 'T'} != set(site):
+            if not len(set(site) - {'A', 'C', 'G', 'T'}) == 0:
                 continue
             score = score_bamm(site, bamm, order, length_of_site)
             if score >= best:
