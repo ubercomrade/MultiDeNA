@@ -729,22 +729,23 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                 You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
 
     # ANNOTATION AND GO
-    print('Annotaion results by ChIPseeker')
-    name_converter = {
-    'pwm': 'PWM',
-    'dipwm': 'diPWM',
-    'inmode': 'InMoDe',
-    'bamm': 'BaMM',
-    'sitega': 'SiteGA',
-    'strum': 'StruM'
-    }
-    list_of_models = [name_converter[t] for t in tools]
-    for tag in ['train', 'test']:
-        output_dir = annotation + '/{}'.format(tag)
-        if not os.path.isdir(output_dir):
-            os.mkdir(output_dir)
-        list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
-        run_annotation(list_of_scans, list_of_models, organism, output_dir)
+    if not organism == 'b73':
+        print('Annotaion results by ChIPseeker')
+        name_converter = {
+        'pwm': 'PWM',
+        'dipwm': 'diPWM',
+        'inmode': 'InMoDe',
+        'bamm': 'BaMM',
+        'sitega': 'SiteGA',
+        'strum': 'StruM'
+        }
+        list_of_models = [name_converter[t] for t in tools]
+        for tag in ['train', 'test']:
+            output_dir = annotation + '/{}'.format(tag)
+            if not os.path.isdir(output_dir):
+                os.mkdir(output_dir)
+            list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
+            run_annotation(list_of_scans, list_of_models, organism, output_dir)
 
     # PLOT MOTIFS
     plot_motifs(tomtom, results)
@@ -757,8 +758,8 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
-    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10'], metavar='N',
-         help='promoters of organism (hg38, mm10)')
+    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10', 'b73'], metavar='N',
+         help='promoters of organism (hg38, mm10, tair10, b73)')
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
     parser.add_argument('models', action='store', choices=['pwm', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
@@ -815,6 +816,8 @@ def main():
         path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
     elif organism == 'tair10':
         path_to_promoters = os.path.join(this_dir, "promoters", "tair10.fasta")
+    elif organism == 'b73':
+        path_to_promoters = os.path.join(this_dir, "promoters", "b73_v5.fasta")
 
     pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
