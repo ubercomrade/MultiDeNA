@@ -117,7 +117,7 @@ def write_pfm(output, tag, pfm):
 def write_model(fasta_path, output_dir, tag):
     seq = read_sites(fasta_path)
     if len(seq) > 1:
-        seq = list(set(seq))
+        #seq = list(set(seq))
         seq = check_legth_of_sites(seq)
         background = {'A': 0.25,
                      'C': 0.25,
