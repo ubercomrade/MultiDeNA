@@ -207,6 +207,7 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
             'd={}'.format(path_to_promoters),
            'f={}'.format(fpr),
            'outdir={}'.format(inmode_scan_dir)]
+    print(' '.join(args))
     r = subprocess.run(args, capture_output=True)
     out = r.stderr
     print(out)
