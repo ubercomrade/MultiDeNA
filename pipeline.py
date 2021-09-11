@@ -208,6 +208,8 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
            'f={}'.format(fpr),
            'outdir={}'.format(inmode_scan_dir)]
     r = subprocess.run(args, capture_output=True)
+    out = r.stdout
+    print(out)
     parse_inmode_results(fasta_test, glob.glob(inmode_scan_dir + '/*.BED')[0],
         inmode_scan_path, thr_inmode)
     os.system("rm -r {}".format(inmode_scan_dir))
