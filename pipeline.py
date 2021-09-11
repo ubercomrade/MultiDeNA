@@ -19,11 +19,6 @@ from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_dipwm import get_threshold_for_dipwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
 from tools.get_threshold_for_strum import get_threshold_for_strum
-# from tools.bootstrap_for_pwm import bootstrap_for_pwm
-# from tools.bootstrap_for_dipwm import bootstrap_for_dipwm
-# from tools.bootstrap_for_bamm import bootstrap_for_bamm
-# from tools.bootstrap_for_inmode import bootstrap_for_inmode
-# from tools.bootstrap_for_sitega import bootstrap_for_sitega
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_dipwm import scan_by_dipwm
 from tools.scan_by_bamm import scan_by_bamm
@@ -677,7 +672,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                  strum_model,
                  fasta_train)
             extract_sites(scan + '/strum_train_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
-            write_model(tomtom + '/strum.sites.txt', tomtom, 'pwm')
+            write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
             os.remove(scan + '/strum_train_{:.2e}.bed'.format(check))
             open(scan + '/strum_train_{:.2e}.bed'.format(fpr), 'w').close()
             open(scan + '/strum_test_{:.2e}.bed'.format(fpr), 'w').close()

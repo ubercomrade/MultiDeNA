@@ -6,8 +6,17 @@ from collections import Counter
 def read_sites(path):
     with open(path, 'r') as file:
         sequences = [i.strip().upper() for i in file if i.strip()[0] != '>']
-        sequences = [i for i in sequences if {'A', 'C', 'G', 'T'} == set(i)]
+        sequences = [i for i in sequences if check_nucleotides(i)]
     return(sequences)
+
+
+def check_nucleotides(site):
+    s = set(site)
+    n = {'A', 'C', 'G', 'T'}
+    if len(s - n) == 0:
+        return(True)
+    else:
+        return(False)
 
 
 def remove_equalent_seq(seq_list, homology=0.95):
