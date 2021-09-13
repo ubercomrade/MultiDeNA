@@ -3,20 +3,19 @@ import shutil
 import os
 import subprocess
 import bisect
-from operator import itemgetter
 from shutil import copyfile
-from lib.common import read_peaks, sites_to_dipwm, creat_background, \
-write_fasta, complement, make_dipcm, make_dipfm, \
-make_dipwm, write_dipwm, write_dipfm, \
-calculate_particial_auc, write_auc, \
-calculate_merged_roc, calculate_short_roc, \
-write_roc, calculate_fprs
-from lib.speedup import creat_table_bootstrap, score_dipwm
+from operator import itemgetter
+from lib.common import read_peaks, sites_to_pwm, creat_background, \
+write_fasta, complement, make_pcm, make_pfm, \
+make_pwm, write_pwm, write_pfm, write_meme, \
+calculate_particial_auc, write_auc, calculate_merged_roc, \
+calculate_short_roc, write_roc, calculate_fprs
+from lib.speedup import creat_table_bootstrap, score_pwm
 
 
-def run_di_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_length_start, motif_length_end, cpu_count):
+def run_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_length_start, motif_length_end, cpu_count):
     args = [path_to_java, '-cp', path_to_chipmunk,
-                   'ru.autosome.di.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
+                   'ru.autosome.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
                    's:{}'.format(fasta_path),
                   '100', '10', '1', str(cpu_count), 'random']
     p = subprocess.run(args, shell=False, capture_output=True)
@@ -39,7 +38,7 @@ def parse_chipmunk(path):
                 d['start'] = int(line[1])
                 d['end'] = int(line[1]) + len(line[2])
                 d['seq'] = line[2]
-                if line[4] == 'direct':
+                if line[4] == 'rect':
                     d['strand'] = '+'
                 else:
                     d['strand'] = '-'
@@ -50,7 +49,7 @@ def parse_chipmunk(path):
     return(seqs)
 
 
-def false_scores_dipwm(peaks, dipwm, length_of_site):
+def false_scores_pwm(peaks, pwm, length_of_site):
     false_scores = []
     append = false_scores.append
     for peak in peaks:
@@ -61,12 +60,12 @@ def false_scores_dipwm(peaks, dipwm, length_of_site):
             site = full_peak[i:length_of_site + i]
             if 'N' in site:
                 continue
-            score = score_dipwm(site, dipwm)
+            score = score_pwm(site, pwm)
             false_scores.append(score)
     return(false_scores)
 
 
-def true_scores_dipwm(peaks, dipwm, length_of_site):
+def true_scores_pwm(peaks, pwm, length_of_site):
     true_scores = []
     for peak in peaks:
         complement_peak = complement(peak)
@@ -77,7 +76,7 @@ def true_scores_dipwm(peaks, dipwm, length_of_site):
             site = full_peak[i:length_of_site + i]
             if 'N' in site:
                 continue
-            score = score_dipwm(site, dipwm)
+            score = score_pwm(site, pwm)
             if score >= best:
                 best = score
         true_scores.append(best)
@@ -102,9 +101,9 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr):
-    if not os.path.exists(tmp_dir):
-        os.mkdir(tmp_dir)
+def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr):
+    if not os.path.exists(tmp_r):
+        os.mkdir(tmp_r)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
     if os.path.exists(output_auc + '/auc.txt'):
@@ -122,24 +121,30 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
             shuffled_peaks = creat_background(test_peaks, length, counter)
-            write_fasta(train_peaks, tmp_dir + '/train.fasta')
-            run_di_chipmunk(path_to_java, path_to_chipmunk,
-                         tmp_dir + '/train.fasta', tmp_dir + '/chipmunk_results.txt',
+            write_fasta(train_peaks, tmp_r + '/train.fasta')
+            run_chipmunk(path_to_java, path_to_chipmunk,
+                         tmp_r + '/train.fasta', tmp_r + '/chipmunk_results.txt',
                          length, length, cpu_count)
-            sites = parse_chipmunk(tmp_dir + '/chipmunk_results.txt')
+            sites = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
             sites = list(set(sites))
-            dipwm = sites_to_dipwm(sites)
-            for true_score in true_scores_dipwm(peaks, dipwm, length):
+            pwm = sites_to_pwm(sites)
+            for true_score in true_scores_pwm(test_peaks, pwm, length):
                 true_scores.append(true_score)
-            for false_score in false_scores_dipwm(shuffled_peaks, dipwm, length):
+            for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
                 false_scores.append(false_score)
-            dipcm = make_dipcm(sites)
-            dipfm = make_dipfm(dipcm)
-            dipwm = make_dipwm(dipfm)
-            tag = 'dipwm_model_{0}_{1}'.format(step, length)
-            write_dipwm(output_auc, tag, dipwm)
-            write_dipfm(output_auc, tag, dipfm)
-            write_sites(output=output_auc, tag=tag, sites=sites)        
+            pcm = make_pcm(sites)
+            pfm = make_pfm(pcm)
+            pwm = make_pwm(pfm)
+            nsites = len(sites)
+            background = {'A': 0.25,
+                         'C': 0.25,
+                         'G': 0.25,
+                         'T': 0.25}
+            tag = 'pwm_model_{0}_{1}'.format(step, length)
+            write_meme(output_auc, tag, pfm, background, nsites)
+            write_pwm(output_auc, tag, pwm)
+            write_pfm(output_auc, tag, pfm)
+            write_sites(output=output_auc, tag=tag, sites=sites)
         fprs = calculate_fprs(true_scores, false_scores)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
@@ -148,7 +153,7 @@ def learn_optimized_dipwm(peaks_path, counter, path_to_java, path_to_chipmunk, t
         write_auc(output_auc + '/auc.txt', auc, length)
         write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
-    shutil.rmtree(tmp_dir)
+    shutil.rmtree(tmp_r)
     return(0)
 
 
@@ -163,37 +168,39 @@ def choose_best_model(output_auc):
     return(length)
 
 
-def de_novo_with_oprimization_dipwm(peaks_path, path_to_java, path_to_chipmunk, 
+def de_novo_with_oprimization_pwm_chipmunk(peaks_path, path_to_java, path_to_chipmunk, 
     tmp_dir, output_dir, output_auc, cpu_count, pfpr):
     counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
+    if not os.path.isdir(output_auc):
+        os.mkdir(output_auc)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-
-    learn_optimized_dipwm(peaks_path, counter, path_to_java, 
+    learn_optimized_pwm(peaks_path, counter, path_to_java, 
         path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
              output_dir + '/bootstrap.txt')
     copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
-    run_di_chipmunk(
+    run_chipmunk(
         path_to_java, path_to_chipmunk,
         peaks_path, 
         output_dir + '/chipmunk_results.txt', 
         length, length, cpu_count)
     sites = parse_chipmunk(output_dir + '/chipmunk_results.txt')
-    dipcm = make_dipcm(sites)
-    dipfm = make_dipfm(dipcm)
-    dipwm = make_dipwm(dipfm)
+    pcm = make_pcm(sites)
+    pfm = make_pfm(pcm)
+    pwm = make_pwm(pfm)
     nsites = len(sites)
     background = {'A': 0.25,
                  'C': 0.25,
                  'G': 0.25,
                  'T': 0.25}
-    tag = 'dipwm_model'
-    write_dipwm(output_dir, tag, dipwm)
-    write_dipfm(output_dir, tag, dipfm)
+    tag = 'pwm_model'
+    write_meme(output_dir, tag, pfm, background, nsites)
+    write_pwm(output_dir, tag, pwm)
+    write_pfm(output_dir, tag, pfm)
     write_sites(output=output_dir, tag=tag, sites=sites)
     return(length)

@@ -138,7 +138,8 @@ def learn_optimized_inmode(peaks_path, counter,
         os.mkdir(output_auc)
     open(output_auc + '/auc.txt', 'w').close()
     for order in range(1,4):
-        for length in range(12, 41, 4):
+        #for length in range(12, 41, 4):
+        for length in range(10, 31, 2):
             true_scores = []
             false_scores = []
             peaks = read_peaks(peaks_path)

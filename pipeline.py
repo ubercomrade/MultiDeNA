@@ -9,7 +9,8 @@ import shutil
 import fnmatch
 from operator import itemgetter
 from shutil import copyfile
-from tools.creat_optimized_pwm_model import de_novo_with_oprimization_pwm
+from tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
+from tools.creat_optimized_pwm_model_streme import de_novo_with_oprimization_pwm_streme
 from tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
 from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
 from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
@@ -436,14 +437,23 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
     bed_train = bed + '/train_sample.bed'
 
     ### CALCULATE PWM MODEL ###
-    if 'pwm' in tools:
+    if 'pwm-chipmunk' in tools or 'pwm-streme' in tools:
         pwm_model = models + '/pwm_model/pwm_model.pwm'
         pwm_threshold_table = thresholds + '/pwm_model_thresholds.txt'
         if not os.path.isfile(pwm_model):
             print('Training PWM model')
-            pwm_length = de_novo_with_oprimization_pwm(fasta_train, path_to_java, path_to_chipmunk, 
-                models + '/pwm.tmp', models + '/pwm_model/', 
-                output_auc + '/pwm', cpu_count, pfpr)
+            if 'pwm-chipmunk' in tools:
+                pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, path_to_java, path_to_chipmunk, 
+                    models + '/pwm.tmp', models + '/pwm_model/', 
+                    output_auc + '/pwm', cpu_count, pfpr)
+            else:
+                backgroud_path = path_to_promoters
+                pwm_length = de_novo_with_oprimization_pwm_streme(fasta_train,
+                    backgroud_path,
+                    models + '/pwm.tmp/',
+                    models + '/pwm_model/',
+                    ooutput_auc + '/pwm/',
+                    pfpr)
         # THRESHOLD
         calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
         check = check_threshold_table(pwm_threshold_table)
@@ -760,7 +770,7 @@ def parse_args():
          help='promoters of organism (hg38, mm10, tair10, b73)')
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
-    parser.add_argument('models', action='store', choices=['pwm', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
+    parser.add_argument('models', action='store', choices=['pwm-chipmunk', 'pwm-streme', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
          help='list of models to use (pwm, dipwm, bamm, inmode, sitega, strum)')
     parser.add_argument('-t', '--train', action='store', type=int, dest='train_size',
                         required=False, default=2000, help='size of training sample, by default size is equal to 500')
