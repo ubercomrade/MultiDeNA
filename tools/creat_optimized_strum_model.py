@@ -82,7 +82,8 @@ def learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, p
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     peaks = read_peaks(peaks_path)
-    for length in range(12, 41, 4):
+    #for length in range(12, 41, 4):
+    for length in range(10, 31, 2):
         true_scores = []
         false_scores = []
         sites = []
