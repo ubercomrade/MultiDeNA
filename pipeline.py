@@ -452,7 +452,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
                     backgroud_path,
                     models + '/pwm.tmp/',
                     models + '/pwm_model/',
-                    ooutput_auc + '/pwm/',
+                    output_auc + '/pwm/',
                     pfpr)
         # THRESHOLD
         calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
@@ -771,7 +771,7 @@ def parse_args():
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
     parser.add_argument('models', action='store', choices=['pwm-chipmunk', 'pwm-streme', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
-         help='list of models to use (pwm, dipwm, bamm, inmode, sitega, strum)')
+         help='list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega, strum)')
     parser.add_argument('-t', '--train', action='store', type=int, dest='train_size',
                         required=False, default=2000, help='size of training sample, by default size is equal to 500')
     parser.add_argument('-f', '--FPR', action='store', type=float, dest='fpr',
