@@ -443,10 +443,12 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(pwm_model):
             print('Training PWM model')
             if 'pwm-chipmunk' in tools:
+                tools[tools.index('pwm-chipmunk')] = 'pwm'
                 pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, path_to_java, path_to_chipmunk, 
                     models + '/pwm.tmp', models + '/pwm_model/', 
                     output_auc + '/pwm', cpu_count, pfpr)
             else:
+                tools[tools.index('pwm-streme')] = 'pwm'
                 backgroud_path = path_to_promoters
                 pwm_length = de_novo_with_oprimization_pwm_streme(fasta_train,
                     backgroud_path,
