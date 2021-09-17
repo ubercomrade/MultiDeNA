@@ -130,7 +130,7 @@ def complement(seq):
     return(seq.replace('A', 't').replace('T', 'a').replace('C', 'g').replace('G', 'c').upper()[::-1])
 
 
-def learn_optimized_inmode(peaks_path, counter, 
+def learn_optimized_inmode(peaks_path, backgroud_path, counter, 
     path_to_inmode, path_to_java, tmp_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -150,7 +150,10 @@ def learn_optimized_inmode(peaks_path, counter,
                 else:
                     train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
                     test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
-                shuffled_peaks = creat_background(test_peaks, length, counter)
+                if os.file.isfile(backgroud_path):
+                    shuffled_peaks = read_peaks(backgroud_path)
+                else:
+                    shuffled_peaks = creat_background(test_peaks, length, counter)
                 write_fasta(shuffled_peaks, tmp_dir, "shuffled")
                 write_fasta(train_peaks, tmp_dir, "train")
                 write_fasta(test_peaks, tmp_dir, "test")
@@ -185,7 +188,7 @@ def choose_best_model(output_auc):
     return(length, order)
 
 
-def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode, 
+def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode, 
     path_to_java, tmp_dir, output_dir, output_auc, pfpr):
     counter = 5000000
     if not os.path.exists(tmp_dir):
@@ -199,7 +202,7 @@ def de_novo_with_oprimization_inmode(peaks_path, path_to_inmode,
         os.mkdir(output_auc)
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
-    learn_optimized_inmode(peaks_path, counter,
+    learn_optimized_inmode(peaks_path, backgroud_path, counter,
                            path_to_inmode, path_to_java, 
                            tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)

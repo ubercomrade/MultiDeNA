@@ -101,7 +101,7 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr):
+def learn_optimized_pwm(peaks_path, backgroud_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr):
     if not os.path.exists(tmp_r):
         os.mkdir(tmp_r)
     if not os.path.isdir(output_auc):
@@ -120,8 +120,11 @@ def learn_optimized_pwm(peaks_path, counter, path_to_java, path_to_chipmunk, tmp
             else:
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
-            shuffled_peaks = creat_background(test_peaks, length, counter)
             write_fasta(train_peaks, tmp_r + '/train.fasta')
+            if os.file.isfile(backgroud_path):
+                shuffled_peaks = read_peaks(backgroud_path)
+            else:
+                shuffled_peaks = creat_background(test_peaks, length, counter)
             run_chipmunk(path_to_java, path_to_chipmunk,
                          tmp_r + '/train.fasta', tmp_r + '/chipmunk_results.txt',
                          length, length, cpu_count)
@@ -168,16 +171,16 @@ def choose_best_model(output_auc):
     return(length)
 
 
-def de_novo_with_oprimization_pwm_chipmunk(peaks_path, path_to_java, path_to_chipmunk, 
+def de_novo_with_oprimization_pwm_chipmunk(peaks_path, backgroud_path, path_to_java, path_to_chipmunk, 
     tmp_dir, output_dir, output_auc, cpu_count, pfpr):
-    counter = 5000000
+    counter = 1000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    learn_optimized_pwm(peaks_path, counter, path_to_java, 
+    learn_optimized_pwm(peaks_path, backgroud_path, counter, path_to_java, 
         path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 

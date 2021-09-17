@@ -68,7 +68,7 @@ def fpr_at_tpr(true_scores, false_scores, tpr):
     return(fpr)
 
 
-def learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir, tmp_dir, output_dir, pfpr):
+def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_dir, pfpr):
     true_scores = []
     false_scores = []
     peaks = read_peaks(peaks_path)
@@ -80,8 +80,11 @@ def learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir
         else:
             train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
             test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
-        shuffled_peaks = creat_background(test_peaks, length, counter)
         write_fasta(train_peaks, tmp_dir + '/train.fasta')
+        if os.file.isfile(backgroud_path):
+            shuffled_peaks = read_peaks(backgroud_path)
+        else:
+            shuffled_peaks = creat_background(test_peaks, length, counter)
         bamm, order = create_bamm_model(tmp_dir + '/train.fasta', tmp_dir, order, meme, 0, length)
         for true_score in true_scores_bamm(test_peaks, bamm, order, length):
             true_scores.append(true_score)
@@ -102,7 +105,7 @@ def learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir
     return(0)
 
 
-def learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr):
+def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
@@ -112,7 +115,7 @@ def learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, 
     for order in range(1,4):
         #for length in range(12, 41, 4):
         for length in range(10, 31, 2):
-            learn_optimized_bamm_support(peaks_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
+            learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     shutil.rmtree(tmp_dir)
     pass
 
@@ -129,7 +132,7 @@ def choose_best_model(output_auc):
     return(length, order)
 
 
-def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir, 
+def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_dir, 
     output_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -140,9 +143,8 @@ def de_novo_with_oprimization_bamm(peaks_path, pwm_auc_dir, tmp_dir,
         os.mkdir(output_dir)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
-
-    counter = 5000000
-    learn_optimized_bamm(peaks_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
+    counter = 1000000
+    learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
     create_bamm_model(peaks_path, tmp_dir, order, meme, 0, length)

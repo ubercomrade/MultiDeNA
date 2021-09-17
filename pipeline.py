@@ -373,7 +373,7 @@ def get_length_sitega_model(path):
     return(length)
 
 
-def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
+def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr):
 
@@ -443,13 +443,12 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         if not os.path.isfile(pwm_model):
             print('Training PWM model')
             if 'pwm-chipmunk' in tools:
-                pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, path_to_java, path_to_chipmunk, 
+                pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, background_path, path_to_java, path_to_chipmunk, 
                     models + '/pwm.tmp', models + '/pwm_model/', 
                     output_auc + '/pwm', cpu_count, pfpr)
             else:
-                backgroud_path = path_to_promoters
                 pwm_length = de_novo_with_oprimization_pwm_streme(fasta_train,
-                    backgroud_path,
+                    background_path,
                     models + '/pwm.tmp/',
                     models + '/pwm_model/',
                     output_auc + '/pwm/',
@@ -487,7 +486,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         dipwm_threshold_table = thresholds + '/dipwm_model_thresholds.txt'
         if not os.path.isfile(dipwm_model):
             print('Training diPWM model')
-            dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, path_to_java, path_to_chipmunk, 
+            dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, background_path, path_to_java, path_to_chipmunk, 
                 models + '/dipwm.tmp', models + '/dipwm_model/',
                 output_auc + '/dipwm', cpu_count, pfpr)
         # THRESHOLD
@@ -528,7 +527,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             if not os.path.isdir(models + '/inmode_model/'):
                 os.mkdir(models + '/inmode_model/')
             inmode_length, inmode_order = de_novo_with_oprimization_inmode(
-                                            fasta_train, path_to_inmode, 
+                                            fasta_train, background_path, path_to_inmode, 
                                             path_to_java, models + '/inmode.tmp', 
                                             inmode_model_dir, output_auc + '/inmode', 
                                             pfpr)
@@ -577,7 +576,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
             print('Training BAMM model')
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
-            bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, output_auc + '/pwm', 
+            bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, background_path, output_auc + '/pwm', 
                 models + '/bamm.tmp', models + '/bamm_model', output_auc + '/bamm', pfpr)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
@@ -662,7 +661,7 @@ def pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
         strum_threshold_table = thresholds + '/strum_model_thresholds.txt'
         if not os.path.isfile(strum_model):
             print('Training StruM model')
-            strum_length = de_novo_with_oprimization_strum(fasta_train, 
+            strum_length = de_novo_with_oprimization_strum(fasta_train, background_path, 
                 models + '/strum.tmp', models + '/strum_model/', 
                 output_auc + '/strum', cpu_count, pfpr)
         # THRESHOLD
@@ -777,6 +776,8 @@ def parse_args():
          help='promoters of organism (hg38, mm10, tair10, b73)')
     parser.add_argument('genome', action='store', help='path to genome fasta file')
     parser.add_argument('output', action='store', help='output dir')
+    parser.add_argument('-b', '--background', action='store', type=str, dest='background',
+                        required=False, default='shuffled', help='Path to background for bootstrap and denovo. if not given peaks are shuffled')
     parser.add_argument('models', action='store', choices=['pwm-chipmunk', 'pwm-streme', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
          help='list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega, strum)')
     parser.add_argument('-t', '--train', action='store', type=int, dest='train_size',
@@ -813,6 +814,7 @@ def main():
     test_sample_size = args.test_size
     fpr = args.fpr
     tools = args.models
+    background_path = args.background
 
     path_to_java = args.java
     path_to_chipmunk = args.chipmunk
@@ -834,7 +836,7 @@ def main():
     elif organism == 'b73':
         path_to_promoters = os.path.join(this_dir, "promoters", "b73_v5.fasta")
 
-    pipeline(tools, bed_path, fpr, train_sample_size, test_sample_size,
+    pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr)
 

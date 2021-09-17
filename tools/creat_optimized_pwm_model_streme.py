@@ -19,10 +19,23 @@ def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
            '--oc', dir_out,
            '--objfun', 'de',
            '--w', str(motif_length),
-           '-nmotifs', '2']
-    print(' '.join(args))
+           '-nmotifs', '3']
+    #print(' '.join(args))
     p = subprocess.run(args, shell=False, capture_output=True)
-    print(p.stdout)
+    #print(p.stdout)
+    return(0)
+
+
+def run_streme_hmm_background(fasta_path, dir_out, motif_length):
+    args = ['streme', '--p', fasta_path,
+            '--kmer', '4',
+           '--oc', dir_out,
+           '--objfun', 'de',
+           '--w', str(motif_length),
+           '-nmotifs', '3']
+    #print(' '.join(args))
+    p = subprocess.run(args, shell=False, capture_output=True)
+    #print(p.stdout)
     return(0)
 
 
@@ -119,13 +132,14 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
             else:
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
-            shuffled_peaks = creat_background(test_peaks, length, counter)
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
             write_fasta(train_peaks, tmp_dir + '/train.fasta')
-            run_streme(tmp_dir + '/train.fasta',
-                       backgroud_path,
-                       tmp_dir,
-                       length)
+            if os.file.isfile(backgroud_path):
+                shuffled_peaks = read_peaks(backgroud_path)
+                run_streme(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, length)
+            else:
+                shuffled_peaks = creat_background(test_peaks, length, counter)
+                run_streme_hmm_background(tmp_dir + '/train.fasta', tmp_dir, length)
             pfm, background, length, nsites = parse_streme(tmp_dir + '/streme.txt')
             pwm = make_pwm(pfm)
             for true_score in true_scores_pwm(test_peaks, pwm, length):

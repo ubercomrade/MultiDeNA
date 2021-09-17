@@ -74,7 +74,7 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, pfpr):
+def learn_optimized_strum(peaks_path, backgroud_path, counter, tmp_dir, output_auc, cpu_count, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
@@ -96,8 +96,11 @@ def learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, p
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
             train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
             test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-            shuffled_peaks = creat_background(test_peaks, length, counter)
             write_fasta(train_peaks, tmp_dir + '/train.fasta')
+            if os.file.isfile(backgroud_path):
+                shuffled_peaks = read_peaks(backgroud_path)
+            else:
+                shuffled_peaks = creat_background(test_peaks, length, counter)
             strum_model = strum_de_novo(tmp_dir + '/train.fasta', length, cpu_count)
             for true_score, site in zip(*true_scores_strum(test_peaks, strum_model, length)):
                 true_scores.append(true_score)
@@ -138,7 +141,7 @@ def choose_best_model(output_auc):
     return(length)
 
 
-def de_novo_with_oprimization_strum(peaks_path, tmp_dir, output_dir, output_auc, cpu_count, pfpr):
+def de_novo_with_oprimization_strum(peaks_path, backgroud_path, tmp_dir, output_dir, output_auc, cpu_count, pfpr):
     counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -146,7 +149,7 @@ def de_novo_with_oprimization_strum(peaks_path, tmp_dir, output_dir, output_auc,
         os.mkdir(output_auc)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    learn_optimized_strum(peaks_path, counter, tmp_dir, output_auc, cpu_count, pfpr)
+    learn_optimized_strum(peaks_path, backgroud_path, counter, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
              output_dir + '/bootstrap.txt')
