@@ -81,7 +81,7 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
             train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
             test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
         write_fasta(train_peaks, tmp_dir + '/train.fasta')
-        if os.file.isfile(backgroud_path):
+        if os.path.isfile(backgroud_path):
             shuffled_peaks = read_peaks(backgroud_path)
         else:
             shuffled_peaks = creat_background(test_peaks, length, counter)

@@ -134,7 +134,7 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
             write_fasta(train_peaks, tmp_dir + '/train.fasta')
-            if os.file.isfile(backgroud_path):
+            if os.path.isfile(backgroud_path):
                 shuffled_peaks = read_peaks(backgroud_path)
                 run_streme(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, length)
             else:
