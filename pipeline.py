@@ -329,16 +329,16 @@ def run_tomtom(query, target, outdir):
 
 
 
-def get_motif_length(models):
-    with open(models + '/pwm_model/pwm_model.fasta', 'r') as file:
-        for i in file:
-            if i.startswith('>'):
-                continue
-            else:
-                motif_length = len(i.strip())
-                break
-    file.close()
-    return(motif_length)
+# def get_motif_length(models):
+#     with open(models + '/pwm_model/pwm_model.fasta', 'r') as file:
+#         for i in file:
+#             if i.startswith('>'):
+#                 continue
+#             else:
+#                 motif_length = len(i.strip())
+#                 break
+#     file.close()
+#     return(motif_length)
 
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
@@ -518,7 +518,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
     ### CALCULATE INMODE MODEL WITH EM ALG ###
     if 'inmode' in tools:
-        motif_length = get_motif_length(models)
+        #motif_length = get_motif_length(models)
         inmode_model_dir = models + '/inmode_model/'
         inmode_model = models + '/inmode_model/inmode_model.xml'
         inmode_threshold_table = thresholds + '/inmode_model_thresholds.txt'
@@ -533,7 +533,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
                                             pfpr)
         # THRESHOLDS
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
-            thresholds, motif_length,
+            thresholds, inmode_length,
             path_to_inmode, path_to_java)
         check = check_threshold_table(inmode_threshold_table)
         if check < fpr:
