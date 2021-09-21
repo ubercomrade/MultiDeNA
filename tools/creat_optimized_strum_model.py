@@ -83,7 +83,7 @@ def learn_optimized_strum(peaks_path, backgroud_path, counter, tmp_dir, output_a
         os.remove(output_auc + '/auc.txt')
     peaks = read_peaks(peaks_path)
     #for length in range(12, 41, 4):
-    for length in range(10, 31, 2):
+    for length in range(10, 31, 4):
         true_scores = []
         false_scores = []
         sites = []

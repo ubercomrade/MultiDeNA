@@ -110,7 +110,7 @@ def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, pat
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     #for length in range(12, 41, 4):
-    for length in range(10, 31, 2):
+    for length in range(10, 31, 4):
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
