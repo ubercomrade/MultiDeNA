@@ -11,10 +11,11 @@ calculate_short_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap
 
 
-def create_bamm_model(peaks_path, directory, order, meme, extend, basename):
+def create_bamm_model(peaks_path, backgroud_path, directory, order, meme, extend, basename):
     args = ['BaMMmotif', directory, peaks_path, '--PWMFile', meme,
             '--EM', '--order', str(order), '--Order', str(order),
-           '--extend', str(extend), '--basename', str(basename)]
+           '--extend', str(extend), '--basename', str(basename),
+           '--negSeqFile', backgroud_path]
     r = subprocess.run(args, capture_output=True)
     bamm_path = directory + '/{}_motif_1.ihbcp'.format(basename)
     bg_path = directory + '/{}.hbcp'.format(basename)
@@ -85,7 +86,7 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
             shuffled_peaks = read_peaks(backgroud_path)
         else:
             shuffled_peaks = creat_background(test_peaks, length, counter)
-        bamm, order = create_bamm_model(tmp_dir + '/train.fasta', tmp_dir, order, meme, 0, length)
+        bamm, order = create_bamm_model(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, order, meme, 0, length)
         for true_score in true_scores_bamm(test_peaks, bamm, order, length):
             true_scores.append(true_score)
         for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
@@ -147,7 +148,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
     learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
-    create_bamm_model(peaks_path, tmp_dir, order, meme, 0, length)
+    create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
