@@ -13,7 +13,7 @@ from lib.speedup import creat_table_bootstrap
 
 def create_bamm_model(peaks_path, directory, order, meme, extend, basename):
     args = ['BaMMmotif', directory, peaks_path, '--PWMFile', meme,
-            '--CGS', '--order', str(order), '--Order', str(order),
+            '--EM', '--order', str(order), '--Order', str(order),
            '--extend', str(extend), '--basename', str(basename)]
     r = subprocess.run(args, capture_output=True)
     bamm_path = directory + '/{}_motif_1.ihbcp'.format(basename)
