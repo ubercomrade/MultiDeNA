@@ -19,10 +19,8 @@ def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
            '--oc', dir_out,
            '--objfun', 'de',
            '--w', str(motif_length),
-           '-nmotifs', '3']
-    #print(' '.join(args))
+           '-nmotifs', '5']
     p = subprocess.run(args, shell=False, capture_output=True)
-    #print(p.stdout)
     return(0)
 
 
@@ -32,10 +30,8 @@ def run_streme_hmm_background(fasta_path, dir_out, motif_length):
            '--oc', dir_out,
            '--objfun', 'de',
            '--w', str(motif_length),
-           '-nmotifs', '3']
-    #print(' '.join(args))
+           '-nmotifs', '5']
     p = subprocess.run(args, shell=False, capture_output=True)
-    #print(p.stdout)
     return(0)
 
 
@@ -122,7 +118,7 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     #for length in range(12, 41, 4):
-    for length in range(10, 31, 4):
+    for length in range(8, 31, 4):
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)
