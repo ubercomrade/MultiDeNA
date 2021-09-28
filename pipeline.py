@@ -14,12 +14,10 @@ from tools.creat_optimized_pwm_model_streme import de_novo_with_oprimization_pwm
 from tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
 from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
 from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
-from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
 from tools.get_threshold_for_bamm import get_threshold_for_bamm
 from tools.get_threshold_for_pwm import get_threshold_for_pwm
 from tools.get_threshold_for_dipwm import get_threshold_for_dipwm
 from tools.get_threshold_for_inmode import get_threshold_for_inmode
-from tools.get_threshold_for_strum import get_threshold_for_strum
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_dipwm import scan_by_dipwm
 from tools.scan_by_bamm import scan_by_bamm
@@ -34,12 +32,20 @@ from tools.scan_best_by_pwm import scan_best_by_pwm
 from tools.scan_best_by_dipwm import scan_best_by_dipwm
 from tools.scan_best_by_bamm import scan_best_by_bamm
 from tools.scan_best_by_inmode import scan_best_by_inmode
-from tools.scan_best_by_strum import scan_best_by_strum
 from tools.extract_sites import extract_sites
 from tools.write_model import write_model
 from tools.clear_from_n import clear_from_n
 from tools.parse_sitega_results import parse_sitega_results
 from lib.common import check_threshold_table, check_bootstrap
+
+try:
+    from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
+    from tools.get_threshold_for_strum import get_threshold_for_strum
+    from tools.scan_best_by_strum import scan_best_by_strum
+except ModuleNotFoundError:
+    print('StruM module not found. You can`t use StruM model')
+    pass
+
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
 
