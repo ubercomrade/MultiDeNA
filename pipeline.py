@@ -21,7 +21,6 @@ from tools.get_threshold_for_inmode import get_threshold_for_inmode
 from tools.scan_by_pwm import scan_by_pwm
 from tools.scan_by_dipwm import scan_by_dipwm
 from tools.scan_by_bamm import scan_by_bamm
-from tools.scan_by_strum import scan_by_strum
 from tools.get_top_peaks import write_top_peaks
 from tools.parse_chipmunk_results import parse_chipmunk_results
 from tools.parse_inmode_results import parse_inmode_results
@@ -41,6 +40,7 @@ from lib.common import check_threshold_table, check_bootstrap
 try:
     from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
     from tools.get_threshold_for_strum import get_threshold_for_strum
+    from tools.scan_by_strum import scan_by_strum
     from tools.scan_best_by_strum import scan_best_by_strum
 except ModuleNotFoundError:
     print('StruM module not found. You can`t use StruM model')
