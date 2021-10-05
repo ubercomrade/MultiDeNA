@@ -154,7 +154,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
         create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
     else:
         peaks = read_peaks(peaks_path)
-        shuffled_peaks = creat_background(test_peaks, length, counter)
+        shuffled_peaks = creat_background(peaks, length, counter)
         write_fasta(shuffled_peaks, tmp_dir + '/background.fasta')
         create_bamm_model(peaks_path, tmp_dir + '/background.fasta', tmp_dir, order, meme, 0, length)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
