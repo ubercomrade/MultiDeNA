@@ -183,7 +183,10 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
              output_dir + '/bootstrap.txt')
     copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
-    run_streme(peaks_path, backgroud_path, output_dir, length)
+    if os.path.isfile(backgroud_path):
+        run_streme(peaks_path, backgroud_path, output_dir, length)
+    else:
+        run_streme_hmm_background(peaks_path, output_dir, length)
     pfm, background, length, nsites = parse_streme(output_dir + '/streme.txt')
     pwm = make_pwm(pfm)
     tag = 'pwm_model'

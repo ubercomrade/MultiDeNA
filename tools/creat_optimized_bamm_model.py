@@ -84,9 +84,11 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
         write_fasta(train_peaks, tmp_dir + '/train.fasta')
         if os.path.isfile(backgroud_path):
             shuffled_peaks = read_peaks(backgroud_path)
+            bamm, order = create_bamm_model(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, order, meme, 0, length)
         else:
             shuffled_peaks = creat_background(test_peaks, length, counter)
-        bamm, order = create_bamm_model(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, order, meme, 0, length)
+            write_fasta(shuffled_peaks, tmp_dir + '/background.fasta')
+            bamm, order = create_bamm_model(tmp_dir + '/train.fasta', tmp_dir + '/background.fasta', tmp_dir, order, meme, 0, length)
         for true_score in true_scores_bamm(test_peaks, bamm, order, length):
             true_scores.append(true_score)
         for false_score in false_scores_bamm(shuffled_peaks, bamm, order, length):
@@ -148,7 +150,13 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
     learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
-    create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
+    if os.path.isfile(backgroud_path):
+        create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
+    else:
+        peaks = read_peaks(peaks_path)
+        shuffled_peaks = creat_background(test_peaks, length, counter)
+        write_fasta(shuffled_peaks, tmp_dir + '/background.fasta')
+        create_bamm_model(peaks_path, tmp_dir + '/background.fasta', tmp_dir, order, meme, 0, length)
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
