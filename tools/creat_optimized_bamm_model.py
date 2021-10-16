@@ -119,7 +119,6 @@ def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_d
         #for length in range(12, 41, 4):
         for length in range(8, 31, 4):
             learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
-    shutil.rmtree(tmp_dir)
     pass
 
 
