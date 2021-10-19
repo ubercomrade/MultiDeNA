@@ -377,6 +377,12 @@ def get_length_sitega_model(path):
         file.readline()
         length = int(file.readline().strip().split()[0])
     return(length)
+    
+    
+def get_properties(path):
+    with open(path) as file:
+        length, order = file.readline().strip().split('\t')
+    return int(length), int(order)
 
 
 def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
@@ -532,12 +538,12 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             print('Training INMODE model')
             if not os.path.isdir(models + '/inmode_model/'):
                 os.mkdir(models + '/inmode_model/')
-            inmode_length, inmode_order = de_novo_with_oprimization_inmode(
-                                            fasta_train, background_path, path_to_inmode, 
+            de_novo_with_oprimization_inmode(fasta_train, background_path, path_to_inmode, 
                                             path_to_java, models + '/inmode.tmp', 
                                             inmode_model_dir, output_auc + '/inmode', 
                                             pfpr)
         # THRESHOLDS
+        inmode_length, inmode_order = get_properties(f"{inmode_model_dir}/properties.txt")
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
             thresholds, inmode_length,
             path_to_inmode, path_to_java)

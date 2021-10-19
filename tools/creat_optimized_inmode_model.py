@@ -219,4 +219,6 @@ def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
     shutil.copy(tmp_dir + '/Learned_DeNovo({0},{1},2)_motif/XML_of_DeNovo({0},{1},2)_motif.xml'.format(length,order),
                 output_dir + '/inmode_model.xml')
     shutil.rmtree(tmp_dir)
-    return(length, order)
+    with open(f"{output_dir}/properties.txt", "w") as file:
+        file.write(f"{length}\t{order}\n")
+    return 0
