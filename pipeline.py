@@ -637,14 +637,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         #     lpd = int(file.readline().strip().split()[0])
         #     sitega_length = int(file.readline().strip().split()[0])
         # file.close()
-        # # BOOTSTRAP
-        # if bootstrap_flag and not os.path.isfile(bootstrap + '/sitega_model.tsv'):
-        #     print('Run bootstrap for SiteGA model')
-        #     bootstrap_for_sitega(sitega_model_dir + '/train_sample_no_n.fa', 
-        #         bootstrap + '/sitega_model.tsv',
-        #         bootstrap + '/sitega_model_full.tsv',
-        #         sitega_length, lpd, bootstrap + '/sitega.tmp/', counter=5000000)
-        # calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
+        calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
             # SCAN
