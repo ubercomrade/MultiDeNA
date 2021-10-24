@@ -19,8 +19,8 @@ files <- dir(file.path(directory),"meme$", full.names = TRUE)
 files <- files[!grepl('sitega', files)]
 motifs <- importMatrix(files, format='meme')
 
-tools <- c('PWM', 'diPWM', 'BaMM', 'InMoDe', 'StruM')
-names(tools) <- list('pwm', 'dipwm', 'bamm', 'inmode', 'strum')
+tools <- c('PWM', 'diPWM', 'BaMM', 'InMoDe', 'StruM', 'SiteGA')
+names(tools) <- list('pwm', 'dipwm', 'bamm', 'inmode', 'strum', 'sitega')
 
 for (i in names(motifs)) {
   motifs[[i]]@name = tools[[i]]
