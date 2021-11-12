@@ -266,12 +266,12 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
     if not os.path.isfile(thresholds_dir + '/sitega_model_thresholds.txt'):
         print('Calculate threshold for SiteGA based on promoters and fpr')
         args = ['sitega_thr_dist_mat',
-            '{}/'.format(dir_to_promoters)
+            '{}/'.format(dir_to_promoters),
             '{}'.format(sitega_model),
             '{}'.format(name_of_promoters),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
             '{}'.format(0.0005),
-           '{}'.format(0.995),
+           '{}'.format(0.9),
            '{}'.format(0.0000000005)]
         r = subprocess.run(args, capture_output=True)
     else:
