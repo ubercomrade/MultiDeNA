@@ -261,11 +261,14 @@ def get_sitega_model(sitega_model_dir, sitega_length, fasta_path):
 
 
 def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_dir):
+    dir_to_promoters = os.path.dirname(path_to_promoters)
+    name_of_promoters = os.path.basename(path_to_promoters)
     if not os.path.isfile(thresholds_dir + '/sitega_model_thresholds.txt'):
         print('Calculate threshold for SiteGA based on promoters and fpr')
         args = ['sitega_thr_dist_mat',
+            '{}/'.format(dir_to_promoters)
             '{}'.format(sitega_model),
-            '{}'.format(path_to_promoters),
+            '{}'.format(name_of_promoters),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
             '{}'.format(0.0005),
            '{}'.format(0.995),
