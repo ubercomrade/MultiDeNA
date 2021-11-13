@@ -16,7 +16,7 @@ directory <-  opt[["dir_with_motifs"]]
 writeDirectory <- opt[["dir_to_write"]]
 
 files <- dir(file.path(directory),"meme$", full.names = TRUE)
-files <- files[!grepl('sitega', files)]
+#files <- files[!grepl('sitega', files)]
 motifs <- importMatrix(files, format='meme')
 
 tools <- c('PWM', 'diPWM', 'BaMM', 'InMoDe', 'StruM', 'SiteGA')
