@@ -17,7 +17,7 @@ library(ChIPseeker)
 library(clusterProfiler)
 #library(ReactomePA)
 library(optparse)
-install.packages("optparse")
+#install.packages("optparse")
 
 option_list = list(
   make_option(c("--input_scans"), dest="input_scans", action="store",
