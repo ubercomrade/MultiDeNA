@@ -15,9 +15,7 @@
 #remotes::install_version("RSQLite", version = "2.2.5")
 library(ChIPseeker)
 library(clusterProfiler)
-#library(ReactomePA)
 library(optparse)
-#install.packages("optparse")
 
 option_list = list(
   make_option(c("--input_scans"), dest="input_scans", action="store",
@@ -36,9 +34,20 @@ tools <-  opt[["models_names"]]
 genome <-  opt[["genome"]]
 writeDirectory <- opt[["output_dir"]]
 
+#files <- "/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//pwm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//bamm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//inmode_test_1.90e-04.bed"
+#tools <- "PWM;BaMM;InMoDe"
+#genome <- "tair10"
+
 files <-  strsplit(files, ";")[[1]]
 tools <-  strsplit(tools, ";")[[1]]
 names(files) <- tools
+
+if (genome == "tair10"){
+  keyType = "TAIR"  
+} else {
+  keyType = "ENTREZID"
+}
+
 
 if (genome == 'hg38') {
   library(TxDb.Hsapiens.UCSC.hg38.knownGene)
@@ -61,7 +70,6 @@ if (genome == 'tair10') {
   OrgDb <- 'org.At.tair.db'
 }
 
-
 getGeneNamesByPromoters <- function(i) {
   df <- as.data.frame(i)
   df <- df[df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (2-3kb)",]
@@ -71,12 +79,17 @@ getGeneNamesByPromoters <- function(i) {
 
 writeAnnotaion <- function(peakAnnoList, writeDirectory) {
   tools <-  names(peakAnnoList)
-  colNames <- c("chromosome", "start", "end", "width",
-                "str", "name", "score", "strand",
-                "site","annotation", "geneChr", 
-                "geneStart", "geneEnd", "geneLength", 
-                "geneStrand", "geneId", "transcriptId",
-                "distanceToTSS")
+  #colNames <- c("chromosome", "start", "end", "width",
+  #              "str", "name", "score", "strand",
+  #              "site","annotation", "geneChr", 
+  #              "geneStart", "geneEnd", "geneLength", 
+  #              "geneStrand", "geneId", "transcriptId",
+  #              "distanceToTSS")
+  colNames <- c("chromosome", "start",  "end", "width",
+                "strand", "name", "score", "site", "annotation",
+                "geneChr", "geneStart",  "geneEnd",
+                "geneLength", "geneStrand", "geneId",
+                "transcriptId", "distanceToTSS")
   for (i in tools) {
     df <- as.data.frame(peakAnnoList[i])
     names(df) <- colNames
@@ -87,10 +100,40 @@ writeAnnotaion <- function(peakAnnoList, writeDirectory) {
   }
 }
 
-peakAnnoList <- lapply(files, annotatePeak, TxDb=txdb,
-                      tssRegion=c(-3000, 3000), verbose=FALSE)
-writeAnnotaion(peakAnnoList, writeDirectory)
+CapStr <- function(y) {
+  c <- strsplit(y, " ")[[1]]
+  paste(toupper(substring(c, 1,1)), substring(c, 2),
+        sep="", collapse=" ")
+}
 
+readScanTablesTair <- function(path){
+  df <- read.table(path)
+  colnames(df) <- c("chr", "start", "end", "name", "score", "strand", "site")
+  df$chr <- sapply(df$chr, CapStr)
+  gr <- makeGRangesFromDataFrame(df, keep.extra.columns=TRUE)
+  seqlevelsStyle(gr) <- "Ensembl"
+  return(gr)
+}
+
+readScanTablesMammals <- function(path){
+  df <- read.table(path)
+  colnames(df) <- c("chr", "start", "end", "name", "score", "strand", "site")
+  gr <- makeGRangesFromDataFrame(df, keep.extra.columns=TRUE)
+  return(gr)
+}
+
+if (genome == "tair10"){
+  grs <- lapply(files, readScanTablesTair)
+  peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
+                         tssRegion=c(-3000, 3000), verbose=FALSE)
+  
+} else {
+  grs <- lapply(files, readScanTablesMammals)
+  peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
+                         tssRegion=c(-3000, 3000), verbose=FALSE)
+}
+
+writeAnnotaion(peakAnnoList, writeDirectory)
 genes <-  lapply(peakAnnoList, getGeneNamesByPromoters)
 names(genes) <-  sub("_", "\n", names(genes))
 
@@ -99,11 +142,12 @@ plotAnnoBar(peakAnnoList)
 dev.off()
 
 enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
-                           fun           = "enrichGO",
-                           pvalueCutoff  = 0.05,
-                           ont = "BP",
-                           pAdjustMethod = "BH",
-                           OrgDb = OrgDb),
+                                     fun           = "enrichGO",
+                                     pvalueCutoff  = 0.05,
+                                     ont = "BP",
+                                     pAdjustMethod = "BH",
+                                     OrgDb = OrgDb,
+                                     keyType = keyType),
                       error=function(cond) {
                         message("There is no enrichment for current data")
                         message("Here's the original error message:")
@@ -113,7 +157,7 @@ enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                       finally=function(cond) {
                         return(NA)
                       }
-                      )
+)
 
 if (isS4(enrich_go)) {
   df <- enrich_go@compareClusterResult
@@ -137,10 +181,11 @@ if (isS4(enrich_go)) {
 }
 
 enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
-                       pvalueCutoff  = 0.05,
-                       pAdjustMethod = "BH",
-                       ont = "BP",
-                       OrgDb = OrgDb),
+                                pvalueCutoff  = 0.05,
+                                pAdjustMethod = "BH",
+                                ont = "BP",
+                                OrgDb = OrgDb,
+                                keyType = keyType),
                        error=function(cond) {
                          message("There is no enrichment for current data")
                          message("Here's the original error message:")
@@ -150,7 +195,7 @@ enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                        finally=function(cond) {
                          return(NA)
                        }
-                       )
+)
 
 if (isS4(enrich_pwm)) {
   df <- enrich_pwm@result
@@ -165,10 +210,11 @@ if (isS4(enrich_pwm)) {
 }
 
 enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
-                         pvalueCutoff  = 0.05,
-                         pAdjustMethod = "BH",
-                         ont = "BP",
-                         OrgDb = OrgDb),
+                                pvalueCutoff  = 0.05,
+                                pAdjustMethod = "BH",
+                                ont = "BP",
+                                OrgDb = OrgDb,
+                                keyType = keyType),
                        error=function(cond) {
                          message("There is no enrichment for current data")
                          message("Here's the original error message:")
@@ -178,7 +224,7 @@ enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
                        finally=function(cond) {
                          return(NA)
                        }
-                       )
+)
 
 if (isS4(enrich_all)) {
   df <- enrich_all@result
