@@ -751,7 +751,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
                 You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
 
     # ANNOTATION AND GO
-    if not organism == 'b73':
+    if organism in ['mm10', 'hg38', 'tair10']:
         print('Annotaion results by ChIPseeker')
         name_converter = {
         'pwm': 'PWM',
