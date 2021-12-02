@@ -34,8 +34,8 @@ tools <-  opt[["models_names"]]
 genome <-  opt[["genome"]]
 writeDirectory <- opt[["output_dir"]]
 
-#files <- "/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//pwm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//bamm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results//PEAKS042882_CCA1_P92973_MACS2_1344/scan//inmode_test_1.90e-04.bed"
-#tools <- "PWM;BaMM;InMoDe"
+#files <- "/Users/anton/Documents/PhD/gtrd-tair10-choosen/results_sitega//PEAKS042881_CCA1_P92973_MACS2_1344/scan//pwm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results_sitega//PEAKS042881_CCA1_P92973_MACS2_1344/scan//bamm_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results_sitega//PEAKS042881_CCA1_P92973_MACS2_1344/scan//inmode_test_1.90e-04.bed;/Users/anton/Documents/PhD/gtrd-tair10-choosen/results_sitega//PEAKS042881_CCA1_P92973_MACS2_1344/scan//sitega_test_1.90e-04.bed"
+#tools <- "PWM;BaMM;InMoDe;SiteGA"
 #genome <- "tair10"
 
 files <-  strsplit(files, ";")[[1]]
@@ -72,19 +72,19 @@ if (genome == 'tair10') {
 
 getGeneNamesByPromoters <- function(i) {
   df <- as.data.frame(i)
-  df <- df[df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (2-3kb)",]
+  df <- df[df$annotation == "Promoter" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (2-3kb)",]
   genes <- unique(df$geneId)
   return(genes)
 }
 
 writeAnnotaion <- function(peakAnnoList, writeDirectory) {
   tools <-  names(peakAnnoList)
-  #colNames <- c("chromosome", "start", "end", "width",
-  #              "str", "name", "score", "strand",
-  #              "site","annotation", "geneChr", 
-  #              "geneStart", "geneEnd", "geneLength", 
-  #              "geneStrand", "geneId", "transcriptId",
-  #              "distanceToTSS")
+  colNames <- c("chromosome", "start", "end", "width",
+                "str", "name", "score", "strand",
+                "site","annotation", "geneChr", 
+                "geneStart", "geneEnd", "geneLength", 
+                "geneStrand", "geneId", "transcriptId",
+                "distanceToTSS")
   colNames <- c("chromosome", "start",  "end", "width",
                 "strand", "name", "score", "site", "annotation",
                 "geneChr", "geneStart",  "geneEnd",
@@ -125,21 +125,24 @@ readScanTablesMammals <- function(path){
 if (genome == "tair10"){
   grs <- lapply(files, readScanTablesTair)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
-                         tssRegion=c(-3000, 3000), verbose=FALSE)
+                         tssRegion=c(-1000, 1000), verbose=FALSE)
   
 } else {
   grs <- lapply(files, readScanTablesMammals)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
-                         tssRegion=c(-3000, 3000), verbose=FALSE)
+                         tssRegion=c(-1000, 1000), verbose=FALSE)
 }
 
 writeAnnotaion(peakAnnoList, writeDirectory)
 genes <-  lapply(peakAnnoList, getGeneNamesByPromoters)
+#genes <-  lapply(peakAnnoList, function(i) as.data.frame(i)$geneId)
+#genes <-  lapply(grs, function(i) seq2gene(i, tssRegion=c(-1000, 1000), flankDistance = 3000, TxDb=txdb))
 names(genes) <-  sub("_", "\n", names(genes))
 
 pdf(paste(writeDirectory, 'tools_annotaion.pdf', sep = '/'))
 plotAnnoBar(peakAnnoList)
 dev.off()
+
 
 enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                                      fun           = "enrichGO",
@@ -159,13 +162,17 @@ enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                       }
 )
 
+#l <- length(unique(as.data.frame(enrich_go)$ID))
+#dotplot(enrich_go, showCategory = 42, title = "Enrichment Analysis (GO)", font.size = 10, label_format = 70)
+
 if (isS4(enrich_go)) {
   df <- enrich_go@compareClusterResult
   df <- df[df$p.adjust <= 0.05,]
   write.table(x = df,
               file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  p <- dotplot(enrich_go, showCategory = 15, title = "Enrichment Analysis (GO)")
+  l <- length(unique(as.data.frame(enrich_go)$ID))
+  p <- dotplot(enrich_go, showCategory = l, title = "Enrichment Analysis (GO)", font.size = 10, label_format = 50)
   pdf(paste(writeDirectory, 'compare_models_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
@@ -197,13 +204,16 @@ enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                        }
 )
 
+#dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
+
 if (isS4(enrich_pwm)) {
   df <- enrich_pwm@result
   df <- df[df$p.adjust <= 0.05,]
+  l <- length(df$ID)
   write.table(x = df,
               file = paste(writeDirectory, 'pwm_model_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  p <- dotplot(enrich_pwm, showCategory = 20, title = "Enrichment Analysis (GO) for PWM sites")
+  p <- dotplot(enrich_pwm, showCategory = l, title = "Enrichment Analysis (GO) for PWM sites")
   pdf(paste(writeDirectory, 'pwm_model_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
@@ -226,13 +236,16 @@ enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
                        }
 )
 
+#dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
+
 if (isS4(enrich_all)) {
   df <- enrich_all@result
   df <- df[df$p.adjust <= 0.05,]
+  l <- length(df$ID)
   write.table(x = df,
               file = paste(writeDirectory, 'all_models_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  p <- dotplot(enrich_all, showCategory = 20, title = "Enrichment Analysis (GO) for all models sites")
+  p <- dotplot(enrich_all, showCategory = l, title = "Enrichment Analysis (GO) for all models sites")
   pdf(paste(writeDirectory, 'all_models_GO.pdf', sep = '/'), width=10)
   print(p)
   dev.off()
