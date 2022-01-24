@@ -271,7 +271,7 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
             '{}'.format(name_of_promoters),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
             '{}'.format(0.0005),
-           '{}'.format(0.9),
+           '{}'.format(0.5),
            '{}'.format(0.0000000005)]
         r = subprocess.run(args, capture_output=True)
     else:
