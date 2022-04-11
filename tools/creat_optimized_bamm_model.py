@@ -103,8 +103,8 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
     auc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
     print("Length {0}; Order {1}".format(length, order), "pAUC at {0} = {1};".format(pfpr, auc))
     write_auc_with_order(output_dir + '/auc.txt', auc, length, order)
-    write_roc(output_dir + "/training_bootstrap_{0}.txt".format(length), roc)
-    write_roc(output_dir + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
+    write_roc(output_dir + "/training_bootstrap_{0}_{1}.txt".format(length, order), roc)
+    write_roc(output_dir + "/training_bootstrap_merged_{0}_{1}.txt".format(length, order), merged_roc)
     return(0)
 
 
@@ -160,9 +160,9 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
            output_dir + '/bamm.hbcp')
-    shutil.copy(output_auc + '/training_bootstrap_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_{0}_{1}.txt'.format(length, order), 
              output_dir + '/bootstrap.txt')
-    shutil.copy(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_merged_{0}_{1}.txt'.format(length, order), 
              output_dir + '/bootstrap_merged.txt')
     shutil.rmtree(tmp_dir)
     return(length, order)

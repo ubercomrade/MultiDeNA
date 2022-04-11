@@ -170,8 +170,8 @@ def learn_optimized_inmode(peaks_path, backgroud_path, counter,
             auc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
             print("Length {0}; Order {1}".format(length, order), "pAUC at {0} = {1};".format(pfpr, auc))
             write_auc_with_order(output_auc + '/auc.txt', auc, length, order)
-            write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
-            write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
+            write_roc(output_auc + "/training_bootstrap_merged_{0}_{1}.txt".format(length, order), merged_roc)
+            write_roc(output_auc + "/training_bootstrap_{0}_{1}.txt".format(length, order), roc)
     shutil.rmtree(tmp_dir)
     return(0)
 
@@ -207,9 +207,9 @@ def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
                            tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
     
-    shutil.copy(output_auc + '/training_bootstrap_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_{0}_{1}.txt'.format(length, order), 
              output_dir + '/bootstrap.txt')
-    shutil.copy(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
+    shutil.copy(output_auc + '/training_bootstrap_merged_{0}_{1}.txt'.format(length, order), 
              output_dir + '/bootstrap_merged.txt')
     
     args = [path_to_java, '-Xmx16G', '-Xms1G', '-jar', path_to_inmode,
