@@ -11,6 +11,51 @@ calculate_short_roc, write_roc, calculate_fprs
 from lib.speedup import creat_table_bootstrap
 
 
+def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
+    args = ['streme', '--p', fasta_path,
+            '--n', backgroud_path,
+           '--oc', dir_out,
+           '--objfun', 'de',
+           '--w', str(motif_length),
+           '-nmotifs', '5']
+    p = subprocess.run(args, shell=False, capture_output=True)
+    return(0)
+
+
+def run_streme_hmm_background(fasta_path, dir_out, motif_length):
+    args = ['streme', '--p', fasta_path,
+            '--kmer', '4',
+           '--oc', dir_out,
+           '--objfun', 'de',
+           '--w', str(motif_length),
+           '-nmotifs', '5']
+    p = subprocess.run(args, shell=False, capture_output=True)
+    return(0)
+
+
+def parse_streme(path):
+    pfm = {'A': [], 'C': [], 'G': [], 'T': []}
+    with open(path) as file:
+        for line in file:
+            if line.startswith('Background'):
+                line = file.readline().strip().split()
+                background = {'A': float(line[1]),
+                             'C': float(line[3]),
+                             'G': float(line[5]),
+                             'T': float(line[7])}
+            elif line.startswith('letter-probability'):
+                break
+        line = line.strip().split()
+        length = int(line[5])
+        nsites = int(line[7])
+        for i in range(length):
+            line = file.readline().strip().split()
+            for letter, value in zip(pfm.keys(), line):
+                    pfm[letter].append(float(value))
+    file.close()
+    return pfm, background, length, nsites
+
+
 def create_bamm_model(peaks_path, backgroud_path, directory, order, meme, extend, basename):
     args = ['BaMMmotif', directory, peaks_path, '--PWMFile', meme,
             '--EM', '--order', str(order), '--Order', str(order),
@@ -150,12 +195,24 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
     if os.path.isfile(backgroud_path):
+        run_streme(peaks_path, backgroud_path, tmp_dir, length)
+        pfm, background_pfm, length_pfm, nsites = parse_streme(output_dir + '/streme.txt')
+        tag = 'pfm_model'
+        write_meme(tmp_dir, tag, pfm, background, nsites)
+        meme = pwm_auc_dir + '/pfm_model.meme'
         create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
     else:
         peaks = read_peaks(peaks_path)
         shuffled_peaks = creat_background(peaks, length, counter)
         write_fasta(shuffled_peaks, tmp_dir + '/background.fasta')
+        run_streme_hmm_background(peaks_path, tmp_dir, length)
+        pfm, background_pfm, length_pfm, nsites = parse_streme(output_dir + '/streme.txt')
+        tag = 'pfm_model'
+        write_meme(tmp_dir, tag, pfm, background, nsites)
+        meme = pwm_auc_dir + '/pfm_model.meme'
         create_bamm_model(peaks_path, tmp_dir + '/background.fasta', tmp_dir, order, meme, 0, length)
+    shutil.copy(tmp_dir + '/pfm_model.meme',
+           output_dir + '/pfm_model.meme')
     shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
