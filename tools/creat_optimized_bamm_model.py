@@ -196,7 +196,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
     if os.path.isfile(backgroud_path):
         run_streme(peaks_path, backgroud_path, tmp_dir, length)
-        pfm, background_pfm, length_pfm, nsites = parse_streme(output_dir + '/streme.txt')
+        pfm, background_pfm, length_pfm, nsites = parse_streme(tmp_dir + '/streme.txt')
         tag = 'pfm_model'
         write_meme(tmp_dir, tag, pfm, background, nsites)
         meme = pwm_auc_dir + '/pfm_model.meme'
@@ -206,7 +206,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
         shuffled_peaks = creat_background(peaks, length, counter)
         write_fasta(shuffled_peaks, tmp_dir + '/background.fasta')
         run_streme_hmm_background(peaks_path, tmp_dir, length)
-        pfm, background_pfm, length_pfm, nsites = parse_streme(output_dir + '/streme.txt')
+        pfm, background_pfm, length_pfm, nsites = parse_streme(tmp_dir + '/streme.txt')
         tag = 'pfm_model'
         write_meme(tmp_dir, tag, pfm, background, nsites)
         meme = pwm_auc_dir + '/pfm_model.meme'
