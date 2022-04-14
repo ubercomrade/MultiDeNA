@@ -199,7 +199,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
         pfm, background_pfm, length_pfm, nsites = parse_streme(tmp_dir + '/streme.txt')
         tag = 'pfm_model'
         write_meme(tmp_dir, tag, pfm, background_pfm, nsites)
-        meme = pwm_auc_dir + '/pfm_model.meme'
+        meme = tmp_dir + '/pfm_model.meme'
         create_bamm_model(peaks_path, backgroud_path, tmp_dir, order, meme, 0, length)
     else:
         peaks = read_peaks(peaks_path)
@@ -209,7 +209,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
         pfm, background_pfm, length_pfm, nsites = parse_streme(tmp_dir + '/streme.txt')
         tag = 'pfm_model'
         write_meme(tmp_dir, tag, pfm, background_pfm, nsites)
-        meme = pwm_auc_dir + '/pfm_model.meme'
+        meme = tmp_dir + '/pfm_model.meme'
         create_bamm_model(peaks_path, tmp_dir + '/background.fasta', tmp_dir, order, meme, 0, length)
     shutil.copy(tmp_dir + '/pfm_model.meme',
            output_dir + '/pfm_model.meme')
