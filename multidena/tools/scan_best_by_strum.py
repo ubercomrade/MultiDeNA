@@ -1,6 +1,6 @@
 import numpy as np
 from strum import strum
-from lib.common import read_strum
+from multidena.lib.common import read_strum
 
 def read_fasta(path):
     fasta = list()

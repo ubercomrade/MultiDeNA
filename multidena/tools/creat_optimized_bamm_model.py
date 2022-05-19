@@ -3,12 +3,12 @@ import os
 import shutil
 import random
 from operator import itemgetter
-from lib.common import read_peaks, write_fasta, read_bamm, \
+from multidena.lib.common import read_peaks, write_fasta, read_bamm, \
 creat_background, calculate_particial_auc, \
 score_bamm, complement, make_pcm, make_pfm, write_meme, write_auc, \
 write_auc_with_order, calculate_merged_roc, \
 calculate_short_roc, write_roc, calculate_fprs
-from lib.speedup import creat_table_bootstrap
+from multidena.lib.speedup import creat_table_bootstrap
 
 
 def run_streme(fasta_path, backgroud_path, dir_out, motif_length):

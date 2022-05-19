@@ -2,7 +2,7 @@ import os
 import subprocess
 import shutil
 import math
-from lib.common import read_seqs_with_complement
+from multidena.lib.common import read_seqs_with_complement
 
 
 def calculate_scores_inmode_thresholds(path_to_inmode, path_to_model, path_to_fasta, path_to_java, tmp_dir):

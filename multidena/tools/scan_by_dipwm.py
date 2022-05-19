@@ -1,6 +1,6 @@
 import csv
-from lib.common import read_fasta, read_dipwm
-from lib.speedup import score_dipwm
+from multidena.lib.common import read_fasta, read_dipwm
+from multidena.lib.speedup import score_dipwm
 
 
 def complement(record):

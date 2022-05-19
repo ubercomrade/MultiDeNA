@@ -1,6 +1,6 @@
 import itertools
-from lib.common import read_seqs_with_complement, read_bamm
-from lib.speedup import calculate_scores_bamm_thresholds
+from multidena.lib.common import read_seqs_with_complement, read_bamm
+from multidena.lib.speedup import calculate_scores_bamm_thresholds
 
 
 def min_score_bamm(bamm, order, length_of_site):

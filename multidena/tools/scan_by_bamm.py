@@ -1,6 +1,7 @@
+import csv
 import re
-from lib.common import read_bamm
-from lib.speedup import score_bamm
+from multidena.lib.common import read_bamm
+from multidena.lib.speedup import score_bamm
 
 
 def read_fasta(path):
@@ -53,13 +54,14 @@ def check_nucleotides(site):
         return(False)
 
 
-def scan_seqs_by_bamm(record, log_odds_bamm, order):
+def scan_seqs_by_bamm(record, log_odds_bamm, order, threshold):
+
     motif_length = len(log_odds_bamm[list(log_odds_bamm.keys())[0]])
     reverse_record = complement(record)
     seq = record['seq']
     reverse_seq = reverse_record['seq']
     results = []
-    threshold = -1000000
+
     # scan first strand
     for i in range(len(seq) - motif_length + 1):
         site_seq = seq[i:motif_length + i]
@@ -75,7 +77,8 @@ def scan_seqs_by_bamm(record, log_odds_bamm, order):
             site_dict['site'] = site_seq
             site_dict['strand'] = record['strand']
             site_dict['score'] = s
-            threshold = s
+            results.append(site_dict)
+
     # scan second strand
     for i in range(len(seq) - motif_length + 1):
         site_seq = reverse_seq[i:motif_length + i]
@@ -91,25 +94,24 @@ def scan_seqs_by_bamm(record, log_odds_bamm, order):
             site_dict['site'] = site_seq
             site_dict['strand'] = reverse_record['strand']
             site_dict['score'] = s
-            threshold = s
-    results.append(site_dict)
+            results.append(site_dict)
     return(results)
 
 
-def write_list(path, data):
-    scores = [i['score'] for i in data]
-    with open(path, "w") as file:
-        for line in scores:
-            file.write("{0}\n".format(line))
-    file.close()
-    return(0)
+def write_csv(path, data):
+    with open(path, 'w') as csvfile:
+        fieldnames = ['chromosome', 'start', 'end', 'name', 'score', 'strand', 'site']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
+        for line in data:
+            writer.writerow(line)
+    pass
 
 
-def scan_best_by_bamm(results_path, bamm_path, bg_path, fasta_path):
+def scan_by_bamm(fasta_path, bamm_path, bg_path, threshold, results_path):
     fasta = read_fasta(fasta_path)
     log_odds_bamm, order = read_bamm(bamm_path, bg_path)
-    results = [scan_seqs_by_bamm(record=record, log_odds_bamm=log_odds_bamm, order=order) for record in fasta]
-    results = [i for i in results if i != []]
-    results = [j for sub in results for j in sub]
-    write_list(results_path, results)
+    results = []
+    for record in fasta:
+      results += scan_seqs_by_bamm(record, log_odds_bamm, order, threshold)
+    write_csv(results_path, results)
     return(0)

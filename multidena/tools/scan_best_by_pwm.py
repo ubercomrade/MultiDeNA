@@ -1,6 +1,44 @@
-import csv
-from lib.common import read_fasta, read_pwm
-from lib.speedup import score_pwm
+import re
+from multidena.lib.speedup import score_pwm
+
+
+def read_fasta(path):
+    fasta = list()
+    with open(path, 'r') as file:
+        for line in file:
+            if line.startswith('>'):
+                line = line[1:].strip().split(':')
+                record = dict()
+                record['name'] = line[0]
+                record['chromosome'] = line[2]
+                coordinates_strand = line[3]
+
+                start, end = re.findall(r'\d*-\d*', coordinates_strand)[0].split('-')
+                record['start'] = start
+                record['end'] = end
+
+                strand = re.findall(r'\(.\)', coordinates_strand[:-3])
+                if not strand == []:
+                    record['strand'] = strand[0].strip('()')
+                else:
+                    record['strand'] = '+'
+            else:
+                record['seq'] = line.strip().upper()
+                fasta.append(record)
+    file.close()
+    return(fasta)
+
+
+def read_pwm(path):
+    with open(path, 'r') as file:
+        inf = file.readline()
+        pwm = {'A': [], 'C': [], 'G': [], 'T': []}
+        for line in file:
+            line = line.strip().split('\t')
+            for letter, value in zip(pwm.keys(), line):
+                pwm[letter].append(float(value))
+    file.close()
+    return(pwm)  # , inf)
 
 
 def complement(record):
@@ -25,12 +63,13 @@ def check_nucleotides(site):
         return(False)
 
 
-def scan_seqs_by_pwm(record, pwm, threshold):
+def scan_seq_by_pwm(record, pwm):
     results = []
     reverse_record = complement(record)
     length_pwm = len(pwm['A'])
     seq = record['seq']
     reverse_seq = reverse_record['seq']
+    threshold = -1000000
 
     # first strand
     for i in range(len(seq) - length_pwm + 1):
@@ -47,7 +86,7 @@ def scan_seqs_by_pwm(record, pwm, threshold):
             site_dict['site'] = site_seq
             site_dict['strand'] = record['strand']
             site_dict['score'] = s
-            results.append(site_dict)
+            threshold = s
 
     # second strand
     for i in range(len(seq) - length_pwm + 1):
@@ -64,24 +103,26 @@ def scan_seqs_by_pwm(record, pwm, threshold):
             site_dict['site'] = site_seq
             site_dict['strand'] = reverse_record['strand']
             site_dict['score'] = s
-            results.append(site_dict)
+            threshold = s
+
+    results.append(site_dict)
     return(results)
 
 
-def write_csv(path, data):
-    with open(path, 'w') as csvfile:
-        fieldnames = ['chromosome', 'start', 'end', 'name', 'score', 'strand', 'site']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='\t')
-        for line in data:
-            writer.writerow(line)
+def write_list(path, data):
+    scores = [i['score'] for i in data]
+    with open(path, "w") as file:
+        for line in scores:
+            file.write("{0}\n".format(line))
+    file.close()
     pass
 
 
-def scan_by_pwm(fasta_path, pwm_path, threshold, results_path):
+def scan_best_by_pwm(results_path, pwm_path, fasta_path):
     fasta = read_fasta(fasta_path)
     pwm = read_pwm(pwm_path)
     results = []
     for record in fasta:
-      results += scan_seqs_by_pwm(record, pwm, threshold)
-    write_csv(results_path, results)
+      results += scan_seq_by_pwm(record, pwm)
+    write_list(results_path, results)
     return(0)

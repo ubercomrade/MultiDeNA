@@ -1,5 +1,5 @@
-from lib.common import read_seqs_with_complement, read_dipwm
-from lib.speedup import calculate_scores_dipwm_thresholds
+from multidena.lib.common import read_seqs_with_complement, read_dipwm
+from multidena.lib.speedup import calculate_scores_dipwm_thresholds
 
 
 def to_score(norm_value, dipwm):

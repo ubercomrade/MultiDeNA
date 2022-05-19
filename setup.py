@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = ['setuptools>=18.0', 'cython', 'numpy', 'scipy', 'matplotlib']
-ext_modules = [Extension('lib.speedup', sources=['lib/speedup.pyx'],)]
+ext_modules = [Extension('multidena.lib.speedup', sources=['multidena/lib/speedup.pyx'],)]
 
 
 #cmdclass={'build_ext': Cython.Build.build_ext},
@@ -17,15 +17,16 @@ setup(
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
     url='http://github.com/ubercomrade/pipeline',
-    package_dir={'lib' : 'lib'},
+    package_dir={'multidena' : 'multidena'},
     packages=[
-        'lib',
-        'tools'
+        'multidena'
+        'multidena.lib',
+        'multidena.tools'
     ],
     package_data={
         'scripts': ['*.R'],
     },
-    scripts=['pipeline.py',
+    scripts=['scripts/MultiDeNa.py',
     'scripts/cross-validation.py',],
     classifiers=[
         "Development Status :: 4 - Beta",

@@ -1,5 +1,5 @@
 import os
-from lib.common import make_pcm, make_pfm, make_pwm
+from multidena.lib.common import make_pcm, make_pfm, make_pwm
 
 
 def get_sequences(path):

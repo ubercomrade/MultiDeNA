@@ -1,7 +1,7 @@
 import pickle
 import numpy
 from strum import strum
-from lib.common import read_seqs_with_complement, read_strum
+from multidena.lib.common import read_seqs_with_complement, read_strum
 
 
 def calculate_scores_strum_thresholds(peaks, strum_model, length):

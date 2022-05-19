@@ -8,14 +8,14 @@ from shutil import copyfile
 from operator import itemgetter
 import numpy as np
 from strum import strum
-from lib.common import read_peaks, creat_background, \
+from multidena.lib.common import read_peaks, creat_background, \
 write_fasta, complement, \
 calculate_particial_auc, \
 write_auc, calculate_merged_roc, \
 calculate_short_roc, write_roc, \
 calculate_fprs, \
 make_pcm, make_pfm, write_meme, write_strum
-from lib.speedup import creat_table_bootstrap
+from multidena.lib.speedup import creat_table_bootstrap
 
 
 def strum_de_novo(fasta_path, model_length, cpu_count):

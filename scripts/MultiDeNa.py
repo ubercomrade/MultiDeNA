@@ -9,33 +9,34 @@ import shutil
 import fnmatch
 from operator import itemgetter
 from shutil import copyfile
-from tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
-from tools.creat_optimized_pwm_model_streme import de_novo_with_oprimization_pwm_streme
-from tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
-from tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
-from tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
-from tools.get_threshold_for_bamm import get_threshold_for_bamm
-from tools.get_threshold_for_pwm import get_threshold_for_pwm
-from tools.get_threshold_for_dipwm import get_threshold_for_dipwm
-from tools.get_threshold_for_inmode import get_threshold_for_inmode
-from tools.scan_by_pwm import scan_by_pwm
-from tools.scan_by_dipwm import scan_by_dipwm
-from tools.scan_by_bamm import scan_by_bamm
-from tools.get_top_peaks import write_top_peaks
-from tools.parse_chipmunk_results import parse_chipmunk_results
-from tools.parse_inmode_results import parse_inmode_results
-from tools.sites_intersection import sites_intersection
-from tools.combine_results import combine_results_pro_format, combine_results_bed_format
-from tools.summary import write_peaks_classification
-from tools.scan_best_by_pwm import scan_best_by_pwm
-from tools.scan_best_by_dipwm import scan_best_by_dipwm
-from tools.scan_best_by_bamm import scan_best_by_bamm
-from tools.scan_best_by_inmode import scan_best_by_inmode
-from tools.extract_sites import extract_sites
-from tools.write_model import write_model
-from tools.clear_from_n import clear_from_n
-from tools.parse_sitega_results import parse_sitega_results
-from lib.common import check_threshold_table, check_bootstrap
+from multidena.tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
+from multidena.tools.creat_optimized_pwm_model_streme import de_novo_with_oprimization_pwm_streme
+from multidena.tools.creat_optimized_dipwm_model import de_novo_with_oprimization_dipwm
+from multidena.tools.creat_optimized_bamm_model import de_novo_with_oprimization_bamm
+from multidena.tools.creat_optimized_inmode_model import de_novo_with_oprimization_inmode
+from multidena.tools.creat_optimized_sitega_model import de_novo_with_oprimization_sitega
+from multidena.tools.get_threshold_for_bamm import get_threshold_for_bamm
+from multidena.tools.get_threshold_for_pwm import get_threshold_for_pwm
+from multidena.tools.get_threshold_for_dipwm import get_threshold_for_dipwm
+from multidena.tools.get_threshold_for_inmode import get_threshold_for_inmode
+from multidena.tools.scan_by_pwm import scan_by_pwm
+from multidena.tools.scan_by_dipwm import scan_by_dipwm
+from multidena.tools.scan_by_bamm import scan_by_bamm
+from multidena.tools.get_top_peaks import write_top_peaks
+from multidena.tools.parse_chipmunk_results import parse_chipmunk_results
+from multidena.tools.parse_inmode_results import parse_inmode_results
+from multidena.tools.sites_intersection import sites_intersection
+from multidena.tools.combine_results import combine_results_pro_format, combine_results_bed_format
+from multidena.tools.summary import write_peaks_classification
+from multidena.tools.scan_best_by_pwm import scan_best_by_pwm
+from multidena.tools.scan_best_by_dipwm import scan_best_by_dipwm
+from multidena.tools.scan_best_by_bamm import scan_best_by_bamm
+from multidena.tools.scan_best_by_inmode import scan_best_by_inmode
+from multidena.tools.extract_sites import extract_sites
+from multidena.tools.write_model import write_model
+from multidena.tools.clear_from_n import clear_from_n
+from multidena.tools.parse_sitega_results import parse_sitega_results
+from multidena.lib.common import check_threshold_table, check_bootstrap
 
 try:
     from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
@@ -232,34 +233,6 @@ def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr,
     return(0)
 
 
-def get_sitega_model(sitega_model_dir, sitega_length, fasta_path):
-    if not os.path.isdir(sitega_model_dir):
-        os.mkdir(sitega_model_dir)
-    # FIND MODEL BY SITEGA
-    clear_from_n(fasta_path, sitega_model_dir + '/train_sample_no_n.fa')
-    if not os.path.isfile(sitega_model_dir + '/peaks.mnt'):
-        args = ['monte0dg' ,'6', sitega_model_dir + '/train_sample_no_n.fa', sitega_model_dir + '/peaks.mnt']
-        capture = subprocess.run(args, capture_output=True)
-    if not os.path.isfile(sitega_model_dir + '/sitega.mat'):
-        args = ['andy02', sitega_model_dir + '/peaks.mnt', str(sitega_length), '60', '90', '10']
-        capture = subprocess.run(args, capture_output=True)
-        for file in os.listdir(sitega_model_dir):
-            if fnmatch.fnmatch(file, 'train_sample_no_n.fa_mat_*'):
-                shutil.move('{0}/{1}'.format(sitega_model_dir, file), '{0}/sitega.mat'.format(sitega_model_dir))
-        container = []
-        with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
-            for line in file:
-                container.append(line)
-        file.close()
-        with open('{0}/sitega.mat'.format(sitega_model_dir), 'w') as file:
-            file.write('sitega\n')
-            for line in container[1:]:
-                file.write(line)
-    else:
-        print('{0} already exists (initial model exists)'.format(sitega_model_dir + '/sitega.mat'))
-    pass
-
-
 def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_dir):
     dir_to_promoters = os.path.dirname(path_to_promoters)
     name_of_promoters = os.path.basename(path_to_promoters)
@@ -352,8 +325,10 @@ def run_tomtom(query, target, outdir):
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     main_directory = os.path.dirname(__file__)
+    #r_path = os.path.join(main_directory,
+    #    'scripts/annotation.R')
     r_path = os.path.join(main_directory,
-        'scripts/annotation.R')
+        'annotation.R')
     args = [r_path,
         '--input_scans', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
@@ -365,8 +340,10 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
 
 def plot_motifs(dir_with_meme, output_dir):
     main_directory = os.path.dirname(__file__)
+    #r_path = os.path.join(main_directory,
+    #    'scripts/motifCompare.R')
     r_path = os.path.join(main_directory,
-        'scripts/motifCompare.R')
+        'motifCompare.R')
     args = [r_path,
         '--dir_with_motifs', dir_with_meme,
         '--dir_to_write', output_dir]
@@ -632,14 +609,15 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         # PREPARE FASTA 
         # clear_from_n(fasta_train, sitega_model_dir + '/train_sample_no_n.fa')
         # TRAIN SITEGA
-        # if not os.path.isfile(sitega_model_path):
-        #     print('Training SiteGA model')
-        #     get_sitega_model(sitega_model_dir, sitega_length, fasta_train)
-        # with open('{0}/sitega.mat'.format(sitega_model_dir)) as file:
-        #     file.readline()
-        #     lpd = int(file.readline().strip().split()[0])
-        #     sitega_length = int(file.readline().strip().split()[0])
-        # file.close()
+        if not os.path.isfile(sitega_model_path):
+            print('Training SiteGA model')
+            de_novo_with_oprimization_sitega(
+            fasta_train, 
+            backgroud_path, 
+            models + '/sitega.tmp', 
+            models + '/sitega_model', 
+            output_auc + '/sitega', 
+            pfpr)
         calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:

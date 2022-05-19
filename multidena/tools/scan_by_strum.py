@@ -2,7 +2,7 @@ import csv
 import pickle
 import numpy as np
 from strum import strum
-from lib.common import read_fasta, read_strum
+from multidena.lib.common import read_fasta, read_strum
 
 
 def complement(record):

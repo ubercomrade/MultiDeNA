@@ -1,6 +1,6 @@
 import re
-from lib.speedup import score_dipwm
-from lib.common import read_dipwm
+from multidena.lib.speedup import score_dipwm
+from multidena.lib.common import read_dipwm
 
 
 def read_fasta(path):

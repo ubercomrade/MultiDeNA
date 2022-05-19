@@ -10,7 +10,7 @@ import shutil
 import glob
 from operator import itemgetter
 import argparse
-from lib.common import calculate_particial_auc, \
+from multidena.lib.common import calculate_particial_auc, \
 write_auc_with_order, calculate_merged_roc, calculate_short_roc, write_roc, calculate_fprs
 
 

@@ -5,57 +5,48 @@ import subprocess
 import bisect
 from shutil import copyfile
 from operator import itemgetter
-from lib.common import read_peaks, sites_to_pwm, creat_background, \
+from multidena.lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_pwm, write_pfm, write_meme, \
 calculate_particial_auc, write_auc, calculate_merged_roc, \
 calculate_short_roc, write_roc, calculate_fprs
-from lib.speedup import creat_table_bootstrap, score_pwm
+from multidena.lib.speedup import creat_table_bootstrap, score_pwm
 
 
-def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
-    args = ['streme', '--p', fasta_path,
-            '--n', backgroud_path,
-           '--oc', dir_out,
-           '--objfun', 'de',
-           '--w', str(motif_length),
-           '-nmotifs', '5']
+def run_chipmunk(path_to_java, path_to_chipmunk, fasta_path, path_out, motif_length_start, motif_length_end, cpu_count):
+    args = [path_to_java, '-cp', path_to_chipmunk,
+                   'ru.autosome.ChIPMunk', str(motif_length_start), str(motif_length_end), 'yes', '1.0',
+                   's:{}'.format(fasta_path),
+                  '100', '10', '1', str(cpu_count), 'random']
     p = subprocess.run(args, shell=False, capture_output=True)
+    out = p.stdout
+    with open(path_out, 'wb') as file:
+        file.write(out)
     return(0)
 
 
-def run_streme_hmm_background(fasta_path, dir_out, motif_length):
-    args = ['streme', '--p', fasta_path,
-            '--kmer', '4',
-           '--oc', dir_out,
-           '--objfun', 'de',
-           '--w', str(motif_length),
-           '-nmotifs', '5']
-    p = subprocess.run(args, shell=False, capture_output=True)
-    return(0)
-
-
-def parse_streme(path):
-    pfm = {'A': [], 'C': [], 'G': [], 'T': []}
-    with open(path) as file:
+def parse_chipmunk(path):
+    with open(path, 'r') as file:
+        container = []
         for line in file:
-            if line.startswith('Background'):
-                line = file.readline().strip().split()
-                background = {'A': float(line[1]),
-                             'C': float(line[3]),
-                             'G': float(line[5]),
-                             'T': float(line[7])}
-            elif line.startswith('letter-probability'):
-                break
-        line = line.strip().split()
-        length = int(line[5])
-        nsites = int(line[7])
-        for i in range(length):
-            line = file.readline().strip().split()
-            for letter, value in zip(pfm.keys(), line):
-                    pfm[letter].append(float(value))
-    file.close()
-    return pfm, background, length, nsites
+            d = {'name': str(), 'start': int(), 'end': int(),
+                 'seq': str(), 'strand': str()}
+            if line.startswith('WORD|'):
+                line = line[5:].strip()
+                line = line.split()
+                d['name'] = 'peaks_' + str(int(line[0]) - 1)
+                d['start'] = int(line[1])
+                d['end'] = int(line[1]) + len(line[2])
+                d['seq'] = line[2]
+                if line[4] == 'rect':
+                    d['strand'] = '+'
+                else:
+                    d['strand'] = '-'
+                container.append(d)
+            else:
+                continue
+    seqs = [i['seq'] for i in container if len(set(i['seq']) - {'A', 'C', 'G', 'T'}) == 0]
+    return(seqs)
 
 
 def false_scores_pwm(peaks, pwm, length_of_site):
@@ -110,9 +101,9 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc, pfpr):
-    if not os.path.exists(tmp_dir):
-        os.mkdir(tmp_dir)
+def learn_optimized_pwm(peaks_path, backgroud_path, counter, path_to_java, path_to_chipmunk, tmp_r, output_auc, cpu_count, pfpr):
+    if not os.path.exists(tmp_r):
+        os.mkdir(tmp_r)
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
     if os.path.exists(output_auc + '/auc.txt'):
@@ -128,24 +119,35 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
             else:
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
-            write_fasta(train_peaks, tmp_dir + '/train.fasta')
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+            write_fasta(train_peaks, tmp_r + '/train.fasta')
             if os.path.isfile(backgroud_path):
                 shuffled_peaks = read_peaks(backgroud_path)
-                run_streme(tmp_dir + '/train.fasta', backgroud_path, tmp_dir, length)
             else:
                 shuffled_peaks = creat_background(test_peaks, length, counter)
-                run_streme_hmm_background(tmp_dir + '/train.fasta', tmp_dir, length)
-            pfm, background, length, nsites = parse_streme(tmp_dir + '/streme.txt')
-            pwm = make_pwm(pfm)
+            run_chipmunk(path_to_java, path_to_chipmunk,
+                         tmp_r + '/train.fasta', tmp_r + '/chipmunk_results.txt',
+                         length, length, cpu_count)
+            sites = parse_chipmunk(tmp_r + '/chipmunk_results.txt')
+            sites = list(set(sites))
+            pwm = sites_to_pwm(sites)
             for true_score in true_scores_pwm(test_peaks, pwm, length):
                 true_scores.append(true_score)
             for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
                 false_scores.append(false_score)
+            pcm = make_pcm(sites)
+            pfm = make_pfm(pcm)
+            pwm = make_pwm(pfm)
+            nsites = len(sites)
+            background = {'A': 0.25,
+                         'C': 0.25,
+                         'G': 0.25,
+                         'T': 0.25}
             tag = 'pwm_model_{0}_{1}'.format(step, length)
             write_meme(output_auc, tag, pfm, background, nsites)
             write_pwm(output_auc, tag, pwm)
             write_pfm(output_auc, tag, pfm)
+            write_sites(output=output_auc, tag=tag, sites=sites)
         fprs = calculate_fprs(true_scores, false_scores)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
@@ -154,7 +156,7 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
         write_auc(output_auc + '/auc.txt', auc, length)
         write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
-    shutil.rmtree(tmp_dir)
+    shutil.rmtree(tmp_r)
     return(0)
 
 
@@ -169,7 +171,8 @@ def choose_best_model(output_auc):
     return(length)
 
 
-def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, output_dir, output_auc, pfpr):
+def de_novo_with_oprimization_pwm_chipmunk(peaks_path, backgroud_path, path_to_java, path_to_chipmunk, 
+    tmp_dir, output_dir, output_auc, cpu_count, pfpr):
     counter = 1000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -177,20 +180,30 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
         os.mkdir(output_auc)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc, pfpr)
+    learn_optimized_pwm(peaks_path, backgroud_path, counter, path_to_java, 
+        path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
              output_dir + '/bootstrap.txt')
     copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
              output_dir + '/bootstrap_merged.txt')
-    if os.path.isfile(backgroud_path):
-        run_streme(peaks_path, backgroud_path, output_dir, length)
-    else:
-        run_streme_hmm_background(peaks_path, output_dir, length)
-    pfm, background, length, nsites = parse_streme(output_dir + '/streme.txt')
+    run_chipmunk(
+        path_to_java, path_to_chipmunk,
+        peaks_path, 
+        output_dir + '/chipmunk_results.txt', 
+        length, length, cpu_count)
+    sites = parse_chipmunk(output_dir + '/chipmunk_results.txt')
+    pcm = make_pcm(sites)
+    pfm = make_pfm(pcm)
     pwm = make_pwm(pfm)
+    nsites = len(sites)
+    background = {'A': 0.25,
+                 'C': 0.25,
+                 'G': 0.25,
+                 'T': 0.25}
     tag = 'pwm_model'
     write_meme(output_dir, tag, pfm, background, nsites)
     write_pwm(output_dir, tag, pwm)
     write_pfm(output_dir, tag, pfm)
+    write_sites(output=output_dir, tag=tag, sites=sites)
     return(length)
