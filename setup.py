@@ -17,7 +17,7 @@ setup(
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
     url='http://github.com/ubercomrade/pipeline',
-    package_dir={'multidena' : 'multidena'},
+    #package_dir={'multidena' : 'multidena'},
     packages=[
         'multidena'
         'multidena.lib',
