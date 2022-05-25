@@ -611,8 +611,8 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         if not os.path.isfile(sitega_model_path):
             print('Training SiteGA model')
             de_novo_with_oprimization_sitega(
-            fasta_train, 
-            backgroud_path, 
+            fasta_train,
+            background_path, 
             models + '/sitega.tmp', 
             models + '/sitega_model', 
             output_auc + '/sitega', 
