@@ -814,19 +814,19 @@ def main():
 
     this_dir, this_filename = os.path.split(__file__)
     if organism == 'mm10':
-        path_to_promoters = os.path.join(this_dir, "promoters", "mm10.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "mm10.fasta")
     elif organism == 'hg38':
-        path_to_promoters = os.path.join(this_dir, "promoters", "hg38.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "hg38.fasta")
     elif organism == 'tair10':
-        path_to_promoters = os.path.join(this_dir, "promoters", "tair10.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "tair10.fasta")
     elif organism == 'b73':
-        path_to_promoters = os.path.join(this_dir, "promoters", "b73_v5.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "b73_v5.fasta")
     elif organism == 'dm6':
-        path_to_promoters = os.path.join(this_dir, "promoters", "dm6.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "dm6.fasta")
     elif organism == 'ce235':
-        path_to_promoters = os.path.join(this_dir, "promoters", "ce235.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "ce235.fasta")
     elif organism == 'r64':
-        path_to_promoters = os.path.join(this_dir, "promoters", "r64.fasta")
+        path_to_promoters = os.path.join(this_dir, "../promoters", "r64.fasta")
 
     pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
