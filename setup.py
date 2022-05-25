@@ -11,7 +11,7 @@ ext_modules = [Extension('multidena.lib.speedup', sources=['multidena/lib/speedu
 
 #cmdclass={'build_ext': Cython.Build.build_ext},
 setup(
-    name='pipeline',
+    name='multidena',
     version='0.0.1',
     description='pipeline for chip-seq analisys',
     author='Anton Tsukanov',

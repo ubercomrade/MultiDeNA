@@ -603,7 +603,6 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         sitega_model_dir =  models + '/sitega_model/'
         sitega_model_path = sitega_model_dir + 'sitega.mat'
         sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
-        sitega_length = get_length_sitega_model(sitega_model_path)
         if not os.path.isdir(sitega_model_dir):
             os.mkdir(sitega_model_dir)
         # PREPARE FASTA 
@@ -618,6 +617,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             models + '/sitega_model', 
             output_auc + '/sitega', 
             pfpr)
+        sitega_length = get_length_sitega_model(sitega_model_path)
         calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
         check = check_threshold_table(sitega_threshold_table)
         if check < fpr:
