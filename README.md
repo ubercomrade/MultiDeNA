@@ -40,11 +40,11 @@ TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0
 
 MODELS:
-  * BaMM: https://github.com/soedinglab/BaMMmotif2  
-  * ChIPmunk: http://autosome.ru/ChIPMunk/  
+  * BaMM: https://github.com/soedinglab/BaMMmotif2
+  * ChIPmunk: http://autosome.ru/ChIPMunk/
   * InMoDe: http://jstacs.de/index.php/InMoDe (JAVA8 is nedeed)
   * SiteGA: https://github.com/parthian-sterlet/sitega
-  * StruM:
+  * StruM: https://github.com/pdeford/StructuralMotifs
 
 OPTIONAL:
   * TomTom: http://meme-suite.org/index.html

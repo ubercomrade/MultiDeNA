@@ -118,7 +118,7 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     #for length in range(12, 41, 4):
-    for length in range(8, 31, 4):
+    for length in range(8, 21, 4):
         true_scores = []
         false_scores = []
         peaks = read_peaks(peaks_path)

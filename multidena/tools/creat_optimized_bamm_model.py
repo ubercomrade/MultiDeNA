@@ -160,9 +160,9 @@ def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_d
         os.mkdir(output_auc)
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
-    for order in range(1,4):
+    for order in range(1,5):
         #for length in range(12, 41, 4):
-        for length in range(8, 31, 4):
+        for length in range(8, 21, 4):
             learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     pass
 

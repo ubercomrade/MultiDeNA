@@ -22,7 +22,7 @@ def read_peaks(path):
     return(container)
 
 
-def sitega_bootstrap(data_dir, lpd_length=6, start_motif_length=8, end_motif_length=28, step=4):
+def sitega_bootstrap(data_dir, lpd_length=6, start_motif_length=8, end_motif_length=20, step=4):
     args = ['andy0bsn5',  f'{data_dir}/',  'train.fa',  'background.fa',
     f'{lpd_length}', f'{start_motif_length}', f'{end_motif_length}',
     f'{step}', '-1', '2', '6', f'{data_dir}/']
@@ -79,7 +79,7 @@ def write_fasta(sites, tmp_dir, tag):
 def creat_background(peaks, counter):
     shuffled_peaks = []
     number_of_sites = 0
-    length_of_site = 28
+    length_of_site = 20
     while counter > number_of_sites:
         peak = random.choice(peaks)
         shuffled_peak = ''.join(random.sample(peak, len(peak)))
@@ -99,7 +99,7 @@ def learn_optimized_sitega(peaks_path, backgroud_path, counter, tmp_dir, output_
         shuffled_peaks = creat_background(peaks_path, counter)
         write_fasta(shuffled_peaks, tmp_dir, 'background')
     shutil.copy(peaks_path, f'{tmp_dir}/train.fa')
-    sitega_bootstrap(tmp_dir, lpd_length=6, start_motif_length=8, end_motif_length=10, step=2)
+    sitega_bootstrap(tmp_dir, lpd_length=6, start_motif_length=8, end_motif_length=20, step=4)
     shutil.copy(f'{tmp_dir}/train.fa_mat', f'{output_auc}/sitega_bootstrap_models.fa_mat')
     shutil.copy(f'{tmp_dir}/train.fa_roc_bs.txt', f'{output_auc}/sitega_bootstrap_rocs.txt')
     parse_auc_table(f'{tmp_dir}/train.fa_auc_bs.txt',
