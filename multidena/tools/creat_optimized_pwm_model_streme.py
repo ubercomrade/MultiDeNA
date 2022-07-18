@@ -9,7 +9,7 @@ from multidena.lib.common import read_peaks, sites_to_pwm, creat_background, \
 write_fasta, complement, make_pcm, make_pfm, \
 make_pwm, write_pwm, write_pfm, write_meme, \
 calculate_particial_auc, write_auc, calculate_merged_roc, \
-calculate_short_roc, write_roc, calculate_fprs
+calculate_short_roc, write_roc, calculate_fprs, write_table
 from multidena.lib.speedup import creat_table_bootstrap, score_pwm
 
 
@@ -74,7 +74,7 @@ def false_scores_pwm(peaks, pwm, length_of_site):
     return(false_scores)
 
 
-def true_scores_pwm(peaks, pwm, length_of_site):
+def best_scores_pwm(peaks, pwm, length_of_site):
     true_scores = []
     for peak in peaks:
         complement_peak = complement(peak)
@@ -120,7 +120,8 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
     #for length in range(12, 41, 4):
     for length in range(8, 21, 4):
         true_scores = []
-        false_scores = []
+        false_scores_roc = []
+        false_scores_prc = []
         peaks = read_peaks(peaks_path)
         for step in ['odd', 'even']:
             if step == 'odd':
@@ -138,34 +139,41 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
                 run_streme_hmm_background(tmp_dir + '/train.fasta', tmp_dir, length)
             pfm, background, length, nsites = parse_streme(tmp_dir + '/streme.txt')
             pwm = make_pwm(pfm)
-            for true_score in true_scores_pwm(test_peaks, pwm, length):
+            for true_score in best_scores_pwm(test_peaks, pwm, length):
                 true_scores.append(true_score)
+            for false_score in best_scores_pwm(shuffled_peaks, pwm, length):
+                false_scores_prc.append(false_score)
             for false_score in false_scores_pwm(shuffled_peaks, pwm, length):
-                false_scores.append(false_score)
+                false_scores_roc.append(false_score)
             tag = 'pwm_model_{0}_{1}'.format(step, length)
             write_meme(output_auc, tag, pfm, background, nsites)
             write_pwm(output_auc, tag, pwm)
             write_pfm(output_auc, tag, pfm)
-        fprs = calculate_fprs(true_scores, false_scores)
+        fprs = calculate_fprs(true_scores, false_scores_roc)
+        prc = calculate_prc(true_scores, false_scores_prc)
         roc = calculate_short_roc(fprs, step=1)
         merged_roc = calculate_merged_roc(fprs)
-        auc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
-        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc))
-        write_auc(output_auc + '/auc.txt', auc, length)
-        write_roc(output_auc + "/training_bootstrap_merged_{0}.txt".format(length), merged_roc)
-        write_roc(output_auc + "/training_bootstrap_{0}.txt".format(length), roc)
+        auc_roc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
+        auc_prc = calculate_particial_auc(prc['PRECISION'], prc['RECALL'], 1.01)
+        
+        print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_roc), "PRC = {0}".format(auc_prc))
+        write_table(output_auc + '/statistics.txt', auc_roc, auc_prc, length)
+        write_roc(output_auc + "/training_roc_merged_{0}.txt".format(length), merged_roc)
+        write_roc(output_auc + "/training_roc_{0}.txt".format(length), roc)
+        write_roc(output_auc + "/training_prc_{0}.txt".format(length), prc)
     shutil.rmtree(tmp_dir)
     return(0)
 
 
 def choose_best_model(output_auc):
     auc = []
-    with open(output_auc + '/auc.txt') as file:
+    with open(output_auc + '/statistics.txt') as file:
         for line in file:
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
-    auc.sort(key=itemgetter(1))
+    auc.sort(key=itemgetter(-1))
     length = int(auc[-1][0])
+    print(auc)
     return(length)
 
 
@@ -179,10 +187,12 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
         os.mkdir(output_dir)
     learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc, pfpr)
     length = choose_best_model(output_auc)
-    copyfile(output_auc + '/training_bootstrap_{}.txt'.format(length), 
-             output_dir + '/bootstrap.txt')
-    copyfile(output_auc + '/training_bootstrap_merged_{}.txt'.format(length), 
-             output_dir + '/bootstrap_merged.txt')
+    copyfile(output_auc + '/training_prc_{}.txt'.format(length), 
+             output_dir + '/prc.txt')
+    copyfile(output_auc + '/training_roc_{}.txt'.format(length), 
+             output_dir + '/roc.txt')
+    copyfile(output_auc + '/training_roc_merged_{}.txt'.format(length), 
+             output_dir + '/roc_merged.txt')
     if os.path.isfile(backgroud_path):
         run_streme(peaks_path, backgroud_path, output_dir, length)
     else:
@@ -194,3 +204,4 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
     write_pwm(output_dir, tag, pwm)
     write_pfm(output_dir, tag, pfm)
     return(length)
+

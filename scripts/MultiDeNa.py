@@ -38,14 +38,14 @@ from multidena.tools.clear_from_n import clear_from_n
 from multidena.tools.parse_sitega_results import parse_sitega_results
 from multidena.lib.common import check_threshold_table, check_bootstrap
 
-try:
-    from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
-    from tools.get_threshold_for_strum import get_threshold_for_strum
-    from tools.scan_by_strum import scan_by_strum
-    from tools.scan_best_by_strum import scan_best_by_strum
-except ModuleNotFoundError:
-    print('StruM module not found. You can`t use StruM model')
-    pass
+# try:
+#     from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
+#     from tools.get_threshold_for_strum import get_threshold_for_strum
+#     from tools.scan_by_strum import scan_by_strum
+#     from tools.scan_best_by_strum import scan_best_by_strum
+# except ModuleNotFoundError:
+#     print('StruM module not found. You can`t use StruM model')
+#     pass
 
 
 def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_sample_size):
@@ -167,15 +167,15 @@ def calculate_thresholds_for_inmode(path_to_promoters, inmode_model_dir, thresho
     return(0)
 
 
-def calculate_thresholds_for_strum(path_to_promoters, strum_model_dir, thresholds_dir):
-    if not os.path.isfile(thresholds_dir + '/strum_model_thresholds.txt'):
-        print('Calculate threshold for StruM based on promoters and fpr')
-        get_threshold_for_strum(path_to_promoters,
-                strum_model_dir + '/strum_model.pickle',
-                thresholds_dir + '/strum_model_thresholds.txt')
-    else:
-        print('Thresholds for StruM already calculated')
-    return(0)
+# def calculate_thresholds_for_strum(path_to_promoters, strum_model_dir, thresholds_dir):
+#     if not os.path.isfile(thresholds_dir + '/strum_model_thresholds.txt'):
+#         print('Calculate threshold for StruM based on promoters and fpr')
+#         get_threshold_for_strum(path_to_promoters,
+#                 strum_model_dir + '/strum_model.pickle',
+#                 thresholds_dir + '/strum_model_thresholds.txt')
+#     else:
+#         print('Thresholds for StruM already calculated')
+#     return(0)
 
 
 def scan_peaks_by_pwm(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
@@ -225,12 +225,12 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
     return(0)
 
 
-def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
-    thr_strum = get_threshold(threshold_table_path, fpr)
-    strum_scan_path = scan + '/strum_{0}_{1:.2e}.bed'.format(tag, fpr)
-    print('Scan peaks ({2}) by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum, tag))
-    scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
-    return(0)
+# def scan_peaks_by_strum(fasta_test, model_path, scan, threshold_table_path, fpr, tag):
+#     thr_strum = get_threshold(threshold_table_path, fpr)
+#     strum_scan_path = scan + '/strum_{0}_{1:.2e}.bed'.format(tag, fpr)
+#     print('Scan peaks ({2}) by StruM with FPR: {0} THR: {1}'.format(fpr, thr_strum, tag))
+#     scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
+#     return(0)
 
 
 def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_dir):
@@ -367,11 +367,12 @@ def get_properties(path):
 
 def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                      path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr):
+                      path_to_promoters, path_to_genome, organism, path_to_mdb):
 
     main_out = path_to_out
     model_order = 2
-    cpu_count = cpu_count
+    cpu_count = 1
+    pfpr = 0.001
     motif_length_start = str(8)
     motif_length_end = str(16)
     if not os.path.isdir(main_out):
@@ -642,38 +643,38 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
 
     ### CALCULATE StruM MODEL ###
-    if 'strum' in tools:
-        strum_model = models + '/strum_model/strum_model.pickle'
-        strum_threshold_table = thresholds + '/strum_model_thresholds.txt'
-        if not os.path.isfile(strum_model):
-            print('Training StruM model')
-            strum_length = de_novo_with_oprimization_strum(fasta_train, background_path, 
-                models + '/strum.tmp', models + '/strum_model/', 
-                output_auc + '/strum', cpu_count, pfpr)
-        # THRESHOLD
-        calculate_thresholds_for_strum(path_to_promoters, models + '/strum_model', thresholds)
-        check = check_threshold_table(strum_threshold_table)
-        if check < fpr:
-            # SCAN
-            scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, fpr, 'train')
-            scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr, 'test')
-            scan_best_by_strum(scan_best + '/strum.scores.txt',
-                 strum_model,
-                 fasta_train)
-            extract_sites(scan + '/strum_train_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
-            write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
-        else:
-            print('WARNING! StruM model has poor table with thresholds')
-            print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, check, 'train')
-            scan_best_by_strum(scan_best + '/strum.scores.txt',
-                 strum_model,
-                 fasta_train)
-            extract_sites(scan + '/strum_train_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
-            write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
-            os.remove(scan + '/strum_train_{:.2e}.bed'.format(check))
-            open(scan + '/strum_train_{:.2e}.bed'.format(fpr), 'w').close()
-            open(scan + '/strum_test_{:.2e}.bed'.format(fpr), 'w').close()
+    # if 'strum' in tools:
+    #     strum_model = models + '/strum_model/strum_model.pickle'
+    #     strum_threshold_table = thresholds + '/strum_model_thresholds.txt'
+    #     if not os.path.isfile(strum_model):
+    #         print('Training StruM model')
+    #         strum_length = de_novo_with_oprimization_strum(fasta_train, background_path, 
+    #             models + '/strum.tmp', models + '/strum_model/', 
+    #             output_auc + '/strum', cpu_count, pfpr)
+    #     # THRESHOLD
+    #     calculate_thresholds_for_strum(path_to_promoters, models + '/strum_model', thresholds)
+    #     check = check_threshold_table(strum_threshold_table)
+    #     if check < fpr:
+    #         # SCAN
+    #         scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, fpr, 'train')
+    #         scan_peaks_by_strum(fasta_test, strum_model, scan, strum_threshold_table, fpr, 'test')
+    #         scan_best_by_strum(scan_best + '/strum.scores.txt',
+    #              strum_model,
+    #              fasta_train)
+    #         extract_sites(scan + '/strum_train_{:.2e}.bed'.format(fpr), tomtom + '/strum.sites.txt')
+    #         write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
+    #     else:
+    #         print('WARNING! StruM model has poor table with thresholds')
+    #         print('Best FPR for model is {}'.format(check))
+    #         scan_peaks_by_strum(fasta_train, strum_model, scan, strum_threshold_table, check, 'train')
+    #         scan_best_by_strum(scan_best + '/strum.scores.txt',
+    #              strum_model,
+    #              fasta_train)
+    #         extract_sites(scan + '/strum_train_{:.2e}.bed'.format(check), tomtom + '/strum.sites.txt')
+    #         write_model(tomtom + '/strum.sites.txt', tomtom, 'strum')
+    #         os.remove(scan + '/strum_train_{:.2e}.bed'.format(check))
+    #         open(scan + '/strum_train_{:.2e}.bed'.format(fpr), 'w').close()
+    #         open(scan + '/strum_test_{:.2e}.bed'.format(fpr), 'w').close()
     ### END StruM ###
 
 
@@ -759,32 +760,28 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
     parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10', 'b73', 'dm6', 'ce235', 'r64'], metavar='N',
-         help='promoters of organism (hg38, mm10, tair10, b73)')
-    parser.add_argument('genome', action='store', help='path to genome fasta file')
-    parser.add_argument('output', action='store', help='output dir')
+         help='Promoters of organism (hg38, mm10, tair10, b73)')
+    parser.add_argument('genome', action='store', help='Path to genome fasta file')
+    parser.add_argument('output', action='store', help='Output dir')
     parser.add_argument('-b', '--background', action='store', type=str, dest='background',
-                        required=False, default='shuffled', help='Path to background for bootstrap and denovo. if not given peaks are shuffled')
-    parser.add_argument('models', action='store', choices=['pwm-chipmunk', 'pwm-streme', 'dipwm', 'bamm', 'inmode', 'sitega', 'strum'], metavar='N', nargs='+',
-         help='list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega, strum)')
+                        required=False, default='shuffled', help='Path to background. It is used for de novo and to estimate ROC and PRC. if it is not given background is generated by shuffling')
+    parser.add_argument('models', action='store', choices=['pwm-chipmunk', 'pwm-streme', 'dipwm', 'bamm', 'inmode', 'sitega'], metavar='N', nargs='+',
+         help='list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega)')
     parser.add_argument('-t', '--train', action='store', type=int, dest='train_size',
-                        required=False, default=2000, help='size of training sample, by default size is equal to 500')
+                        required=False, default=500, help='Number of peaks for training sample. The default value is 500')
     parser.add_argument('-f', '--FPR', action='store', type=float, dest='fpr',
                         required=False, default=1.9*10**(-4), help='FPR, def=1.9*10^(-4)')
     parser.add_argument('-T', '--test', action='store', type=int, dest='test_size',
-                        required=False, default=2000, help='size of testing sample, by default size is equal to 4000')
+                        required=False, default=-1, help='Number of peaks for testing sample. It could be any value starting from number of peaks used in traning sample. If parameter is -1 all peaks are used. The default value is -1.')
     parser.add_argument('-I', '--inmode', action='store', dest='inmode',
-                        required=True, help='path to inmode')
+                        required=True, help='Path to inmode (jar)')
     parser.add_argument('-J', '--java', action='store', dest='java',
                     required=False, default="java", help='path to Java')
     parser.add_argument('-c', '--chipmunk', action='store', dest='chipmunk',
-                        required=True, help='path to chipmunk')
-    parser.add_argument('-C', '--processes', action='store', type=int, dest='cpu_count',
-                        required=False, default=4, help='Number of processes to use, default: 2')
+                        required=True, help='Path to chipmunk (jar)')
     parser.add_argument('-m', '--motifdatabase', action='store', dest='path_to_mdb',
-                        required=False, default=None, help='path to motif database in meme format for TOMTOM. \
+                        required=False, default=None, help='Path to motif database in meme format for TOMTOM. \
                         You can get motif database from http://meme-suite.org/doc/download.html')
-    parser.add_argument('-pfpr', '--partionalFPR', action='store', dest='pfpr', type=float,
-                        required=False, default=0.001, help='TECHNICAL, Threshold for calculating pAUC')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -808,9 +805,6 @@ def main():
     organism = args.promoters
     path_to_genome = args.genome
     path_to_mdb = args.path_to_mdb
-    cpu_count = args.cpu_count
-
-    pfpr = args.pfpr
 
     this_dir, this_filename = os.path.split(__file__)
     if organism == 'mm10':
@@ -830,7 +824,7 @@ def main():
 
     pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
-                          path_to_promoters, path_to_genome, organism, path_to_mdb, cpu_count, pfpr)
+                          path_to_promoters, path_to_genome, organism, path_to_mdb)
 
 if __name__ == '__main__':
     main()

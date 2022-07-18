@@ -12,7 +12,6 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 PYTHON:
   * cython: `pip3 install cython`
-  * StruM: https://github.com/pdeford/StructuralMotifs
 
 R:
   * ChIPseek and additional packeges for peaks/scan annotation:
@@ -44,7 +43,7 @@ MODELS:
   * ChIPmunk: http://autosome.ru/ChIPMunk/
   * InMoDe: http://jstacs.de/index.php/InMoDe (JAVA8 is nedeed)
   * SiteGA: https://github.com/parthian-sterlet/sitega
-  * StruM: https://github.com/pdeford/StructuralMotifs
+  * StruM: https://github.com/pdeford/StructuralMotifs (removed)
 
 OPTIONAL:
   * TomTom: http://meme-suite.org/index.html
@@ -88,14 +87,10 @@ optional arguments:
   -J JAVA, --java JAVA  path to Java
   -c CHIPMUNK, --chipmunk CHIPMUNK
                         path to chipmunk
-  -C CPU_COUNT, --processes CPU_COUNT
-                        Number of processes to use, default: 2
   -m PATH_TO_MDB, --motifdatabase PATH_TO_MDB
                         path to motif database in meme format for TOMTOM. You
                         can get motif database from http://meme-
                         suite.org/doc/download.html
-  -pfpr PFPR, --partionalFPR PFPR
-                        TECHNICAL, Threshold for calculating pAUC
 ```
 ### Example run
 ```
@@ -122,19 +117,19 @@ You shuld give path to bed file. The file should contain the following columns s
 4. name
 5. score
 
-Additional columns can be in file but not required. Information about bed format is avaliable in: https://m.ensembl.org/info/website/upload/bed.html, https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+File can contain additional columns, but they are not used. Information about bed format is avaliable in: https://m.ensembl.org/info/website/upload/bed.html, https://genome.ucsc.edu/FAQ/FAQformat.html#format1
 
 **Second positional argument**:
 ```
 N                     promoters of organism (hg38, mm10)
 ```
-Value of N can be _hg38_ or _mm10_. Depend on organism usage in research
+Value of N can be _hg38_ or _mm10_. It depends on organism used in research
 
 **Third positional argument**:
 ```
 genome                path to genome fasta file
 ```
-You shuld give path to fasta file. It's required to get sequences for peaks by bedtools.
+Path to genome fasta file.
 Reference genomes for mm10/hg38 can be downloaded from https://www.gencodegenes.org/ or https://genome.ucsc.edu/
 
 
@@ -142,32 +137,32 @@ Reference genomes for mm10/hg38 can be downloaded from https://www.gencodegenes.
 ```
 output                output dir
 ```
-Path of directory to write results. If dir is not exists it'll be created.
+Directory path to write results. If directory does not exist it'll be created.
 
 
 **Fifth positional argument**:
 ```
 N                     list of models to use (pwm, bamm, inmode, sitega)
 ```
-Argument can take several values from the list: pwm, bamm, inmode, sitega. All values must be separated by space. Example: `pwm bamm`, `pwm bamm inmode`, `pwm bamm inmode`, `pwm sitega` 
-*IMPORTANT!* Option `bamm` must be used with `pwm`. Becouse PWM model initializes BaMM
+Argument takes different values from the list: pwm, bamm, inmode, sitega. Several values have to be chosen. Chosen values have to be separated by space. Example: `pwm bamm`, `pwm bamm inmode`, `pwm bamm inmode`, `pwm sitega` 
+*IMPORTANT!* Option `bamm` must be used with `pwm`, becouse BaMM model depend on PWM model. You have to choose more than 1 model in analisys.
 
 ### Optional arguments description
 
 ```
 -t TRAIN_SIZE, --train TRAIN_SIZE
 ```
-The argument `-t/--train` sets up the number of peaks that will be used to train models. The default value is equal to 500. 
+The argument `-t/--train` sets the number of peaks that will be used for de novo. The default value is equal to 500. 
 
 ```
 -T TEST_SIZE, --test TEST_SIZE
 ```
-The argument `-T/--test` sets up the number of peaks that will be scaned by models The default value is equal to 4000.
+The argument `-T/--test` sets the number of peaks that will be used in analisys. By default all peaks are used.
 
 ```
 -f FPR, --FPR FPR
 ```
-The argument `-f/--FPR` sets up threshold for value for scanning models. The default value is equal to 0.00019.
+The argument `-f/--FPR` sets threshold for models to distinguish sites from no-sites. The default value is equal to 0.00019.
 
 ## Useful links
 

@@ -142,6 +142,12 @@ def creat_background(peaks, length_of_site, counter):
 #     return(0)
 
 
+def write_table(path, *args):
+    with open(path, 'a') as file:
+        file.write('\t'.join(list(map(str, args))[::-1])+'\n')
+    return(0)
+
+
 def write_roc(path, data):
     header = list(data.keys())
     with open(path, 'w') as file:
@@ -647,6 +653,41 @@ def calculate_fprs(true_scores, false_scores):
     return(fprs)
 
 
+def calculate_prc(true_score, false_score):
+    table = []
+    number_of_yes = len(true_score)
+    yes = 0
+    no = 0
+    for t in true_score:
+        table.append({'score': t, 'type': 1, 'precision': 1, 'recall': 0})
+    for f in false_score:
+        table.append({'score': f, 'type': 0, 'precision': 1, 'recall': 0})
+    table.sort(key=operator.itemgetter('score'), reverse=True)
+    for line in table:
+        if line['type'] == 1:
+            yes +=1
+        else:
+            no +=1
+        precision = yes / (yes + no)
+        recall = yes / number_of_yes
+        line['precision'] = precision
+        line['recall'] = recall
+    if table[0]['type'] == 0:
+        table = [{'score': None, 'type': 0, 'precision': 0, 'recall': 0}] + table
+    else:
+        table = [{'score': None, 'type': 1, 'precision': 1, 'recall': 0}] + table
+    prc = {'RECALL': [],
+           'PRECISION': [],
+           'SCORE': [],
+           'TYPE': []}
+    for line in table:
+        prc['RECALL'].append(line['recall'])
+        prc['PRECISION'].append(line['precision'])
+        prc['SCORE'].append(line['score'])
+        prc['TYPE'].append(line['type'])
+    return prc
+
+
 def calculate_roc_bootstrap(fprs):
     table = [{'TPR': 0, 'FPR': 0, 'SITES': 0}]
     current_number_of_sites = 0
@@ -692,6 +733,7 @@ def calculate_particial_auc(tprs, fprs, pfpr):
     fpr_old = fprs[0]
     for tpr_new, fpr_new in zip(tprs[1:], fprs[1:]):
         if fpr_new >= pfpr:
+            auc += (tpr_new + tpr_old) * ((pfpr - fpr_old) / 2)
             break
         auc += (tpr_new + tpr_old) * ((fpr_new - fpr_old) / 2)
         fpr_old = fpr_new
