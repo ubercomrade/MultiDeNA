@@ -174,7 +174,6 @@ def choose_best_model(output_auc):
         file.close()
     auc.sort(key=itemgetter(-1))
     length = int(auc[-1][0])
-    print(auc)
     return(length)
 
 
