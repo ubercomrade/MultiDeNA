@@ -9,11 +9,12 @@ import re
 import random
 import bisect
 import pickle
+import operator
 
-try:
-    from strum import strum
-except ModuleNotFoundError:
-    pass
+# try:
+#     from strum import strum
+# except ModuleNotFoundError:
+#     pass
 
 
 def read_seqs(path):
