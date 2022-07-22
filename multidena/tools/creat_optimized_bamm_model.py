@@ -114,7 +114,7 @@ def fpr_at_tpr(true_scores, false_scores, tpr):
     return(fpr)
 
 
-def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_dir, pfpr):
+def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr):
     true_scores = []
     false_scores_roc = []
     false_scores_prc = []
@@ -142,9 +142,9 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
         for false_score in best_scores_bamm(shuffled_peaks, bamm, order, length):
             false_scores_prc.append(false_score)
         shutil.copy(tmp_dir + '/{}_motif_1.ihbcp'.format(length),
-               output_dir + '/bamm_model_{0}_{1}_{2}.ihbcp'.format(step, order, length))
+               output_auc + '/bamm_model_{0}_{1}_{2}.ihbcp'.format(step, order, length))
         shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
-               output_dir + '/bamm_{0}_{1}_{2}.hbcp'.format(step, order, length))
+               output_auc + '/bamm_{0}_{1}_{2}.hbcp'.format(step, order, length))
     fprs = calculate_fprs(true_scores, false_scores_roc)
     prc = calculate_prc(true_scores, false_scores_prc)
     roc = calculate_short_roc(fprs, step=1)

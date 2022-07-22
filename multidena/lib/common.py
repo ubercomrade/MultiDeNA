@@ -673,11 +673,10 @@ def calculate_prc(true_score, false_score):
             recall = yes / number_of_yes
             prc['PRECISION'].append(precision)
             prc['RECALL'].append(recall)
+        if line['type'] == 1:
+            yes +=1
         else:
-            if line['type'] == 1:
-                yes +=1
-            else:
-                no +=1
+            no +=1
     precision = yes / (yes + no)
     recall = yes / number_of_yes
     prc['PRECISION'].append(precision)
