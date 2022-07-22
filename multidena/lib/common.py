@@ -655,36 +655,34 @@ def calculate_fprs(true_scores, false_scores):
 
 def calculate_prc(true_score, false_score):
     table = []
+    prc = {'PRECISION': [0], 'RECALL': [0]}
     number_of_yes = len(true_score)
     yes = 0
     no = 0
     for t in true_score:
-        table.append({'score': t, 'type': 1, 'precision': 1, 'recall': 0})
+        table.append({'score': t, 'type': 1})
     for f in false_score:
-        table.append({'score': f, 'type': 0, 'precision': 1, 'recall': 0})
+        table.append({'score': f, 'type': 0})
     table.sort(key=operator.itemgetter('score'), reverse=True)
+    score = table[0]['score']
     for line in table:
-        if line['type'] == 1:
-            yes +=1
+        if score != line['score']:
+            score = line['score']
+            precision = yes / (yes + no)
+            recall = yes / number_of_yes
+            prc['PRECISION'].append(precision)
+            prc['RECALL'].append(recall)
+            print(score, recall, precision)
         else:
-            no +=1
-        precision = yes / (yes + no)
-        recall = yes / number_of_yes
-        line['precision'] = precision
-        line['recall'] = recall
-    if table[0]['type'] == 0:
-        table = [{'score': None, 'type': 0, 'precision': 0, 'recall': 0}] + table
-    else:
-        table = [{'score': None, 'type': 1, 'precision': 1, 'recall': 0}] + table
-    prc = {'RECALL': [],
-           'PRECISION': [],
-           'SCORE': [],
-           'TYPE': []}
-    for line in table:
-        prc['RECALL'].append(line['recall'])
-        prc['PRECISION'].append(line['precision'])
-        prc['SCORE'].append(line['score'])
-        prc['TYPE'].append(line['type'])
+            if line['type'] == 1:
+                yes +=1
+            else:
+                no +=1
+    precision = yes / (yes + no)
+    recall = yes / number_of_yes
+    prc['PRECISION'].append(precision)
+    prc['RECALL'].append(recall)
+    prc['PRECISION'][0] = prc['PRECISION'][1]
     return prc
 
 
