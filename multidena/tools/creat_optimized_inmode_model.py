@@ -12,7 +12,7 @@ from operator import itemgetter
 import argparse
 from multidena.lib.common import calculate_particial_auc, \
 write_auc_with_order, calculate_merged_roc, calculate_short_roc, \
-write_roc, calculate_fprs, write_table
+write_roc, calculate_fprs, write_table, calculate_prc
 
 
 def read_peaks(path):

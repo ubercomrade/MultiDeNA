@@ -10,7 +10,7 @@ write_fasta, complement, make_dipcm, make_dipfm, \
 make_dipwm, write_dipwm, write_dipfm, \
 calculate_particial_auc, write_auc, \
 calculate_merged_roc, calculate_short_roc, \
-write_roc, calculate_fprs, write_table
+write_roc, calculate_fprs, write_table, calculate_prc
 from multidena.lib.speedup import creat_table_bootstrap, score_dipwm
 
 
