@@ -156,7 +156,7 @@ def learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc
         merged_roc = calculate_merged_roc(fprs)
         auc_roc = calculate_particial_auc(merged_roc['TPR'], merged_roc['FPR'], pfpr)
         auc_prc = calculate_particial_auc(prc['PRECISION'], prc['RECALL'], 1.01)
-        
+
         print("Length {};".format(length), "pAUC at {0} = {1};".format(pfpr, auc_roc), "PRC = {0}".format(auc_prc))
         write_table(output_auc + '/statistics.txt', auc_roc, auc_prc, length)
         write_roc(output_auc + "/training_roc_merged_{0}.txt".format(length), merged_roc)
@@ -172,7 +172,7 @@ def choose_best_model(output_auc):
         for line in file:
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
-    auc.sort(key=itemgetter(-2))
+    auc.sort(key=itemgetter(-1))
     length = int(auc[-1][0])
     return(length)
 
@@ -187,11 +187,11 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
         os.mkdir(output_dir)
     learn_optimized_pwm(peaks_path, backgroud_path, counter, tmp_dir, output_auc, pfpr)
     length = choose_best_model(output_auc)
-    copyfile(output_auc + '/training_prc_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_prc_{}.txt'.format(length),
              output_dir + '/prc.txt')
-    copyfile(output_auc + '/training_roc_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_roc_{}.txt'.format(length),
              output_dir + '/roc.txt')
-    copyfile(output_auc + '/training_roc_merged_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_roc_merged_{}.txt'.format(length),
              output_dir + '/roc_merged.txt')
     if os.path.isfile(backgroud_path):
         run_streme(peaks_path, backgroud_path, output_dir, length)
@@ -204,4 +204,3 @@ def de_novo_with_oprimization_pwm_streme(peaks_path, backgroud_path, tmp_dir, ou
     write_pwm(output_dir, tag, pwm)
     write_pfm(output_dir, tag, pfm)
     return(length)
-

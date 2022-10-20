@@ -47,7 +47,7 @@ def write_fasta(sites, tmp_dir, tag):
 
 def best_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, fasta_tag, model_tag, order):
     scores = []
-    args = [path_to_java, '-Xmx16G', '-Xms1G', 
+    args = [path_to_java, '-Xmx16G', '-Xms1G',
             '-jar',
             path_to_inmode, 'scan',
             'i={0}/inmode_model_{1}_{2}.xml'.format(tmp_dir, order, model_tag),
@@ -75,7 +75,7 @@ def best_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, fast
 
 def false_scores_inmode(path_to_inmode, path_to_java, motif_length, tmp_dir, fasta_tag, model_tag, order):
     scores = []
-    args = [path_to_java, '-Xmx16G', '-Xms1G', 
+    args = [path_to_java, '-Xmx16G', '-Xms1G',
             '-jar',
             path_to_inmode, 'scan',
             'i={0}/inmode_model_{1}_{2}.xml'.format(tmp_dir, order, model_tag),
@@ -131,7 +131,7 @@ def complement(seq):
     return(seq.replace('A', 't').replace('T', 'a').replace('C', 'g').replace('G', 'c').upper()[::-1])
 
 
-def learn_optimized_inmode(peaks_path, backgroud_path, counter, 
+def learn_optimized_inmode(peaks_path, backgroud_path, counter,
     path_to_inmode, path_to_java, tmp_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -151,7 +151,7 @@ def learn_optimized_inmode(peaks_path, backgroud_path, counter,
                     test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
                 else:
                     train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-                    test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+                    test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
                 if os.path.isfile(backgroud_path):
                     shuffled_peaks = read_peaks(backgroud_path)
                 else:
@@ -167,7 +167,7 @@ def learn_optimized_inmode(peaks_path, backgroud_path, counter,
                 for false_score in false_scores_inmode(path_to_inmode, path_to_java, length, tmp_dir, "shuffled", str(length), str(order)):
                     false_scores_roc.append(false_score)
                 shutil.copy(tmp_dir + '/inmode_model_{0}_{1}.xml'.format(order, length),
-                            output_auc + '/inmode_model_{0}_{1}_{2}.xml'.format(step, order, length))            
+                            output_auc + '/inmode_model_{0}_{1}_{2}.xml'.format(step, order, length))
             fprs = calculate_fprs(true_scores, false_scores_roc)
             prc = calculate_prc(true_scores, false_scores_prc)
             roc = calculate_short_roc(fprs, step=1)
@@ -178,7 +178,7 @@ def learn_optimized_inmode(peaks_path, backgroud_path, counter,
             write_table(output_auc + '/statistics.txt', auc_roc, auc_prc, order, length)
             write_roc(output_auc + "/training_roc_merged_{0}_{1}.txt".format(length, order), merged_roc)
             write_roc(output_auc + "/training_roc_{0}_{1}.txt".format(length, order), roc)
-            write_roc(output_auc + "/training_prc_{0}_{1}.txt".format(length, order), prc) 
+            write_roc(output_auc + "/training_prc_{0}_{1}.txt".format(length, order), prc)
     shutil.rmtree(tmp_dir)
     return(0)
 
@@ -189,13 +189,13 @@ def choose_best_model(output_auc):
         for line in file:
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
-    auc.sort(key=itemgetter(-2))
+    auc.sort(key=itemgetter(-1))
     order = int(auc[-1][1])
     length = int(auc[-1][0])
     return(length, order)
 
 
-def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode, 
+def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
     path_to_java, tmp_dir, output_dir, output_auc, pfpr):
     counter = 1000000
     if not os.path.exists(tmp_dir):
@@ -210,17 +210,17 @@ def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     learn_optimized_inmode(peaks_path, backgroud_path, counter,
-                           path_to_inmode, path_to_java, 
+                           path_to_inmode, path_to_java,
                            tmp_dir, output_auc, pfpr)
     length, order = choose_best_model(output_auc)
-    
-    shutil.copy(output_auc + '/training_prc_{0}_{1}.txt'.format(length, order), 
+
+    shutil.copy(output_auc + '/training_prc_{0}_{1}.txt'.format(length, order),
              output_dir + '/prc.txt')
-    shutil.copy(output_auc + '/training_roc_{0}_{1}.txt'.format(length, order), 
+    shutil.copy(output_auc + '/training_roc_{0}_{1}.txt'.format(length, order),
              output_dir + '/roc.txt')
-    shutil.copy(output_auc + '/training_roc_merged_{0}_{1}.txt'.format(length, order), 
+    shutil.copy(output_auc + '/training_roc_merged_{0}_{1}.txt'.format(length, order),
              output_dir + '/roc_merged.txt')
-    
+
     args = [path_to_java, '-Xmx16G', '-Xms1G', '-jar', path_to_inmode,
     'denovo', 'i={}'.format(peaks_path), 'm={}'.format(length), 'outdir={}'.format(tmp_dir),
     'mo={}'.format(order)]

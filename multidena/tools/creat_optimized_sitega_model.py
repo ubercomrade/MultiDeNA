@@ -32,16 +32,16 @@ def sitega_bootstrap(data_dir, lpd_length=6, start_motif_length=8, end_motif_len
 
 
 def get_sitega_model(output_dir, tmp_dir, motif_length, number_of_lpds):
-    args = ['andy05', f'{tmp_dir}/', 
-    'train.fa', 'background.fa', 
-    '6', f'{motif_length}', 
+    args = ['andy05', f'{tmp_dir}/',
+    'train.fa', 'background.fa',
+    '6', f'{motif_length}',
     f'{number_of_lpds}', '6', f'{tmp_dir}/']
     print(args)
     capture = subprocess.run(args, capture_output=False)
     shutil.copy(f'{tmp_dir}/train.fa_mat', f'{output_dir}/sitega.mat')
     return 0
-    
-    
+
+
 def parse_roc(path_in, path_out):
     container = []
     with open(path_in) as file:
@@ -68,14 +68,14 @@ def parse_auc_table(path_in, path_out):
         file.close()
     return 0
 
-    
+
 def write_fasta(sites, tmp_dir, tag):
     with open('{0}/{1}.fa'.format(tmp_dir, tag), 'w') as file:
         for index, site in enumerate(sites):
             file.write('>{0}\n{1}\n'.format(index, site))
     return(0)
-    
-    
+
+
 def creat_background(peaks, counter):
     shuffled_peaks = []
     number_of_sites = 0
@@ -105,7 +105,7 @@ def learn_optimized_sitega(peaks_path, backgroud_path, counter, tmp_dir, output_
     parse_auc_table(f'{tmp_dir}/train.fa_auc_bs.txt',
               f'{output_auc}/auc.txt')
     parse_roc(f'{tmp_dir}/train.fa_best_roc_bs.txt',
-              f'{output_dir}/bootstrap.txt')    
+              f'{output_dir}/bootstrap.txt')
     return(0)
 
 
@@ -121,7 +121,7 @@ def choose_best_model(output_auc):
     return(length, order)
 
 
-def de_novo_with_oprimization_sitega(peaks_path, backgroud_path, 
+def de_novo_with_oprimization_sitega(peaks_path, backgroud_path,
                                      tmp_dir, output_dir, output_auc, pfpr=0.001):
     counter = 5000000
     if not os.path.exists(tmp_dir):
@@ -135,10 +135,9 @@ def de_novo_with_oprimization_sitega(peaks_path, backgroud_path,
         os.mkdir(output_auc)
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
-    learn_optimized_sitega(peaks_path, backgroud_path, counter, 
+    learn_optimized_sitega(peaks_path, backgroud_path, counter,
                            tmp_dir, output_dir, output_auc)
     motif_length, number_of_lpds = choose_best_model(output_auc)
     get_sitega_model(output_dir, tmp_dir, motif_length, number_of_lpds)
     shutil.rmtree(tmp_dir)
     return motif_length, number_of_lpds
-

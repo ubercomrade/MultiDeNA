@@ -121,7 +121,7 @@ def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, pat
                 test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
             else:
                 train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+                test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
             write_fasta(train_peaks, tmp_dir + '/train.fasta')
             if os.path.isfile(backgroud_path):
                 shuffled_peaks = read_peaks(backgroud_path)
@@ -145,7 +145,7 @@ def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, pat
             tag = 'dipwm_model_{0}_{1}'.format(step, length)
             write_dipwm(output_auc, tag, dipwm)
             write_dipfm(output_auc, tag, dipfm)
-            write_sites(output=output_auc, tag=tag, sites=sites)        
+            write_sites(output=output_auc, tag=tag, sites=sites)
         fprs = calculate_fprs(true_scores, false_scores_roc)
         prc = calculate_prc(true_scores, false_scores_prc)
         roc = calculate_short_roc(fprs, step=1)
@@ -156,7 +156,7 @@ def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, pat
         write_table(output_auc + '/statistics.txt', auc_roc, auc_prc, length)
         write_roc(output_auc + "/training_roc_merged_{0}.txt".format(length), merged_roc)
         write_roc(output_auc + "/training_roc_{0}.txt".format(length), roc)
-        write_roc(output_auc + "/training_prc_{0}.txt".format(length), prc)        
+        write_roc(output_auc + "/training_prc_{0}.txt".format(length), prc)
     shutil.rmtree(tmp_dir)
     return(0)
 
@@ -167,31 +167,31 @@ def choose_best_model(output_auc):
         for line in file:
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
-    auc.sort(key=itemgetter(-2))
+    auc.sort(key=itemgetter(-1))
     length = int(auc[-1][0])
     return(length)
 
 
-def de_novo_with_oprimization_dipwm(peaks_path, backgroud_path, path_to_java, path_to_chipmunk, 
+def de_novo_with_oprimization_dipwm(peaks_path, backgroud_path, path_to_java, path_to_chipmunk,
     tmp_dir, output_dir, output_auc, cpu_count, pfpr):
     counter = 1000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    #learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, 
+    #learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java,
     #    path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
-    copyfile(output_auc + '/training_prc_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_prc_{}.txt'.format(length),
              output_dir + '/prc.txt')
-    copyfile(output_auc + '/training_roc_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_roc_{}.txt'.format(length),
              output_dir + '/roc.txt')
-    copyfile(output_auc + '/training_roc_merged_{}.txt'.format(length), 
+    copyfile(output_auc + '/training_roc_merged_{}.txt'.format(length),
              output_dir + '/roc_merged.txt')
     run_di_chipmunk(
         path_to_java, path_to_chipmunk,
-        peaks_path, 
-        output_dir + '/chipmunk_results.txt', 
+        peaks_path,
+        output_dir + '/chipmunk_results.txt',
         length, length, cpu_count)
     sites = parse_chipmunk(output_dir + '/chipmunk_results.txt')
     dipcm = make_dipcm(sites)

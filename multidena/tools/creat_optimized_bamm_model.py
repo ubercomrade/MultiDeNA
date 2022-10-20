@@ -77,7 +77,7 @@ def false_scores_bamm(peaks, bamm, order, length_of_site):
         full_peak = peak + 'N' * length_of_site + complement_peak
         n = len(full_peak) - length_of_site + 1
         for i in range(n):
-            site = full_peak[i:length_of_site + i] 
+            site = full_peak[i:length_of_site + i]
             if not len(set(site) - {'A', 'C', 'G', 'T'}) == 0:
                 continue
             score = score_bamm(site, bamm, order, length_of_site)
@@ -126,7 +126,7 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
             test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
         else:
             train_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 == 0]
-            test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]                
+            test_peaks = [p for index, p in enumerate(peaks, 1) if index % 2 != 0]
         write_fasta(train_peaks, tmp_dir + '/train.fasta')
         if os.path.isfile(backgroud_path):
             shuffled_peaks = read_peaks(backgroud_path)
@@ -179,13 +179,13 @@ def choose_best_model(output_auc):
         for line in file:
             auc.append(tuple(map(float, line.strip().split())))
         file.close()
-    auc.sort(key=itemgetter(-2))
+    auc.sort(key=itemgetter(-1))
     order = int(auc[-1][1])
     length = int(auc[-1][0])
     return(length, order)
 
 
-def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_dir, 
+def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_dir,
     output_dir, output_auc, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -223,11 +223,11 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
            output_dir + '/bamm_model.ihbcp')
     shutil.copy(tmp_dir + '/{}.hbcp'.format(length),
            output_dir + '/bamm.hbcp')
-    shutil.copy(output_auc + '/training_prc_{0}_{1}.txt'.format(length, order), 
+    shutil.copy(output_auc + '/training_prc_{0}_{1}.txt'.format(length, order),
              output_dir + '/prc.txt')
-    shutil.copy(output_auc + '/training_roc_{0}_{1}.txt'.format(length, order), 
+    shutil.copy(output_auc + '/training_roc_{0}_{1}.txt'.format(length, order),
              output_dir + '/roc.txt')
-    shutil.copy(output_auc + '/training_roc_merged_{0}_{1}.txt'.format(length, order), 
+    shutil.copy(output_auc + '/training_roc_merged_{0}_{1}.txt'.format(length, order),
              output_dir + '/roc_merged.txt')
     shutil.rmtree(tmp_dir)
     return(length, order)
