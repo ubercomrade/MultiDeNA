@@ -16,7 +16,7 @@ setup(
     description='pipeline for chip-seq analisys',
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
-    url='http://github.com/ubercomrade/pipeline',
+    url='https://github.com/ubercomrade/MultiDeNA',
     package_dir={'multidena' : 'multidena'},
     packages=[
         'multidena',
@@ -24,8 +24,8 @@ setup(
         'multidena.tools'
     ],
     package_data={
-        'promoters': ['*.fasta'],
-        'scripts': ['*.R'],
+        'multidena': ['promoters/*.fasta'],
+        'multidena': ['scripts/*.R'],
     },
     scripts=['scripts/MultiDeNa.py',
     'scripts/cross-validation.py',],
