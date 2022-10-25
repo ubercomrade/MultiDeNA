@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import random
 import math
 import shutil
@@ -161,7 +163,7 @@ def read_inmode_bed(path):
 
 def true_scores_inmode(model_path, path_to_inmode, path_to_java, tmp_dir, fasta_tag, model_tag):
     scores = []
-    args = [path_to_java, '-Xmx16G', '-Xms1G', 
+    args = [path_to_java, '-Xmx16G', '-Xms1G',
             '-jar',
             path_to_inmode, 'scan',
             'i={0}'.format(model_path),
@@ -189,7 +191,7 @@ def true_scores_inmode(model_path, path_to_inmode, path_to_java, tmp_dir, fasta_
 
 def false_scores_inmode(model_path, path_to_inmode, path_to_java, tmp_dir, fasta_tag, model_tag):
     scores = []
-    args = [path_to_java, '-Xmx16G', '-Xms1G', 
+    args = [path_to_java, '-Xmx16G', '-Xms1G',
             '-jar',
             path_to_inmode, 'scan',
             'i={0}'.format(model_path),
@@ -205,7 +207,7 @@ def false_scores_inmode(model_path, path_to_inmode, path_to_java, tmp_dir, fasta
     return(scores)
 
 
-def cross_validation_inmode(inmode_model, peaks_path, counter, length, 
+def cross_validation_inmode(inmode_model, peaks_path, counter, length,
     path_to_inmode, path_to_java, tmp_dir, output_dir, pfpr):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -431,7 +433,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
                 cross_validation_pwm(pwm_model, motif_length, peaks_path, counter, results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'pwm', pfpr)
-                
+
         if 'dipwm' in tools:
             if t1 != t2:
                 print('{0} diPWM model on data {1}'.format(t1, t2))
@@ -444,7 +446,7 @@ def run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
             if t1 != t2:
                 print('{0} InMoDe model on data {1}'.format(t1, t2))
                 motif_length = get_model_length_mm(auc_dir + '/inmode/auc.txt')
-                cross_validation_inmode(inmode_model, peaks_path, counter, motif_length, 
+                cross_validation_inmode(inmode_model, peaks_path, counter, motif_length,
                                         path_to_inmode, path_to_java, results + '/inmode.tmp', results, pfpr)
             else:
                 copy_results_of_cv(results, models, 'inmode', pfpr)
@@ -482,18 +484,18 @@ def main():
     path_to_chipmunk = args.chipmunk
     path_to_inmode = args.inmode
     cpu_count = args.cpu_count
-    
+
     tags = [i for i in os.listdir(data_dir) if not i.startswith('.') and not i in ignore]
     # for t1 in tags:
     #     run_cross_validation_through_all_data(t1, data_dir, write_dir, tags, tools,
     #         path_to_java, path_to_chipmunk, path_to_inmode)
     with Pool(cpu_count) as p:
-        p.map(functools.partial(run_cross_validation_through_all_data, data_dir=data_dir, 
-            write_dir=write_dir, 
-            tags=tags, 
+        p.map(functools.partial(run_cross_validation_through_all_data, data_dir=data_dir,
+            write_dir=write_dir,
+            tags=tags,
             tools=tools,
-            path_to_java=path_to_java, 
-            path_to_chipmunk=path_to_chipmunk, 
+            path_to_java=path_to_java,
+            path_to_chipmunk=path_to_chipmunk,
             path_to_inmode=path_to_inmode), tags)
     return(0)
 

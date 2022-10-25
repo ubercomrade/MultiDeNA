@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import os.path
 import sys
@@ -67,13 +69,13 @@ def prepare_data(path_to_genome, bed_path, bed, fasta, train_sample_size, test_s
             copyfile(bed + '/train_sample.bed', bed + '/test_sample.bed')
             copyfile(bed + '/train_sample.length.txt', bed + '/test_sample.length.txt')
         else:
-            print('{0} already exists'.format('test_sample.bed')) 
+            print('{0} already exists'.format('test_sample.bed'))
     else:
         if not os.path.isfile(bed + '/' + 'train_sample.bed'):
             #Get top training_sample_size bed peaks
             print('Get top {0} bed peaks'.format(train_sample_size))
             bed_out = bed + '/'
-            write_top_peaks(bed_path, bed_out, 4, 'train_sample', train_sample_size)      
+            write_top_peaks(bed_path, bed_out, 4, 'train_sample', train_sample_size)
         else:
             print('{0} already exists'.format('train_sample.bed'))
 
@@ -202,7 +204,7 @@ def scan_peaks_by_bamm(fasta_test, model_path, bg_model_path, scan, threshold_ta
     return(0)
 
 
-def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr, 
+def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr,
     path_to_java, path_to_inmode, path_to_promoters, tag):
     inmode_scan_dir = scan + '/tmp'
     inmode_scan_path = scan + '/inmode_{0}_{1:.2e}.bed'.format(tag, fpr)
@@ -307,7 +309,7 @@ def run_tomtom(query, target, outdir):
         '-thresh', '1.0',
         '-oc', outdir]
     r = subprocess.run(args, capture_output=True)
-    return(1)   
+    return(1)
 
 
 
@@ -357,8 +359,8 @@ def get_length_sitega_model(path):
         file.readline()
         length = int(file.readline().strip().split()[0])
     return(length)
-    
-    
+
+
 def get_properties(path):
     with open(path) as file:
         length, order = file.readline().strip().split('\t')
@@ -390,7 +392,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
     annotation = main_out + '/annotation'
     output_auc = main_out + '/auc'
 
-    
+
     ########################
     #      CREATE DIRS     #
     ########################
@@ -436,8 +438,8 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         if not os.path.isfile(pwm_model):
             print('Training PWM model')
             if 'pwm-chipmunk' in tools:
-                pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, background_path, path_to_java, path_to_chipmunk, 
-                    models + '/pwm.tmp', models + '/pwm_model/', 
+                pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, background_path, path_to_java, path_to_chipmunk,
+                    models + '/pwm.tmp', models + '/pwm_model/',
                     output_auc + '/pwm', cpu_count, pfpr)
             else:
                 pwm_length = de_novo_with_oprimization_pwm_streme(fasta_train,
@@ -479,7 +481,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         dipwm_threshold_table = thresholds + '/dipwm_model_thresholds.txt'
         if not os.path.isfile(dipwm_model):
             print('Training diPWM model')
-            dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, background_path, path_to_java, path_to_chipmunk, 
+            dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, background_path, path_to_java, path_to_chipmunk,
                 models + '/dipwm.tmp', models + '/dipwm_model/',
                 output_auc + '/dipwm', cpu_count, pfpr)
         # THRESHOLD
@@ -519,9 +521,9 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             print('Training INMODE model')
             if not os.path.isdir(models + '/inmode_model/'):
                 os.mkdir(models + '/inmode_model/')
-            de_novo_with_oprimization_inmode(fasta_train, background_path, path_to_inmode, 
-                                            path_to_java, models + '/inmode.tmp', 
-                                            inmode_model_dir, output_auc + '/inmode', 
+            de_novo_with_oprimization_inmode(fasta_train, background_path, path_to_inmode,
+                                            path_to_java, models + '/inmode.tmp',
+                                            inmode_model_dir, output_auc + '/inmode',
                                             pfpr)
         # THRESHOLDS
         inmode_length, inmode_order = get_properties(f"{inmode_model_dir}/properties.txt")
@@ -569,7 +571,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             print('Training BAMM model')
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
-            bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, background_path, output_auc + '/pwm', 
+            bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, background_path, output_auc + '/pwm',
                 models + '/bamm.tmp', models + '/bamm_model', output_auc + '/bamm', pfpr)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
@@ -606,17 +608,17 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         sitega_threshold_table = thresholds + '/sitega_model_thresholds.txt'
         if not os.path.isdir(sitega_model_dir):
             os.mkdir(sitega_model_dir)
-        # PREPARE FASTA 
+        # PREPARE FASTA
         # clear_from_n(fasta_train, sitega_model_dir + '/train_sample_no_n.fa')
         # TRAIN SITEGA
         if not os.path.isfile(sitega_model_path):
             print('Training SiteGA model')
             de_novo_with_oprimization_sitega(
             fasta_train,
-            background_path, 
-            models + '/sitega.tmp', 
-            models + '/sitega_model', 
-            output_auc + '/sitega', 
+            background_path,
+            models + '/sitega.tmp',
+            models + '/sitega_model',
+            output_auc + '/sitega',
             pfpr)
         sitega_length = get_length_sitega_model(sitega_model_path)
         calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
@@ -632,7 +634,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         else:
             print('WARNING! SiteGA model has poor table with thresholds')
             print('Best FPR for model is {}'.format(check))
-            scan_peaks_by_sitega(fasta_test, sitega_model_path, scan, 
+            scan_peaks_by_sitega(fasta_test, sitega_model_path, scan,
                 sitega_threshold_table, check, scan_best , 'train')
             extract_sites(scan + '/sitega_train_{:.2e}.bed'.format(check), tomtom + '/sitega.sites.txt')
             write_model(tomtom + '/sitega.sites.txt', tomtom, 'sitega')
@@ -648,8 +650,8 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
     #     strum_threshold_table = thresholds + '/strum_model_thresholds.txt'
     #     if not os.path.isfile(strum_model):
     #         print('Training StruM model')
-    #         strum_length = de_novo_with_oprimization_strum(fasta_train, background_path, 
-    #             models + '/strum.tmp', models + '/strum_model/', 
+    #         strum_length = de_novo_with_oprimization_strum(fasta_train, background_path,
+    #             models + '/strum.tmp', models + '/strum_model/',
     #             output_auc + '/strum', cpu_count, pfpr)
     #     # THRESHOLD
     #     calculate_thresholds_for_strum(path_to_promoters, models + '/strum_model', thresholds)
@@ -708,17 +710,17 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
         f = fasta + '/{}_sample.fa'.format(tag)
         list_bed_path = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
         list_path_fpr_table = [thresholds + '/{}_model_thresholds.txt'.format(i) for i in tools]
-        combine_results_pro_format(f, list_bed_path, list_path_fpr_table, 
+        combine_results_pro_format(f, list_bed_path, list_path_fpr_table,
             tools, results + '/combined_scan_{0}_{1:.2e}.pro'.format(tag, fpr))
         #combine_results_bed_format(f, list_bed_path, list_path_fpr_table, tools, results + '/combined_scan_{0}_{1:.2e}.bed'.format(tag, fpr))
 
         # CALCULATE SUMMARY
-        write_peaks_classification(results + '/combined_scan_{0}_{1:.2e}.pro'.format(tag, fpr), 
+        write_peaks_classification(results + '/combined_scan_{0}_{1:.2e}.pro'.format(tag, fpr),
             tools, results + '/peaks_classification_{0}_{1:.2e}.tsv'.format(tag, fpr))
 
 
     # TOMTOM
-    if path_to_mdb != None:   
+    if path_to_mdb != None:
         print('Runing TomTom')
         try:
             for t in tools:
