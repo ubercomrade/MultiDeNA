@@ -9,6 +9,7 @@ import glob
 import itertools
 import shutil
 import fnmatch
+import pkg_resources
 from operator import itemgetter
 from shutil import copyfile
 from multidena.tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
@@ -326,7 +327,7 @@ def run_tomtom(query, target, outdir):
 
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
-    main_directory = os.path.dirname(__file__)
+    main_directory = pkg_resources.resource_filename('multidena', 'scripts')
     #r_path = os.path.join(main_directory,
     #    'scripts/annotation.R')
     r_path = os.path.join(main_directory,
@@ -341,7 +342,7 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
 
 
 def plot_motifs(dir_with_meme, output_dir):
-    main_directory = os.path.dirname(__file__)
+    main_directory = pkg_resources.resource_filename('multidena', 'scripts')
     #r_path = os.path.join(main_directory,
     #    'scripts/motifCompare.R')
     r_path = os.path.join(main_directory,
@@ -808,21 +809,20 @@ def main():
     path_to_genome = args.genome
     path_to_mdb = args.path_to_mdb
 
-    this_dir, this_filename = os.path.split(__file__)
     if organism == 'mm10':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "mm10.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/mm10.fasta')
     elif organism == 'hg38':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "hg38.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/hg38.fasta')
     elif organism == 'tair10':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "tair10.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/tair10.fasta')
     elif organism == 'b73':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "b73_v5.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/b73_v5.fasta')
     elif organism == 'dm6':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "dm6.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/dm6.fasta')
     elif organism == 'ce235':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "ce235.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/ce235.fasta')
     elif organism == 'r64':
-        path_to_promoters = os.path.join(this_dir, "../promoters", "r64.fasta")
+        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/r64.fasta')
 
     pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
