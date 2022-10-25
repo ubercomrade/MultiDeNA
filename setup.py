@@ -24,6 +24,7 @@ setup(
         'multidena.tools'
     ],
     package_data={
+        'promoters': ['*.fasta'],
         'scripts': ['*.R'],
     },
     scripts=['scripts/MultiDeNa.py',
