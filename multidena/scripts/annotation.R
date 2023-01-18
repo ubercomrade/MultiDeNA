@@ -72,7 +72,7 @@ if (genome == 'tair10') {
 
 getGeneNamesByPromoters <- function(i) {
   df <- as.data.frame(i)
-  df <- df[df$annotation == "Promoter" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (2-3kb)",]
+  df <- df[df$annotation == "Promoter" | df$annotation == "Promoter (1-2kb)" | df$annotation == "Promoter (2-3kb)",]
   genes <- unique(df$geneId)
   return(genes)
 }
@@ -125,12 +125,12 @@ readScanTablesMammals <- function(path){
 if (genome == "tair10"){
   grs <- lapply(files, readScanTablesTair)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
-                         tssRegion=c(-1000, 1000), verbose=FALSE)
+                         tssRegion=c(-3000, 3000), verbose=FALSE)
   
 } else {
   grs <- lapply(files, readScanTablesMammals)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
-                         tssRegion=c(-1000, 1000), verbose=FALSE)
+                         tssRegion=c(-3000, 3000), verbose=FALSE)
 }
 
 writeAnnotaion(peakAnnoList, writeDirectory)
