@@ -27,8 +27,8 @@ setup(
         'multidena': ['promoters/*.fasta'],
         'multidena': ['scripts/*.R'],
     },
-    scripts=['scripts/MultiDeNa.py',
-    'scripts/cross-validation.py',],
+    scripts=['multidena/scripts/MultiDeNa.py',
+    'multidena/scripts/cross-validation.py',],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
