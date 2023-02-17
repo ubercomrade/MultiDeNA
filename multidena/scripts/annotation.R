@@ -43,7 +43,7 @@ tools <-  strsplit(tools, ";")[[1]]
 names(files) <- tools
 
 if (genome == "tair10"){
-  keyType = "TAIR"  
+  keyType = "TAIR"
 } else {
   keyType = "ENTREZID"
 }
@@ -81,8 +81,8 @@ writeAnnotaion <- function(peakAnnoList, writeDirectory) {
   tools <-  names(peakAnnoList)
   colNames <- c("chromosome", "start", "end", "width",
                 "str", "name", "score", "strand",
-                "site","annotation", "geneChr", 
-                "geneStart", "geneEnd", "geneLength", 
+                "site","annotation", "geneChr",
+                "geneStart", "geneEnd", "geneLength",
                 "geneStrand", "geneId", "transcriptId",
                 "distanceToTSS")
   colNames <- c("chromosome", "start",  "end", "width",
@@ -96,7 +96,7 @@ writeAnnotaion <- function(peakAnnoList, writeDirectory) {
     write.table(x = df,
                 file = paste(writeDirectory, paste0(tolower(i),'_annotaion.tsv'), sep = '/'),
                 sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-    
+
   }
 }
 
@@ -109,7 +109,7 @@ CapStr <- function(y) {
 readScanTablesTair <- function(path){
   df <- read.table(path)
   colnames(df) <- c("chr", "start", "end", "name", "score", "strand", "site")
-  df$chr <- sapply(df$chr, CapStr)
+  #df$chr <- sapply(df$chr, CapStr)
   gr <- makeGRangesFromDataFrame(df, keep.extra.columns=TRUE)
   seqlevelsStyle(gr) <- "Ensembl"
   return(gr)
@@ -126,7 +126,7 @@ if (genome == "tair10"){
   grs <- lapply(files, readScanTablesTair)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
                          tssRegion=c(-3000, 3000), verbose=FALSE)
-  
+
 } else {
   grs <- lapply(files, readScanTablesMammals)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
@@ -250,4 +250,3 @@ if (isS4(enrich_all)) {
   print(p)
   dev.off()
 }
-
