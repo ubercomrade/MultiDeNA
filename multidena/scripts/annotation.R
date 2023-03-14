@@ -125,7 +125,7 @@ readScanTablesMammals <- function(path){
 if (genome == "tair10"){
   grs <- lapply(files, readScanTablesTair)
   peakAnnoList <- lapply(grs, annotatePeak, TxDb=txdb,
-                         tssRegion=c(-3000, 3000), verbose=FALSE)
+                         tssRegion=c(-1000, 1000), verbose=FALSE)
 
 } else {
   grs <- lapply(files, readScanTablesMammals)
@@ -147,6 +147,7 @@ dev.off()
 enrich_go <- tryCatch(compareCluster(geneCluster  = genes,
                                      fun           = "enrichGO",
                                      pvalueCutoff  = 0.05,
+                                     qvalueCutoff = 0.05,
                                      ont = "BP",
                                      pAdjustMethod = "BH",
                                      OrgDb = OrgDb,
@@ -169,7 +170,7 @@ if (isS4(enrich_go)) {
   df <- enrich_go@compareClusterResult
   df <- df[df$p.adjust <= 0.05,]
   write.table(x = df,
-              file = paste(writeDirectory, 'compare_model_GO.tsv', sep = '/'),
+              file = paste(writeDirectory, 'compare_models_GO.tsv', sep = '/'),
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
   l <- length(unique(as.data.frame(enrich_go)$ID))
   p <- dotplot(enrich_go, showCategory = l, title = "Enrichment Analysis (GO)", font.size = 10, label_format = 50)
@@ -189,8 +190,9 @@ if (isS4(enrich_go)) {
 
 enrich_pwm <- tryCatch(enrichGO(gene = genes$PWM,
                                 pvalueCutoff  = 0.05,
-                                pAdjustMethod = "BH",
+                                qvalueCutoff = 0.05,
                                 ont = "BP",
+                                pAdjustMethod = "BH",
                                 OrgDb = OrgDb,
                                 keyType = keyType),
                        error=function(cond) {
@@ -221,8 +223,9 @@ if (isS4(enrich_pwm)) {
 
 enrich_all <- tryCatch(enrichGO(gene = Reduce(c,genes),
                                 pvalueCutoff  = 0.05,
-                                pAdjustMethod = "BH",
+                                qvalueCutoff = 0.05,
                                 ont = "BP",
+                                pAdjustMethod = "BH",
                                 OrgDb = OrgDb,
                                 keyType = keyType),
                        error=function(cond) {
