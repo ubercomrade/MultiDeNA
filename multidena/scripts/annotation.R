@@ -119,6 +119,7 @@ readScanTablesMammals <- function(path){
   df <- read.table(path)
   colnames(df) <- c("chr", "start", "end", "name", "score", "strand", "site")
   gr <- makeGRangesFromDataFrame(df, keep.extra.columns=TRUE)
+  seqlevelsStyle(gr) <- "UCSC"
   return(gr)
 }
 
