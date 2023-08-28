@@ -26,7 +26,7 @@ def parse_sitega(path, length):
                 left_pos = int(line[0])
                 start_site = start + left_pos
                 end_site = start + left_pos + length
-                    
+
                 record['chr'] = chromosome
                 record['start'] = start_site
                 record['end'] = end_site

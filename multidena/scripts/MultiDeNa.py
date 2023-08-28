@@ -39,7 +39,9 @@ from multidena.tools.extract_sites import extract_sites
 from multidena.tools.write_model import write_model
 from multidena.tools.clear_from_n import clear_from_n
 from multidena.tools.parse_sitega_results import parse_sitega_results
-from multidena.lib.common import check_threshold_table, check_bootstrap
+from multidena.lib.common import check_threshold_table, check_bootstrap, gene_associated_with_motifs
+
+
 
 # try:
 #     from tools.creat_optimized_strum_model import de_novo_with_oprimization_strum
@@ -331,9 +333,9 @@ def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     #r_path = os.path.join(main_directory,
     #    'scripts/annotation.R')
     r_path = os.path.join(main_directory,
-        'annotation.R')
+        'annotation_2.R')
     args = [r_path,
-        '--input_scans', ';'.join(list_of_scans),
+        '--input_annotations', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
         '--genome', genome,
         '--output_dir', os.path.abspath(output_dir)]
@@ -748,8 +750,17 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             output_dir = annotation + '/{}'.format(tag)
             if not os.path.isdir(output_dir):
                 os.mkdir(output_dir)
-            list_of_scans = [scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr) for i in tools]
-            run_annotation(list_of_scans, list_of_models, organism, output_dir)
+            tmp_dir = annotation + '/tmp'
+            if not os.path.isdir(tmp_dir):
+                os.mkdir(tmp_dir)
+
+            for tool in tools:
+                write_path = f'{output_dir}/{tool}.bed'
+                path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr)
+                path_ann = pkg_resources.resource_filename('multidena', f'annotaion/{organism}/m3kbTSS_minAUG_or_p3kbTSS.bed')
+                r = gene_associated_with_motifs(path_scan, path_ann, tmp_dir, write_path)
+            list_of_ann = [f'{output_dir}/{i}.bed' for i in tools]
+            run_annotation(list_of_ann, list_of_models, organism, output_dir)
 
     # PLOT MOTIFS
     plot_motifs(tomtom, results)

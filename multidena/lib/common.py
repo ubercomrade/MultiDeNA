@@ -10,6 +10,10 @@ import random
 import bisect
 import pickle
 import operator
+import pandas as pd
+import numpy as np
+import subprocess
+
 
 # try:
 #     from strum import strum
@@ -177,7 +181,7 @@ def check_threshold_table(path):
         except:
             fpr = -1
     return(fpr)
-    
+
 
 def write_scan(path, data):
     with open(path, 'w') as csvfile:
@@ -187,7 +191,7 @@ def write_scan(path, data):
         for line in data:
             writer.writerow(line)
     pass
-    
+
 
 # PWM MODEL
 def make_pcm(motifs):
@@ -344,7 +348,7 @@ def write_dipwm(output, tag, dipwm):
         file.write('>{0}\n'.format(tag))
         for i in zip(*container):
             file.write('\t'.join(map(str, i)) + '\n')
-        
+
 
 def write_dipfm(output, tag, dipfm):
     container = []
@@ -354,11 +358,11 @@ def write_dipfm(output, tag, dipfm):
         file.write('>{0}\n'.format(tag))
         for i in zip(*container):
             file.write('\t'.join(map(str, i)) + '\n')
- 
-            
+
+
 def score_dipwm(seq, dipwm):
     score = 0
-    position = 0 
+    position = 0
     length = len(seq) - 1
     for i in range(length):
         score += dipwm[seq[i:i+2]][i]
@@ -512,7 +516,7 @@ def creat_table_bootstrap(true_scores, false_scores):
 
 def score_pwm(seq, pwm):
     score = 0
-    position = 0 
+    position = 0
     for letter in seq:
         score += pwm[letter][position]
         position += 1
@@ -617,7 +621,7 @@ def calculate_merged_roc(fprs):
     table['FPR'].append(fprs[i])
     table['SITES'].append(current_number_of_sites)
     return(table)
-    
+
 
 def calculate_roc_train(true_scores, false_scores):
     tprs = []
@@ -735,8 +739,9 @@ def calculate_particial_auc(tprs, fprs, pfpr):
         auc += (tpr_new + tpr_old) * ((fpr_new - fpr_old) / 2)
         fpr_old = fpr_new
         tpr_old = tpr_new
+    if fpr_new < pfpr:
+        auc += (2* tpr_new) * ((pfpr - fpr_new) / 2)
     return(auc)
-
 
 
 # Strum
@@ -751,3 +756,57 @@ def read_strum(strum_path):
     with open(strum_path, 'rb') as f:
         strum_model = pickle.load(f)
     return(strum_model)
+
+
+# Annotation
+
+#VG
+# def split_by_chr(path, write_dir):
+#     df = pd.read_csv(path, sep='\t', header=None)
+#     df = df.sort_values(by=[0, 1])
+#     chromosomes = set(df[0])
+#     basename = os.path.basename(path).rsplit('.', 1)[0]
+#     for chromosome in chromosomes:
+#         chr_df = df[df[0] == chromosome]
+#         chr_df.to_csv(f'{write_dir}/{basename}_{chromosome}.bed', sep='\t', header=None, index=False)
+#     return chromosomes
+
+#VG
+# def gene_associated_with_motifs(path_scan, path_ann, tmp_dir, write_path):
+#     basename_scan = os.path.basename(path_scan).rsplit('.', 1)[0]
+#     basename_ann = os.path.basename(path_ann).rsplit('.', 1)[0]
+#
+#     chromosomes_scan = split_by_chr(path_scan, tmp_dir)
+#     chromosomes_ann = split_by_chr(path_ann, tmp_dir)
+#
+#
+#     for chromosome in chromosomes_ann:
+#         if chromosome in chromosomes_scan:
+#             args = ['/home/anton/Downloads/areajoin_v23/area_join_simple_one',
+#                     f'{tmp_dir}/{basename_ann}_{chromosome}.bed',
+#                     f'{tmp_dir}/{basename_scan}_{chromosome}.bed',
+#                     f'{tmp_dir}/intersection_{chromosome}.bed',
+#                     f'{tmp_dir}/aj.sta',
+#                     '0']
+#             r = subprocess.run(args, capture_output=True)
+#
+#
+#     res = pd.DataFrame()
+#     for chromosome in chromosomes_ann:
+#         if chromosome in chromosomes_scan:
+#             res = pd.concat([pd.read_csv(f'{tmp_dir}/intersection_{chromosome}.bed', sep='\t', header=None), res])
+#     res = res.sort_values(by=[0, 1])
+#     res = res[res[4] > 0]
+#     res.to_csv(write_path, sep='\t', index=False, header=None)
+#     return 0
+
+
+def gene_associated_with_motifs(path_scan, path_ann, tmp_dir, write_path):
+    args = ['bedtools', 'intersect',
+            '-a', path_ann,
+            '-b', path_scan,
+            '-wa', '-u',]
+    r = subprocess.run(args, capture_output=True)
+    res = pd.DataFrame([i.split() for i in r.stdout.decode().split('\n')])
+    res.to_csv(write_path, sep='\t', index=False, header=None)
+    return 0
