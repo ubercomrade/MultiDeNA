@@ -769,7 +769,7 @@ def check_tools(tools, path_to_chipmunk, path_to_inmode):
     if shutil.which("java") != None:
         out = subprocess.run(['java', '-version'], capture_output=True)
         fisrt, second, _ = out.stderr.decode().split()[2].strip('\"').split('.')
-        if second != '8':
+        if second != '8' and 'inmode' in tools:
             print("You haven`t got Java 8 installed or Java 8 is not added to PATH. \
             You have to install Java 8 to use InMoDe \
             becouse InMoDe is crashed with using other version of Java ")
