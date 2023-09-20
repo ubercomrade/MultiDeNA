@@ -330,10 +330,7 @@ def run_tomtom(query, target, outdir):
 
 def run_annotation(list_of_scans, list_of_models, genome, output_dir):
     main_directory = pkg_resources.resource_filename('multidena', 'scripts')
-    #r_path = os.path.join(main_directory,
-    #    'scripts/annotation.R')
-    r_path = os.path.join(main_directory,
-        'annotation_2.R')
+    r_path = os.path.join(main_directory, 'annotation.R')
     args = [r_path,
         '--input_annotations', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
@@ -734,9 +731,9 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
                 or install TomTom. If the problem rise again check your meme file (data base). \
                 You can download motif database in meme format from http://meme-suite.org/doc/download.html.')
 
+
     # ANNOTATION AND GO
     if organism in ['mm10', 'hg38', 'tair10']:
-        print('Annotaion results by ChIPseeker')
         name_converter = {
         'pwm': 'PWM',
         'dipwm': 'diPWM',
@@ -750,16 +747,12 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             output_dir = annotation + '/{}'.format(tag)
             if not os.path.isdir(output_dir):
                 os.mkdir(output_dir)
-            tmp_dir = annotation + '/tmp'
-            if not os.path.isdir(tmp_dir):
-                os.mkdir(tmp_dir)
-
             for tool in tools:
-                write_path = f'{output_dir}/{tool}.bed'
-                path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(i, tag, fpr)
-                path_ann = pkg_resources.resource_filename('multidena', f'annotaion/{organism}/m3kbTSS_minAUG_or_p3kbTSS.bed')
-                r = gene_associated_with_motifs(path_scan, path_ann, tmp_dir, write_path)
-            list_of_ann = [f'{output_dir}/{i}.bed' for i in tools]
+                write_path = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt'
+                path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(tool, tag, fpr)
+                path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+                r = gene_associated_with_motifs(path_scan, path_ann, write_path)
+            list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
             run_annotation(list_of_ann, list_of_models, organism, output_dir)
 
     # PLOT MOTIFS
