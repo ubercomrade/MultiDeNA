@@ -812,18 +812,35 @@ def read_strum(strum_path):
 #     return 0
 
 
+# def gene_associated_with_motifs(path_scan, path_ann, write_path):
+#     args = ['bedtools', 'intersect',
+#             '-a', path_ann,
+#             '-b', path_scan,
+#             '-wa', '-u',]
+#     r = subprocess.run(args, capture_output=True)
+#     res = pd.DataFrame([i.split() for i in r.stdout.decode().strip().split('\n')])
+#     if not res.empty:
+#         genes = set(res[3])
+#         with open(write_path, 'w') as file:
+#             for gene in genes:
+#                 file.write(f'{gene}\n')
+#     else:
+#         open(write_path, 'w').close()
+#     return 0
+
 def gene_associated_with_motifs(path_scan, path_ann, write_path):
     args = ['bedtools', 'intersect',
             '-a', path_ann,
             '-b', path_scan,
-            '-wa', '-u',]
+            '-wb',]
     r = subprocess.run(args, capture_output=True)
     res = pd.DataFrame([i.split() for i in r.stdout.decode().strip().split('\n')])
     if not res.empty:
-        genes = set(res[3])
-        with open(write_path, 'w') as file:
-            for gene in genes:
-                file.write(f'{gene}\n')
-    else:
-        open(write_path, 'w').close()
+        res.to_csv(write_path, sep='\t', index=False, header=None)
+    #     genes = set(res[3])
+    #     with open(write_path, 'w') as file:
+    #         for gene in genes:
+    #             file.write(f'{gene}\n')
+    # else:
+    #     open(write_path, 'w').close()
     return 0

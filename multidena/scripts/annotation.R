@@ -63,9 +63,10 @@ if (genome == 'tair10') {
 }
 
 readGenes <- function(path){
-  return(scan(path, what="", sep="\n"))
+  return(read.table(path, sep="\t")$V4)
 }
 genes <-  lapply(files, readGenes)
+
 
 print(genes)
 enrich_go <- tryCatch(compareCluster(geneCluster  = genes,

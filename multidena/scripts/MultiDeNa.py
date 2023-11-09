@@ -2,7 +2,35 @@
 
 import os
 import os.path
-import sys
+import sys    if organism in ['mm10', 'hg38', 'tair10']:
+        name_converter = {
+        'pwm': 'PWM',
+        'dipwm': 'diPWM',
+        'inmode': 'InMoDe',
+        'bamm': 'BaMM',
+        'sitega': 'SiteGA',
+        'strum': 'StruM'
+        }
+        list_of_models = [name_converter[t] for t in tools]
+        for tag in ['train', 'test']:
+            output_dir = annotation + '/{}'.format(tag)
+            if not os.path.isdir(output_dir):
+                os.mkdir(output_dir)
+            for tool in tools:
+                write_path = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt'
+                path_peaks = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.peaks.txt'
+                path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(tool, tag, fpr)
+                get_peaks_with_sites(bed + f'/{tag}_sample.bed', path_scan, path_peaks)
+                path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+                r = gene_associated_with_motifs(path_peaks, path_ann, write_path)
+            #All peaks intersection with promoters
+            write_path = f'{output_dir}/{tag}_sample.ann_genes.txt'
+            path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+            gene_associated_with_motifs(bed + f'/{tag}_sample.bed', path_ann, write_path)
+
+            #GO
+            list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
+            #run_annotation(list_of_ann, list_of_models, organism, output_dir)
 import subprocess
 import argparse
 import glob
@@ -733,6 +761,28 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
 
     # ANNOTATION AND GO
+    # if organism in ['mm10', 'hg38', 'tair10']:
+    #     name_converter = {
+    #     'pwm': 'PWM',
+    #     'dipwm': 'diPWM',
+    #     'inmode': 'InMoDe',
+    #     'bamm': 'BaMM',
+    #     'sitega': 'SiteGA',
+    #     'strum': 'StruM'
+    #     }
+    #     list_of_models = [name_converter[t] for t in tools]
+    #     for tag in ['train', 'test']:
+    #         output_dir = annotation + '/{}'.format(tag)
+    #         if not os.path.isdir(output_dir):
+    #             os.mkdir(output_dir)
+    #         for tool in tools:
+    #             write_path = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt'
+    #             path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(tool, tag, fpr)
+    #             path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+    #             r = gene_associated_with_motifs(path_scan, path_ann, write_path)
+    #         list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
+    #         run_annotation(list_of_ann, list_of_models, organism, output_dir)
+
     if organism in ['mm10', 'hg38', 'tair10']:
         name_converter = {
         'pwm': 'PWM',
@@ -749,9 +799,17 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
                 os.mkdir(output_dir)
             for tool in tools:
                 write_path = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt'
+                path_peaks = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.peaks.txt'
                 path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(tool, tag, fpr)
+                get_peaks_with_sites(bed + f'/{tag}_sample.bed', path_scan, path_peaks)
                 path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
-                r = gene_associated_with_motifs(path_scan, path_ann, write_path)
+                r = gene_associated_with_motifs(path_peaks, path_ann, write_path)
+            #All peaks intersection with promoters
+            write_path = f'{output_dir}/{tag}_sample.ann_genes.txt'
+            path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+            gene_associated_with_motifs(bed + f'/{tag}_sample.bed', path_ann, write_path)
+
+            #GO
             list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
             run_annotation(list_of_ann, list_of_models, organism, output_dir)
 
