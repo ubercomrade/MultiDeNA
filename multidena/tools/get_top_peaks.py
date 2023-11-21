@@ -24,7 +24,7 @@ def get_top_peaks(peaks, amount, col):
     if amount == -1:
         amount = len(peaks)
     elif len(peaks) < amount:
-        print("Number of peaks ({0}) less than threshold amount ({1})".format(len(peaks), 
+        print("Number of peaks ({0}) less than threshold amount ({1})".format(len(peaks),
             amount))
         amount = len(peaks)
     sorted_peaks = sorted(peaks, key=lambda i: float(i[col]), reverse=True)
@@ -35,6 +35,11 @@ def get_top_peaks(peaks, amount, col):
 
 
 def get_random_peaks(peaks, amount):
+    if amount > len(peaks):
+        print(f'Number of peaks less than {amount}. Max number of peaks will be used instead')
+        amount = len(peaks)
+    if amount == -1:
+        amount = len(peaks)
     results = random.sample(peaks, k=amount)
     key = len(peaks[0]) < 4
     for index, line in enumerate(results):
