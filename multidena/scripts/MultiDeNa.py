@@ -810,7 +810,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
 
 def check_tools(tools, path_to_chipmunk, path_to_inmode):
-    if 'inmode' in tools
+    if 'inmode' in tools:
         if shutil.which("java") != None:
             out = subprocess.run(['java', '-version'], capture_output=True)
             fisrt, second = out.stderr.decode().split()[2].strip('\"').split('.')[:2]
