@@ -5,7 +5,7 @@ from Cython.Build import cythonize
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-install_requires = ['setuptools>=18.0', 'cython', 'numpy', 'scipy', 'matplotlib']
+install_requires = ['setuptools>=18.0', 'cython', 'pandas', 'numpy', 'scipy', 'matplotlib']
 ext_modules = [Extension('multidena.lib.speedup', sources=['multidena/lib/speedup.pyx'],)]
 
 

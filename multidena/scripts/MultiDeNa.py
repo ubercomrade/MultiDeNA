@@ -10,6 +10,7 @@ import itertools
 import shutil
 import fnmatch
 import pkg_resources
+import pandas as pd
 from operator import itemgetter
 from shutil import copyfile
 from multidena.tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
