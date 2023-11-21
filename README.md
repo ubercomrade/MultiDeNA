@@ -90,15 +90,14 @@ options:
                         suite.org/doc/download.html
 ```
 ### Example run
+[Bash script](https://github.com/ubercomrade/MultiDeNA/blob/master/example/multidena_example_run.sh) with example run and tiny data are located in ./example directory. You should run this script in ./example directory.
 ```
-MultiDeNa.py peaks.bed \
-hg38 \
-/path/to/the/genome/hg38.fa \
-./name_of_directory_to_write_results \
-pwm-chipmunk bamm inmode \
--t 500 -T 1000 \
--I /path/to/inmode/InMoDeCLI-1.1.jar \
--c /path/to/ChIPmunk/chipmunk.jar
+MultiDeNa.py ./PEAKS042778_PIF5_chr_1.bed \
+tair10 \
+./Arabidopsis_thaliana.TAIR10.dna.chromosome.1.fa \
+./PEAKS042778_PIF5_results \
+pwm-streme bamm \
+-t 500 -T -1
 ```
 
 ### Required arguments description
