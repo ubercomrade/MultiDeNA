@@ -810,16 +810,18 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
 
 def check_tools(tools, path_to_chipmunk, path_to_inmode):
-    if shutil.which("java") != None:
-        out = subprocess.run(['java', '-version'], capture_output=True)
-        fisrt, second, _ = out.stderr.decode().split()[2].strip('\"').split('.')
-        if second != '8' and 'inmode' in tools:
-            print("You haven`t got Java 8 installed or Java 8 is not added to PATH. \
-            You have to install Java 8 to use InMoDe \
-            becouse InMoDe is crashed with using other version of Java ")
-            print('inmode is removed from analisys.')
-            tools.remove('inmode')
-    else:
+    if 'inmode' in tools
+        if shutil.which("java") != None:
+            out = subprocess.run(['java', '-version'], capture_output=True)
+            fisrt, second = out.stderr.decode().split()[2].strip('\"').split('.')[:2]
+            if f'{fisrt}.{second}' != '1.8' and 'inmode' in tools:
+                print("You haven`t got Java 8 installed or Java 8 is not added to PATH. \
+                You have to install Java 8 to use InMoDe \
+                becouse InMoDe is crashed with using other version of Java ")
+                print('inmode is removed from analisys.')
+                tools.remove('inmode')
+
+    if shutil.which("java") == None:
         if 'pwm-chipmunk' in tools or 'dipwm' in tools or 'inmode' in tools:
             print('There is no Java. You can`t use InMoDe, ChIPMunk(pwm) and diChIPMunk (dipwm) models. \
             As they require Java.')
