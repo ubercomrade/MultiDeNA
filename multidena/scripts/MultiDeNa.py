@@ -367,6 +367,19 @@ def get_properties(path):
     return int(length), int(order)
 
 
+def get_peaks_with_sites(peaks_path, scan_path, write_path):
+    peaks = pd.read_csv(peaks_path, sep='\t', header=None)
+    if os.stat(scan_path).st_size != 0:
+        scan = pd.read_csv(scan_path, sep='\t', header=None)
+        scan_ids = set(scan[3])
+        peaks_with_sites = peaks[[True if i in scan_ids else False for i in peaks[3]]]
+        peaks_with_sites.to_csv(write_path, sep='\t', index=False, header=None)
+    else:
+        print(f'Empty file: {scan_path}')
+        open(write_path, 'a').close()
+    return 0
+
+
 def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, organism, path_to_mdb):
@@ -754,7 +767,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
     #             r = gene_associated_with_motifs(path_scan, path_ann, write_path)
     #         list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
     #         run_annotation(list_of_ann, list_of_models, organism, output_dir)
-            
+
     if organism in ['mm10', 'hg38', 'tair10']:
         name_converter = {
         'pwm': 'PWM',
