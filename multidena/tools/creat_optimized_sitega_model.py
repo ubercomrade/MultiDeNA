@@ -24,7 +24,7 @@ def read_peaks(path):
 
 def sitega_bootstrap(data_dir, lpd_length=6, lpd_min=40, lpd_max=100, lpd_step=20, start_motif_length=8, end_motif_length=20, step=4):
     args = ['andy0bsn5.exe',  f'{data_dir}/',  'train.fa',  'background.fa',
-    f'{lpd_length}', f'{lpd_min}', f'{lpd_max}', f'{lpd_step}'
+    f'{lpd_length}', f'{lpd_min}', f'{lpd_max}', f'{lpd_step}',
     f'{start_motif_length}', f'{end_motif_length}',
     f'{step}', '-1', '2', '6', f'{data_dir}/', '3000', 'sitega.log']
     print(' '.join(args))
