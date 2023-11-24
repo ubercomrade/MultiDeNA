@@ -849,9 +849,9 @@ def check_tools(tools, path_to_chipmunk, path_to_inmode):
         print('bamm is removed from analisys.')
         tools.remove('bamm')
 
-    if 'sitega' in tools and shutil.which("andy05") == None:
-        print('You haven`t got SiteGA (andy05) installed or SiteGA (andy05) is not added to PATH. \
-            You have to install SiteGA (andy05) and add it to PATH to use sitega. \
+    if 'sitega' in tools and shutil.which("andy05.exe") == None:
+        print('You haven`t got SiteGA (andy05.exe and andy0bsn5.exe) installed or SiteGA (andy05) is not added to PATH. \
+            You have to install SiteGA (andy05.exe and andy0bsn5.exe) and add it to PATH to use sitega. \
             You can visit - https://github.com/parthian-sterlet/sitega')
         print('sitega is removed from analisys.')
         tools.remove('sitega')

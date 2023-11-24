@@ -22,21 +22,22 @@ def read_peaks(path):
     return(container)
 
 
-def sitega_bootstrap(data_dir, lpd_length=6, start_motif_length=8, end_motif_length=20, step=4):
-    args = ['andy0bsn5',  f'{data_dir}/',  'train.fa',  'background.fa',
-    f'{lpd_length}', f'{start_motif_length}', f'{end_motif_length}',
-    f'{step}', '-1', '2', '6', f'{data_dir}/']
-    print(args)
+def sitega_bootstrap(data_dir, lpd_length=6, lpd_min=40, lpd_max=100, lpd_step=20, start_motif_length=8, end_motif_length=20, step=4):
+    args = ['andy0bsn5.exe',  f'{data_dir}/',  'train.fa',  'background.fa',
+    f'{lpd_length}', f'{lpd_min}', f'{lpd_max}', f'{lpd_step}'
+    f'{start_motif_length}', f'{end_motif_length}',
+    f'{step}', '-1', '2', '6', f'{data_dir}/', '3000', 'sitega.log']
+    print(' '.join(args))
     capture = subprocess.run(args, capture_output=False)
     return 0
 
 
 def get_sitega_model(output_dir, tmp_dir, motif_length, number_of_lpds):
-    args = ['andy05', f'{tmp_dir}/',
+    args = ['andy05.exe', f'{tmp_dir}/',
     'train.fa', 'background.fa',
     '6', f'{motif_length}',
-    f'{number_of_lpds}', '6', f'{tmp_dir}/']
-    print(args)
+    f'{number_of_lpds}', '6', f'{tmp_dir}/', '3000', 'sitega.log']
+    print(' '.join(args))
     capture = subprocess.run(args, capture_output=False)
     shutil.copy(f'{tmp_dir}/train.fa_mat', f'{output_dir}/sitega.mat')
     return 0
@@ -99,7 +100,7 @@ def learn_optimized_sitega(peaks_path, backgroud_path, counter, tmp_dir, output_
         shuffled_peaks = creat_background(peaks_path, counter)
         write_fasta(shuffled_peaks, tmp_dir, 'background')
     shutil.copy(peaks_path, f'{tmp_dir}/train.fa')
-    sitega_bootstrap(tmp_dir, lpd_length=6, start_motif_length=8, end_motif_length=20, step=4)
+    sitega_bootstrap(tmp_dir, lpd_length=6, lpd_min=40, lpd_max=100, lpd_step=20, start_motif_length=8, end_motif_length=20, step=4)
     shutil.copy(f'{tmp_dir}/train.fa_mat', f'{output_auc}/sitega_bootstrap_models.fa_mat')
     shutil.copy(f'{tmp_dir}/train.fa_roc_bs.txt', f'{output_auc}/sitega_bootstrap_rocs.txt')
     parse_auc_table(f'{tmp_dir}/train.fa_auc_bs.txt',
