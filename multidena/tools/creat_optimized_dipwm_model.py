@@ -179,8 +179,8 @@ def de_novo_with_oprimization_dipwm(peaks_path, backgroud_path, path_to_java, pa
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
-    #learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java,
-    #    path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
+    learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java,
+       path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_prc_{}.txt'.format(length),
              output_dir + '/prc.txt')

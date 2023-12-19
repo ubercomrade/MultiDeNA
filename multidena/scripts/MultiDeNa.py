@@ -389,8 +389,8 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
     model_order = 2
     cpu_count = 1
     pfpr = 0.001
-    motif_length_start = str(8)
-    motif_length_end = str(16)
+    # motif_length_start = str(8)
+    # motif_length_end = str(20)
     if not os.path.isdir(main_out):
         os.mkdir(main_out)
     models = main_out + '/models'
