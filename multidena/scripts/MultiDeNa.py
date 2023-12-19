@@ -899,12 +899,6 @@ def parse_args():
                         required=False, default=-1, help='Number of peaks for testing sample. \
                         It could be any value starting from number of peaks used in traning sample. \
                         If parameter is -1 all peaks are used. The default value is -1.')
-    parser.add_argument('-I', '--inmode', action='store', dest='inmode',
-                        required=False, default='', help='Path to inmode (jar)')
-    # parser.add_argument('-J', '--java', action='store', dest='java',
-    #                 required=False, default="java", help='path to Java')
-    parser.add_argument('-c', '--chipmunk', action='store', dest='chipmunk',
-                        required=False, default='', help='Path to chipmunk (jar)')
     parser.add_argument('-m', '--motifdatabase', action='store', dest='path_to_mdb',
                         required=False, default='', help='Path to motif database in meme format for TOMTOM. \
                         You can get motif database from http://meme-suite.org/doc/download.html')
@@ -927,8 +921,8 @@ def main():
 
     #path_to_java = args.java
     path_to_java = 'java'
-    path_to_chipmunk = args.chipmunk
-    path_to_inmode = args.inmode
+    path_to_chipmunk = pkg_resources.resource_filename('multidena', 'tools/chipmunk.jar')
+    path_to_inmode = pkg_resources.resource_filename('multidena', 'tools/InMoDeCLI-1.1.jar')
     organism = args.promoters
     path_to_genome = args.genome
     path_to_mdb = args.path_to_mdb

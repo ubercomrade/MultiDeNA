@@ -19,11 +19,7 @@ R:
 install.packages("optparse")
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
-BiocManager::install("ChIPseeker")
 BiocManager::install("clusterProfiler")
-BiocManager::install("TxDb.Mmusculus.UCSC.mm10.knownGene")
-BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene")
-BiocManager::install("TxDb.Athaliana.BioMart.plantsmart28")
 BiocManager::install("org.Mm.eg.db")
 BiocManager::install("org.Hs.eg.db")
 BiocManager::install("org.At.tair.db")
@@ -39,10 +35,10 @@ TOOLS:
   * bedtools: https://bedtools.readthedocs.io/en/latest/  version >= 2.26.0
 
 MODELS:
-  * BaMM: https://github.com/soedinglab/BaMMmotif2
-  * ChIPmunk: http://autosome.ru/ChIPMunk/
-  * InMoDe: http://jstacs.de/index.php/InMoDe (JAVA8 is needed)
-  * SiteGA: https://github.com/parthian-sterlet/sitega
+  * BaMM: https://github.com/soedinglab/BaMMmotif2 (BaMMmotif2 is needed to install)
+  * ChIPmunk: http://autosome.ru/ChIPMunk/ (ChIPMunk is included in the package)
+  * InMoDe: http://jstacs.de/index.php/InMoDe (InMoDe is included in the package)
+  * SiteGA: https://github.com/parthian-sterlet/sitega (sitega is needed to install)
 
 OPTIONAL:
   * TomTom: http://meme-suite.org/index.html
@@ -81,10 +77,6 @@ options:
   -T TEST_SIZE, --test TEST_SIZE
                         Number of peaks for testing sample. It could be any value starting from number of peaks used in traning sample. If
                         parameter is -1 all peaks are used. The default value is -1.
-  -I INMODE, --inmode INMODE
-                        Path to inmode (jar)
-  -c CHIPMUNK, --chipmunk CHIPMUNK
-                        Path to chipmunk (jar)
   -m PATH_TO_MDB, --motifdatabase PATH_TO_MDB
                         Path to motif database in meme format for TOMTOM. You can get motif database from http://meme-
                         suite.org/doc/download.html
