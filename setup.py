@@ -25,9 +25,9 @@ setup(
     # ],
     packages=find_packages(),
     package_data={
-        'multidena': ['promoters/*.fasta', 'promoters/*.bed'],
-        'multidena': ['scripts/*.R', 'scripts/*.py'],
-        'multidena': ['tools/*.jar'],
+        'multidena.promoters': ['*.fasta', '*.bed'],
+        'multidena.scripts': ['*.R', '*.py'],
+        'multidena.tools': ['*.jar'],
     },
     scripts=['multidena/scripts/MultiDeNa.py',
     'multidena/scripts/cross-validation.py',
