@@ -84,10 +84,10 @@ options:
 ### Example run
 [Bash script](https://github.com/ubercomrade/MultiDeNA/blob/master/example/multidena_example_run.sh) with example run and tiny data are located in ./example directory. You should run this script in ./example directory.
 ```
-MultiDeNa.py ./PEAKS042778_PIF5_chr_1.bed \
-tair10 \
-./Arabidopsis_thaliana.TAIR10.dna.chromosome.1.fa \
-./PEAKS042778_PIF5_results \
+MultiDeNa.py ./foxa2_mm_chr19.bed \
+mm10 \
+./Mus_musculus.GRCm38.dna.chromosome.19.fa \
+./foxa2_mm_chr19 \
 pwm-streme bamm \
 -t 500 -T -1
 ```

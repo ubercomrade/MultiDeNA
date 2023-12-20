@@ -17,19 +17,21 @@ setup(
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
     url='https://github.com/ubercomrade/MultiDeNA',
-    package_dir={'multidena' : 'multidena'},
+    package_dir={'' : 'multidena'},
     packages=[
         'multidena',
         'multidena.lib',
         'multidena.tools'
     ],
     package_data={
-        'multidena': ['promoters/*.fasta'],
-        'multidena': ['scripts/*.R'],
-        'multidena': ['tools/*.jar'],
+        'multidena.promoters': ['*.fasta', '*.bed'],
+        'multidena.scripts': ['*.R', '*.py'],
+        'multidena.tools': ['*.jar'],
     },
     scripts=['multidena/scripts/MultiDeNa.py',
-    'multidena/scripts/cross-validation.py',],
+    'multidena/scripts/cross-validation.py',
+    'multidena/scripts/annotation.R',
+    'multidena/scripts/motifCompare.R',],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
