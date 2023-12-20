@@ -23,7 +23,7 @@ setup(
     #     'multidena.lib',
     #     'multidena.tools'
     # ],
-    packages=find_packages()
+    packages=find_packages(),
     package_data={
         'multidena': ['promoters/*.fasta', 'promoters/*.bed'],
         'multidena': ['scripts/*.R', 'scripts/*.py'],
