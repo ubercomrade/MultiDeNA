@@ -17,7 +17,7 @@ setup(
     author='Anton Tsukanov',
     author_email='tsukanov@bionet.nsc.ru',
     url='https://github.com/ubercomrade/MultiDeNA',
-    package_dir={'' : 'multidena'},
+    package_dir={'multidena' : 'multidena'},
     packages=[
         'multidena',
         'multidena.lib',
