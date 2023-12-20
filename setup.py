@@ -1,5 +1,5 @@
 """pipeline for chip-seq analisys"""
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 
 with open("README.md", "r") as fh:
@@ -18,11 +18,12 @@ setup(
     author_email='tsukanov@bionet.nsc.ru',
     url='https://github.com/ubercomrade/MultiDeNA',
     package_dir={'multidena' : 'multidena'},
-    packages=[
-        'multidena',
-        'multidena.lib',
-        'multidena.tools'
-    ],
+    # packages=[
+    #     'multidena',
+    #     'multidena.lib',
+    #     'multidena.tools'
+    # ],
+    packages=find_packages()
     package_data={
         'multidena': ['promoters/*.fasta', 'promoters/*.bed'],
         'multidena': ['scripts/*.R', 'scripts/*.py'],
