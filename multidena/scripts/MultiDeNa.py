@@ -880,8 +880,8 @@ def check_tools(tools, path_to_chipmunk, path_to_inmode):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
-    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10', 'b73', 'dm6', 'ce235', 'r64'], metavar='N',
-         help='Promoters of organism (hg38, mm10, tair10, b73)')
+    parser.add_argument('promoters', action='store', choices=['mm10', 'hg38', 'tair10'], metavar='N',
+         help='Promoters of organism (hg38, mm10, tair10)')
     parser.add_argument('genome', action='store', help='Path to genome fasta file')
     parser.add_argument('output', action='store', help='Output dir')
     parser.add_argument('-b', '--background', action='store', type=str, dest='background',

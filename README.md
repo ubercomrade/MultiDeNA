@@ -61,7 +61,7 @@ usage: MultiDeNa.py [-h] [-b BACKGROUND] [-t TRAIN_SIZE] [-f FPR] [-T TEST_SIZE]
 
 positional arguments:
   bed                   path to BED file
-  N                     Promoters of organism (hg38, mm10, tair10, b73)
+  N                     Promoters of organism (hg38, mm10, tair10)
   genome                Path to genome fasta file
   output                Output dir
   M                     list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega)
@@ -109,7 +109,7 @@ File can contain additional columns, but they are not used. Information about be
 
 **Second positional argument**:
 ```
-N                     promoters of organism (hg38, mm10)
+N                     promoters of organism (hg38, mm10, tair10)
 ```
 Value of N can be _hg38_ or _mm10_. It depends on organism used in research
 
