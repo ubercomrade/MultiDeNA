@@ -25,7 +25,7 @@ setup(
     # ],
     packages=find_packages(),
     package_data={
-        'multidena.promoters': ['*.fasta', '*.bed'],
+        'multidena.promoters': ['*.fasta.tar.bz', '*.bed'],
         'multidena.scripts': ['*.R', '*.py'],
         'multidena.tools': ['*.jar'],
     },
