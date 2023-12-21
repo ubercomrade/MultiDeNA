@@ -10,6 +10,7 @@ import itertools
 import shutil
 import fnmatch
 import pkg_resources
+import tarfile
 import pandas as pd
 from operator import itemgetter
 from shutil import copyfile
@@ -877,6 +878,24 @@ def check_tools(tools, path_to_chipmunk, path_to_inmode):
     return tools
 
 
+def check_promoters():
+    for org in ['mm10', 'hg38', 'tair10']:
+        #path_to_promoters = f'/home/anton/Documents/PhD/tools/MultiDeNA/multidena/promoters/{org}.fasta'
+        path_to_promoters = pkg_resources.resource_filename('multidena', f'promoters/{org}.fasta')
+        #path_to_promoters_zipped = f'/home/anton/Documents/PhD/tools/MultiDeNA/multidena/promoters/{org}.fasta.tar.bz2'
+        path_to_promoters_zipped = pkg_resources.resource_filename('multidena', f'promoters/{org}.fasta.bz2')
+        if not os.path.exists(path_to_promoters) and os.path.exists(path_to_promoters_zipped):
+            print(f'Extract promoters of {org} from archive')
+            with tarfile.open(path_to_promoters_zipped, 'r:bz2') as tar_ref:
+                tar_ref.extractall(path=pkg_resources.resource_filename('multidena', f'promoters'))
+                #tar_ref.extractall(path=f'/home/anton/Documents/PhD/tools/MultiDeNA/multidena/promoters/')
+    for org in ['mm10', 'hg38', 'tair10']:
+        path_to_promoters = pkg_resources.resource_filename('multidena', f'promoters/{org}.fasta')
+        if not os.path.exists(path_to_promoters):
+            sys.exit("Fasta files with promoters were not extracted with archive. Exit.")
+    return 0
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('bed', action='store', help='path to BED file')
@@ -930,20 +949,23 @@ def main():
     #Check tools
     check_tools(tools, path_to_chipmunk, path_to_inmode)
 
+    #Check promoters
+    check_promoters()
+
     if organism == 'mm10':
         path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/mm10.fasta')
     elif organism == 'hg38':
         path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/hg38.fasta')
     elif organism == 'tair10':
         path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/tair10.fasta')
-    elif organism == 'b73':
-        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/b73_v5.fasta')
-    elif organism == 'dm6':
-        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/dm6.fasta')
-    elif organism == 'ce235':
-        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/ce235.fasta')
-    elif organism == 'r64':
-        path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/r64.fasta')
+    # elif organism == 'b73':
+    #     path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/b73_v5.fasta')
+    # elif organism == 'dm6':
+    #     path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/dm6.fasta')
+    # elif organism == 'ce235':
+    #     path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/ce235.fasta')
+    # elif organism == 'r64':
+    #     path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/r64.fasta')
 
     pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
