@@ -884,7 +884,7 @@ def check_promoters():
         path_to_promoters = pkg_resources.resource_filename('multidena', f'promoters/{org}.fasta')
         #path_to_promoters_zipped = f'/home/anton/Documents/PhD/tools/MultiDeNA/multidena/promoters/{org}.fasta.tar.bz2'
         path_to_promoters_zipped = pkg_resources.resource_filename('multidena', f'promoters/{org}.fasta.bz2')
-        if not os.path.exists(path_to_promoters) and os.path.exists(path_to_promoters_zipped):
+        if not os.path.exists(path_to_promoters):
             print(f'Extract promoters of {org} from archive')
             with tarfile.open(path_to_promoters_zipped, 'r:bz2') as tar_ref:
                 tar_ref.extractall(path=pkg_resources.resource_filename('multidena', f'promoters'))
