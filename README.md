@@ -64,7 +64,9 @@ positional arguments:
   N                     Promoters of organism (hg38, mm10, tair10)
   genome                Path to genome fasta file
   output                Output dir
-  M                     list of models to use (pwm-chipmunk, pwm-streme, dipwm, bamm, inmode, sitega)
+  M                     The comma-separated list of models that will be used in analysis to use.
+                        Available options: pwm-chipmunk,pwm-streme,dipwm,bamm,inmode,sitega.
+                        At lest two models should be provided. Example: pwm-streme,bamm.
 
 options:
   -h, --help            show this help message and exit
@@ -130,10 +132,12 @@ Directory path to write results. If directory does not exist it'll be created.
 
 **Fifth positional argument**:
 ```
-N                     list of models to use (pwm, bamm, inmode, sitega)
+N                     The comma-separated list of models that will be used in analysis to use.
+                      Available options: pwm-chipmunk,pwm-streme,dipwm,bamm,inmode,sitega.
+                      At lest two models should be provided. Example: pwm-streme,bamm.
 ```
-Argument takes different values from the list: pwm, bamm, inmode, sitega. Several values have to be chosen. Chosen values have to be separated by space. Example: `pwm bamm`, `pwm bamm inmode`, `pwm bamm inmode`, `pwm sitega`
-*IMPORTANT!* Option `bamm` must be used with `pwm`, becouse BaMM model depend on PWM model. You have to choose more than 1 model in analisys.
+Argument takes different values from the list: pwm-streme, pwm-chipmunk, bamm, inmode, sitega. Several values have to be chosen. Chosen values have to be separated by comma. Example: `pwm-streme,bamm`, `pwm-chipmunk,bamm,inmode`, `pwm-streme,bamm,inmode`, `pwm-streme,sitega`
+*IMPORTANT!* Option `bamm` must be used with `pwm-streme` or `pwm-chipmunk`, because BaMM model depends on PWM model. You have to choose more than 1 model in analysis.
 
 ### Optional arguments description
 
@@ -145,7 +149,7 @@ The argument `-t/--train` sets the number of peaks that will be used for de novo
 ```
 -T TEST_SIZE, --test TEST_SIZE
 ```
-The argument `-T/--test` sets the number of peaks that will be used in analisys. By default all peaks are used.
+The argument `-T/--test` sets the number of peaks that will be used in analysis. By default all peaks are used.
 
 ```
 -f FPR, --FPR FPR
