@@ -19,24 +19,24 @@ def calculate_scores_strum_thresholds(peaks, strum_model, length):
 
 
 def get_threshold(scores, number_of_sites, path_out):
-    #scores.sort(reverse=True) # big -> small
-    scores.sort()
-    scores = scores[::-1]
+    scores.sort(reverse=True) # big -> small
     with open(path_out, "w") as file:
         last_score = scores[0]
         for count, score in enumerate(scores[1:], 1):
+            fpr = count/number_of_sites
             if score == last_score:
                 continue
-            elif count/number_of_sites > 0.0005:
+            elif count/number_of_sites > 0.001:
                 file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
                 break
-            elif score != last_score:
+            elif score != last_score and fpr - last_fpr > 0.0000005:
                 file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-                last_score = score 
+                last_score = score
+                last_fpr = fpr
     file.close()
     return(0)
 
-    
+
 
 def get_threshold_for_strum(fasta_path, strum_path, path_out):
     peaks = read_seqs_with_complement(fasta_path)

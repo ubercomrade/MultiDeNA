@@ -250,7 +250,7 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
             '{}'.format(sitega_model),
             '{}'.format(name_of_promoters),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
-            '{}'.format(0.0005),
+            '{}'.format(0.001),
            '{}'.format(0.5),
            '{}'.format(0.0000000005)]
         r = subprocess.run(args, capture_output=True)
@@ -789,11 +789,11 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
                 path_peaks = f'{output_dir}/{tool}_{tag}_{fpr:.2e}.peaks.txt'
                 path_scan = scan + '/{0}_{1}_{2:.2e}.bed'.format(tool, tag, fpr)
                 get_peaks_with_sites(bed + f'/{tag}_sample.bed', path_scan, path_peaks)
-                path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+                path_ann = pkg_resources.resource_filename('multidena', f'promoters/promoters_ts_{organism}.p2000m0.bed')
                 r = gene_associated_with_motifs(path_peaks, path_ann, write_path)
             #All peaks intersection with promoters
             write_path = f'{output_dir}/{tag}_sample.ann_genes.txt'
-            path_ann = pkg_resources.resource_filename('multidena', f'promoters/{organism}.bed')
+            path_ann = pkg_resources.resource_filename('multidena', f'promoters/promoters_ts_{organism}.p2000m0.bed')
             gene_associated_with_motifs(bed + f'/{tag}_sample.bed', path_ann, write_path)
 
             #GO
