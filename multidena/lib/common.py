@@ -837,6 +837,8 @@ def gene_associated_with_motifs(path_scan, path_ann, write_path):
     res = pd.DataFrame([i.split() for i in r.stdout.decode().strip().split('\n')])
     if not res.empty:
         res.to_csv(write_path, sep='\t', index=False, header=None)
+    else:
+        open(write_path, 'w').close()
     #     genes = set(res[3])
     #     with open(write_path, 'w') as file:
     #         for gene in genes:

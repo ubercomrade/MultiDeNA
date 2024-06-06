@@ -771,6 +771,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
     #         run_annotation(list_of_ann, list_of_models, organism, output_dir)
 
     if organism in ['mm10', 'hg38', 'tair10']:
+        print('Runing annotation and GO analysis')
         name_converter = {
         'pwm': 'PWM',
         'dipwm': 'diPWM',
