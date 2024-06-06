@@ -54,6 +54,7 @@ def get_threshold(scores, number_of_sites, path_out):
     scores.sort(reverse=True) # big -> small
     with open(path_out, "w") as file:
         last_score = scores[0]
+        last_fpr = 0
         for count, score in enumerate(scores[1:], 1):
             fpr = count/number_of_sites
             if score == last_score:
