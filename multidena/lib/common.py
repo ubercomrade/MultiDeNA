@@ -774,7 +774,7 @@ def get_threshold(scores, number_of_sites, path_out):
                 file.write("{0}\t{1}\n".format(last_score, -np.log10(count/number_of_sites)))
                 break
             elif score != last_score and fpr - last_fpr > 0.0000005:
-                file.write("{0}\t{1}\n".format(last_score, -np.log10(count/number_of_sites))
+                file.write("{0}\t{1}\n".format(last_score, -np.log10(count/number_of_sites)))
                 last_score = score
                 last_fpr = fpr
     file.close()
