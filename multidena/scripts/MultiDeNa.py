@@ -12,6 +12,7 @@ import fnmatch
 import pkg_resources
 import tarfile
 import pandas as pd
+import numpy as np
 from operator import itemgetter
 from shutil import copyfile
 from multidena.tools.creat_optimized_pwm_model_chipmunk import de_novo_with_oprimization_pwm_chipmunk
