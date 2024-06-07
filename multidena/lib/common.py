@@ -175,12 +175,13 @@ def check_bootstrap(path):
 
 
 def check_threshold_table(path):
+    # -log10(ERR) in table
     with open(path) as file:
         try:
-            fpr = float(file.readline().strip().split()[1])
+            logfpr = float(file.readline().strip().split()[1])
         except:
-            fpr = -1
-    return(fpr)
+            logfpr = 0
+    return(10**(-logfpr))
 
 
 def write_scan(path, data):
