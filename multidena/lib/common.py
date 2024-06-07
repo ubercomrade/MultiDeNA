@@ -758,6 +758,27 @@ def read_strum(strum_path):
     return(strum_model)
 
 
+# Threshold table
+
+def get_threshold(scores, number_of_sites, path_out):
+    scores.sort(reverse=True) # big -> small
+    with open(path_out, "w") as file:
+        last_score = scores[0]
+        last_fpr = 0
+        for count, score in enumerate(scores[1:], 1):
+            fpr = count/number_of_sites
+            if score == last_score:
+                continue
+            elif count/number_of_sites > 0.001:
+                file.write("{0}\t{1}\n".format(last_score, -np.log10(count/number_of_sites)))
+                break
+            elif score != last_score and fpr - last_fpr > 0.0000005:
+                file.write("{0}\t{1}\n".format(last_score, -np.log10(count/number_of_sites))
+                last_score = score
+                last_fpr = fpr
+    file.close()
+    return(0)
+
 # Annotation
 
 #VG

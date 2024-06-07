@@ -1,5 +1,5 @@
 import itertools
-from multidena.lib.common import read_seqs_with_complement, read_bamm
+from multidena.lib.common import read_seqs_with_complement, read_bamm, get_threshold
 from multidena.lib.speedup import calculate_scores_bamm_thresholds
 
 
@@ -48,26 +48,6 @@ def to_score(norm_value, bamm, order, length_of_site):
     min_s = min_score_bamm(bamm, order, length_of_site)
     score = norm_value * (max_s - min_s) + min_s
     return(score)
-
-
-def get_threshold(scores, number_of_sites, path_out):
-    scores.sort(reverse=True) # big -> small
-    with open(path_out, "w") as file:
-        last_score = scores[0]
-        last_fpr = 0
-        for count, score in enumerate(scores[1:], 1):
-            fpr = count/number_of_sites
-            if score == last_score:
-                continue
-            elif count/number_of_sites > 0.001:
-                file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-                break
-            elif score != last_score and fpr - last_fpr > 0.0000005:
-                file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-                last_score = score
-                last_fpr = fpr
-    file.close()
-    return(0)
 
 
 def get_threshold_for_bamm(fasta_path, bamm_path, bg_path, path_out):

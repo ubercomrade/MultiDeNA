@@ -1,4 +1,4 @@
-from multidena.lib.common import read_seqs_with_complement, read_pwm
+from multidena.lib.common import read_seqs_with_complement, read_pwm, get_threshold
 from multidena.lib.speedup import calculate_scores_pwm_thresholds
 
 
@@ -38,27 +38,6 @@ def max_score(pwm):
             tmp.append(pwm[j][i])
         value += max(tmp)
     return(value)
-
-
-def get_threshold(scores, number_of_sites, path_out):
-    scores.sort(reverse=True) # big -> small
-    with open(path_out, "w") as file:
-        last_score = scores[0]
-        last_fpr = 0
-        for count, score in enumerate(scores[1:], 1):
-            fpr = count/number_of_sites
-            if score == last_score:
-                continue
-            elif count/number_of_sites > 0.001:
-                file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-                break
-            elif score != last_score and fpr - last_fpr > 0.0000005:
-                file.write("{0}\t{1}\n".format(last_score, count/number_of_sites))
-                last_score = score
-                last_fpr = fpr
-    file.close()
-    return(0)
-
 
 
 def get_threshold_for_pwm(fasta_path, pwm_path, path_out):

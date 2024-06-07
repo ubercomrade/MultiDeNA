@@ -267,12 +267,12 @@ def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_
     if not os.path.exists(sitega_scan_tmp_dir):
         os.mkdir(sitega_scan_tmp_dir)
     print('Scan peaks ({2}) by SiteGA with FPR: {0} THR: {1}'.format(fpr, thr_sitega, tag))
-    args = ['andy1_mat',
+    args = ['andy1_mat.exe',
         '{}'.format(fasta_test),
         '{}'.format(model_path),
         '{}'.format(threshold_table_path),
         '0',
-        '{}'.format(fpr),
+        '{}'.format(-np.log10(fpr)), # ERR to -log10(ERR)
        '{}'.format(sitega_scan_tmp_dir + '/sitega.pro')]
     r = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_scan_tmp_dir + '/sitega.pro',
@@ -301,7 +301,8 @@ def get_threshold(path, fpr_for_thr):
     container = sorted(container, key=itemgetter(1))
     last_score, last_fpr = container[0]
     for line in container:
-        if line[1] > fpr_for_thr:
+        # -log10 to ERR
+        if 10**(-line[1]) > fpr_for_thr:
             break
         else:
             last_score, last_fpr = line
