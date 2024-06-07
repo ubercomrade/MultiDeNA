@@ -250,6 +250,7 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
             '{}'.format(sitega_model),
             '{}'.format(name_of_promoters),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
+            '{}'.format(thresholds_dir + '/sitega_model_thresholds.bin'),
             '{}'.format(0.001),
            '{}'.format(0.5),
            '{}'.format(0.0000000005)]
