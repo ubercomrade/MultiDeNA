@@ -19,7 +19,9 @@ def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
             '--n', backgroud_path,
            '--oc', dir_out,
            '--objfun', 'de',
-           '--w', str(motif_length),
+           '--minw',  str(motif_length),
+           '--maxw',  str(motif_length),
+           #'--w', str(motif_length),
            '-nmotifs', '5']
     p = subprocess.run(args, shell=False, capture_output=True)
     return(0)
@@ -30,7 +32,9 @@ def run_streme_hmm_background(fasta_path, dir_out, motif_length):
             '--kmer', '4',
            '--oc', dir_out,
            '--objfun', 'de',
-           '--w', str(motif_length),
+           '--minw',  str(motif_length),
+           '--maxw',  str(motif_length),
+           #'--w', str(motif_length),
            '-nmotifs', '5']
     p = subprocess.run(args, shell=False, capture_output=True)
     return(0)
