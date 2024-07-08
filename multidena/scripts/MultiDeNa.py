@@ -273,7 +273,7 @@ def scan_peaks_by_sitega(fasta_test, model_path, sitega_length, scan, threshold_
         '{}'.format(model_path),
         '{}'.format(threshold_table_path),
         '0',
-        '{}'.format(fpr), 
+        '{}'.format(fpr),
        '{}'.format(sitega_scan_tmp_dir + '/sitega.pro')]
     r = subprocess.run(args, capture_output=True)
     parse_sitega_results(sitega_scan_tmp_dir + '/sitega.pro',
@@ -299,11 +299,12 @@ def get_threshold(path, fpr_for_thr):
         for line in file:
             append(tuple(map(float, line.strip().split())))
     file.close()
+    container = [(i, 10**(-j)) for i, j in container]
     container = sorted(container, key=itemgetter(1))
     last_score, last_fpr = container[0]
     for line in container:
         # -log10 to ERR
-        if 10**(-line[1]) > fpr_for_thr:
+        if line[1] > fpr_for_thr:
             break
         else:
             last_score, last_fpr = line

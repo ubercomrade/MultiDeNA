@@ -10,8 +10,29 @@ To compare traditional PWMs with BAMM/InMode models we developed the integrated 
 
 ## Requirements
 
+The easiest way to install dependencies is to use [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) or [conda](https://conda.io/projects/conda/en/latest/index.html).
+The next command installs all dependencies except BaMM and SiteGA (need to install manually).
+
+1. Create environment and install dependencies
+  with `mamba`: `mamba create -n multidena-meme5.4.1 -c bioconda meme=5.4.1 numpy scipy pandas cython bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+  with `conda`: `conda create -n multidena-meme5.4.1 -c bioconda -c conda-forge meme=5.4.1 numpy scipy pandas cython bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+
+2. Activate environment
+ with `mamba`: `mamba activate multidena-meme5.4.1`
+ with `conda`: `conda activate multidena-meme5.4.1`
+
+3. Install [BaMM](https://github.com/soedinglab/BaMMmotif2) and [SiteGA](https://github.com/parthian-sterlet/sitega). Also update variable PATH to use BaMM and SiteGA.
+4. Clone this repository: `git clone https://github.com/ubercomrade/MultiDeNa.git`
+5. Install MultiDeNa
+  ```
+  cd MultiDeNA/  
+  pip3 install -e .
+  ```
+
+List of dependencies. if you don't use mamba/conda you can install all dependencies manually
+
 PYTHON:
-  * cython: `pip3 install cython`
+  * `pip3 install cython numpy scipy pandas`
 
 R:
   * ChIPseek and additional packeges for peaks/scan annotation:
@@ -47,7 +68,7 @@ OPTIONAL:
 
 ```  
 git clone https://github.com/ubercomrade/MultiDeNa.git  
-cd pipeline/  
+cd MultiDeNA/  
 pip3 install -e .  
 ```
 
