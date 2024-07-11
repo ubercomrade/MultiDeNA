@@ -24,7 +24,7 @@ option_list = list(
               help="separated list of names (sep = ;)"),
   make_option(c("--genome"), dest="genome", action="store",
               help="genome version from list [mm10, hg38, tair10]"),
-  make_option(c("--output_dir"), dest="output_dir", action="store",
+  make_option(c("--write_path"), dest="write_path", action="store",
               help="directory name to write results"))
 
 opt = parse_args(OptionParser(option_list=option_list))
@@ -32,7 +32,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 files <-  opt[["input_annotations"]]
 tools <-  opt[["models_names"]]
 genome <-  opt[["genome"]]
-writeDirectory <- opt[["output_dir"]]
+writePath <- opt[["write_path"]]
 
 #files <- "/home/anton/Documents/PhD/gtrd-mm10/results/PEAKS059242_MYOD1_P10085_MACS2/annotation_vg/test/pwm_test_1.00e-04.ann_genes.txt;/home/anton/Documents/PhD/gtrd-mm10/results/PEAKS059242_MYOD1_P10085_MACS2/annotation_vg/test/bamm_test_1.00e-04.ann_genes.txt;/home/anton/Documents/PhD/gtrd-mm10/results/PEAKS059242_MYOD1_P10085_MACS2/annotation_vg/test/sitega_test_1.00e-04.ann_genes.txt"
 #tools <- "PWM;BaMM;SiteGA"
@@ -92,13 +92,13 @@ if (isS4(enrich_go)) {
   df <- enrich_go@compareClusterResult
   df <- df[df$p.adjust <= 0.05,]
   write.table(x = df,
-              file = paste(writeDirectory, 'compare_models_GO.tsv', sep = '/'),
+              file = writePath,
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
-  l <- length(unique(as.data.frame(enrich_go)$ID))
-  p <- dotplot(enrich_go, showCategory = l, title = "Enrichment Analysis (GO)", font.size = 10, label_format = 50)
-  pdf(paste(writeDirectory, 'compare_models_GO.pdf', sep = '/'), width=10)
-  print(p)
-  dev.off()
+  #l <- length(unique(as.data.frame(enrich_go)$ID))
+  #p <- dotplot(enrich_go, showCategory = l, title = "Enrichment Analysis (GO)", font.size = 10, label_format = 50)
+  #pdf(paste(writeDirectory, 'compare_models_GO.pdf', sep = '/'), width=10)
+  #print(p)
+  #dev.off()
 } else {
   colNames <- c("Cluster", "ID", "Description", "GeneRatio",
                 "BgRatio", "pvalue", "p.adjust", "qvalue",
@@ -106,6 +106,6 @@ if (isS4(enrich_go)) {
   df <- data.frame(matrix(ncol=10,nrow=0,
                           dimnames=list(NULL, colNames)))
   write.table(x = df,
-              file = paste(writeDirectory, 'compare_models_GO.tsv', sep = '/'),
+              file = writePath,
               sep="\t", col.names=TRUE, row.names=FALSE, quote=FALSE )
 }

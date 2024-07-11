@@ -334,14 +334,14 @@ def run_tomtom(query, target, outdir):
 #     return(motif_length)
 
 
-def run_annotation(list_of_scans, list_of_models, genome, output_dir):
+def run_annotation(list_of_scans, list_of_models, genome, write_path):
     main_directory = pkg_resources.resource_filename('multidena', 'scripts')
     r_path = os.path.join(main_directory, 'annotation.R')
     args = [r_path,
         '--input_annotations', ';'.join(list_of_scans),
         '--models_names', ';'.join(list_of_models),
         '--genome', genome,
-        '--output_dir', os.path.abspath(output_dir)]
+        '--write_path', os.path.abspath(write_path)]
     r = subprocess.run(args, capture_output=True)
     return(0)
 
@@ -803,7 +803,8 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
 
             #GO
             list_of_ann = [f'{output_dir}/{tool}_{tag}_{fpr:.2e}.ann_genes.txt' for tool in tools]
-            run_annotation(list_of_ann, list_of_models, organism, output_dir)
+            write_go_path = f'{output_dir}/compare_models_GO.{fpr:.2e}.tsv'
+            run_annotation(list_of_ann, list_of_models, organism, write_go_path)
 
     # PLOT MOTIFS
     plot_motifs(tomtom, results)

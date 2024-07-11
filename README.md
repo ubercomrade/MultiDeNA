@@ -14,8 +14,8 @@ The easiest way to install dependencies is to use [mamba](https://mamba.readthed
 The next command installs all dependencies except BaMM and SiteGA (need to install manually).
 
 1. Create environment and install dependencies
-  with `mamba`: `mamba create -n multidena-meme5.4.1 -c bioconda meme=5.4.1 numpy scipy pandas cython bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
-  with `conda`: `conda create -n multidena-meme5.4.1 -c bioconda -c conda-forge meme=5.4.1 numpy scipy pandas cython bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+  with `mamba`: `mamba create -n multidena-meme5.4.1 -c bioconda meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+  with `conda`: `conda create -n multidena-meme5.4.1 -c bioconda -c conda-forge meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
 
 2. Activate environment
  with `mamba`: `mamba activate multidena-meme5.4.1`
