@@ -93,14 +93,14 @@ def complement(seq):
     return(seq.replace('A', 't').replace('T', 'a').replace('C', 'g').replace('G', 'c').upper()[::-1])
 
 
-def learn_optimized_sitega(peaks_path, backgroud_path, counter, tmp_dir, output_dir, output_auc):
+def learn_optimized_sitega(peaks_path, backgroud_path, counter, tmp_dir, output_dir, output_auc, min_length, max_length, length_step):
     if os.path.isfile(backgroud_path):
         shutil.copy(backgroud_path, f'{tmp_dir}/background.fa')
     else:
         shuffled_peaks = creat_background(peaks_path, counter)
         write_fasta(shuffled_peaks, tmp_dir, 'background')
     shutil.copy(peaks_path, f'{tmp_dir}/train.fa')
-    sitega_bootstrap(tmp_dir, lpd_length=6, lpd_min=40, lpd_max=100, lpd_step=20, start_motif_length=8, end_motif_length=20, step=4)
+    sitega_bootstrap(tmp_dir, lpd_length=6, lpd_min=40, lpd_max=100, lpd_step=20, start_motif_length=min_length, end_motif_length=max_length, step=length_step)
     shutil.copy(f'{tmp_dir}/train.fa_mat', f'{output_auc}/sitega_bootstrap_models.fa_mat')
     shutil.copy(f'{tmp_dir}/train.fa_roc_bs.txt', f'{output_auc}/sitega_bootstrap_rocs.txt')
     parse_auc_table(f'{tmp_dir}/train.fa_auc_bs.txt',
@@ -123,7 +123,7 @@ def choose_best_model(output_auc):
 
 
 def de_novo_with_oprimization_sitega(peaks_path, backgroud_path,
-                                     tmp_dir, output_dir, output_auc, pfpr=0.001):
+                                     tmp_dir, output_dir, output_auc, pfpr, min_length, max_length, length_step):
     counter = 5000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -137,7 +137,7 @@ def de_novo_with_oprimization_sitega(peaks_path, backgroud_path,
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     learn_optimized_sitega(peaks_path, backgroud_path, counter,
-                           tmp_dir, output_dir, output_auc)
+                           tmp_dir, output_dir, output_auc, min_length, max_length, length_step)
     motif_length, number_of_lpds = choose_best_model(output_auc)
     get_sitega_model(output_dir, tmp_dir, motif_length, number_of_lpds)
     shutil.rmtree(tmp_dir)

@@ -102,7 +102,7 @@ def write_sites(output, tag, sites):
     return(0)
 
 
-def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr):
+def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr, min_length, max_length, length_step):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
@@ -110,7 +110,7 @@ def learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java, pat
     if os.path.exists(output_auc + '/auc.txt'):
         os.remove(output_auc + '/auc.txt')
     #for length in range(12, 41, 4):
-    for length in range(8, 21, 4):
+    for length in range(min_length, max_length + 1, length_step):
         true_scores = []
         false_scores_roc = []
         false_scores_prc = []
@@ -173,14 +173,14 @@ def choose_best_model(output_auc):
 
 
 def de_novo_with_oprimization_dipwm(peaks_path, backgroud_path, path_to_java, path_to_chipmunk,
-    tmp_dir, output_dir, output_auc, cpu_count, pfpr):
+    tmp_dir, output_dir, output_auc, cpu_count, pfpr, min_length, max_length, length_step):
     counter = 1000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
     learn_optimized_dipwm(peaks_path, backgroud_path, counter, path_to_java,
-       path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr)
+       path_to_chipmunk, tmp_dir, output_auc, cpu_count, pfpr, min_length, max_length, length_step)
     length = choose_best_model(output_auc)
     copyfile(output_auc + '/training_prc_{}.txt'.format(length),
              output_dir + '/prc.txt')

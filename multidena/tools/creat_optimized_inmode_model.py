@@ -132,7 +132,7 @@ def complement(seq):
 
 
 def learn_optimized_inmode(peaks_path, backgroud_path, counter,
-    path_to_inmode, path_to_java, tmp_dir, output_auc, pfpr):
+    path_to_inmode, path_to_java, tmp_dir, output_auc, pfpr, min_length, max_length, length_step):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
@@ -140,7 +140,7 @@ def learn_optimized_inmode(peaks_path, backgroud_path, counter,
     open(output_auc + '/auc.txt', 'w').close()
     for order in range(1,5):
         #for length in range(12, 41, 4):
-        for length in range(8, 21, 4):
+        for length in range(min_length, max_length + 1, length_step):
             true_scores = []
             false_scores_roc = []
             false_scores_prc = []
@@ -196,7 +196,7 @@ def choose_best_model(output_auc):
 
 
 def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
-    path_to_java, tmp_dir, output_dir, output_auc, pfpr):
+    path_to_java, tmp_dir, output_dir, output_auc, pfpr, min_length, max_length, length_step):
     counter = 1000000
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -211,7 +211,7 @@ def de_novo_with_oprimization_inmode(peaks_path, backgroud_path, path_to_inmode,
         os.remove(output_auc + '/auc.txt')
     learn_optimized_inmode(peaks_path, backgroud_path, counter,
                            path_to_inmode, path_to_java,
-                           tmp_dir, output_auc, pfpr)
+                           tmp_dir, output_auc, pfpr, min_length, max_length, length_step)
     length, order = choose_best_model(output_auc)
 
     shutil.copy(output_auc + '/training_prc_{0}_{1}.txt'.format(length, order),

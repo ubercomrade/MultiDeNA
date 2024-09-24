@@ -386,7 +386,8 @@ def get_peaks_with_sites(peaks_path, scan_path, write_path):
     return 0
 
 
-def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
+def pipeline(tools, bed_path, background_path, fpr, min_length, max_length, length_step,
+                      train_sample_size, test_sample_size,
                       path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                       path_to_promoters, path_to_genome, organism, path_to_mdb):
 
@@ -459,14 +460,14 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             if 'pwm-chipmunk' in tools:
                 pwm_length = de_novo_with_oprimization_pwm_chipmunk(fasta_train, background_path, path_to_java, path_to_chipmunk,
                     models + '/pwm.tmp', models + '/pwm_model/',
-                    output_auc + '/pwm', cpu_count, pfpr)
+                    output_auc + '/pwm', cpu_count, pfpr, min_length, max_length, length_step)
             else:
                 pwm_length = de_novo_with_oprimization_pwm_streme(fasta_train,
                     background_path,
                     models + '/pwm.tmp/',
                     models + '/pwm_model/',
                     output_auc + '/pwm/',
-                    pfpr)
+                    pfpr, min_length, max_length, length_step)
         # THRESHOLD
         calculate_thresholds_for_pwm(path_to_promoters, models + '/pwm_model', thresholds)
         check = check_threshold_table(pwm_threshold_table)
@@ -502,7 +503,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             print('Training diPWM model')
             dipwm_length = de_novo_with_oprimization_dipwm(fasta_train, background_path, path_to_java, path_to_chipmunk,
                 models + '/dipwm.tmp', models + '/dipwm_model/',
-                output_auc + '/dipwm', cpu_count, pfpr)
+                output_auc + '/dipwm', cpu_count, pfpr, min_length, max_length, length_step)
         # THRESHOLD
         calculate_thresholds_for_dipwm(path_to_promoters, models + '/dipwm_model', thresholds)
         check = check_threshold_table(dipwm_threshold_table)
@@ -543,7 +544,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             de_novo_with_oprimization_inmode(fasta_train, background_path, path_to_inmode,
                                             path_to_java, models + '/inmode.tmp',
                                             inmode_model_dir, output_auc + '/inmode',
-                                            pfpr)
+                                            pfpr, min_length, max_length, length_step)
         # THRESHOLDS
         inmode_length, inmode_order = get_properties(f"{inmode_model_dir}/properties.txt")
         calculate_thresholds_for_inmode(path_to_promoters, models + '/inmode_model',
@@ -591,7 +592,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             if not os.path.isdir(models + '/bamm_model/'):
                 os.mkdir(models + '/bamm_model/')
             bamm_length, bamm_order = de_novo_with_oprimization_bamm(fasta_train, background_path, output_auc + '/pwm',
-                models + '/bamm.tmp', models + '/bamm_model', output_auc + '/bamm', pfpr)
+                models + '/bamm.tmp', models + '/bamm_model', output_auc + '/bamm', pfpr, min_length, max_length, length_step)
         calculate_thresholds_for_bamm(path_to_promoters, models + '/bamm_model', thresholds)
         check = check_threshold_table(bamm_threshold_table)
         if check < fpr:
@@ -638,7 +639,7 @@ def pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_samp
             models + '/sitega.tmp',
             models + '/sitega_model',
             output_auc + '/sitega',
-            pfpr)
+            pfpr, min_length, max_length, length_step)
         sitega_length = get_length_sitega_model(sitega_model_path)
         calculate_thresholds_for_sitega(path_to_promoters, sitega_model_path, thresholds)
         check = check_threshold_table(sitega_threshold_table)
@@ -928,6 +929,12 @@ def parse_args():
                         required=False, default=-1, help='Number of peaks for testing sample. \
                         It could be any value starting from number of peaks used in traning sample. \
                         If parameter is -1 all peaks are used. The default value is -1.')
+    parser.add_argument('-l', '--min_length', action='store', type=int, dest='min_length',
+                        required=False, default=8, help='Minimal length of motif (default value is 8. Don`t use values less than 6)')
+    parser.add_argument('-L', '--max_length', action='store', type=int, dest='max_length',
+                        required=False, default=20, help='Maximal length of motif (default value is 20. Don`t use values more than 30)')
+    parser.add_argument('-s', '--step', action='store', type=int, dest='step',
+                        required=False, default=4, help='The step with which the length of the motif will increase (default value is 4)')
     parser.add_argument('-m', '--motifdatabase', action='store', dest='path_to_mdb',
                         required=False, default='', help='Path to motif database in meme format for TOMTOM. \
                         You can get motif database from http://meme-suite.org/doc/download.html')
@@ -945,6 +952,9 @@ def main():
     train_sample_size = args.train_size
     test_sample_size = args.test_size
     fpr = args.fpr
+    min_length = args.min_length
+    max_length = args.max_length
+    length_step = args.length_step
     tools = args.models.split(',')
     background_path = args.background
 
@@ -979,7 +989,8 @@ def main():
     # elif organism == 'r64':
     #     path_to_promoters = pkg_resources.resource_filename('multidena', 'promoters/r64.fasta')
 
-    pipeline(tools, bed_path, background_path, fpr, train_sample_size, test_sample_size,
+    pipeline(tools, bed_path, background_path, fpr, min_length, max_length, length_step,
+                          train_sample_size, test_sample_size,
                           path_to_out, path_to_java, path_to_inmode, path_to_chipmunk,
                           path_to_promoters, path_to_genome, organism, path_to_mdb)
 

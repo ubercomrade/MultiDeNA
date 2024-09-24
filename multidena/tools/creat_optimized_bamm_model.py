@@ -163,7 +163,7 @@ def learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, len
     return(0)
 
 
-def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr):
+def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr, min_length, max_length, length_step):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     if not os.path.isdir(output_auc):
@@ -172,7 +172,7 @@ def learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_d
         os.remove(output_auc + '/statistics.txt')
     for order in range(1,5):
         #for length in range(12, 41, 4):
-        for length in range(8, 21, 4):
+        for length in range(min_length, max_length + 1, length_step):
             learn_optimized_bamm_support(peaks_path, backgroud_path, counter, order, length, pwm_auc_dir, tmp_dir, output_auc, pfpr)
     pass
 
@@ -190,7 +190,7 @@ def choose_best_model(output_auc):
 
 
 def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_dir,
-    output_dir, output_auc, pfpr):
+    output_dir, output_auc, pfpr, min_length, max_length, length_step):
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
     else:
@@ -201,7 +201,7 @@ def de_novo_with_oprimization_bamm(peaks_path, backgroud_path, pwm_auc_dir, tmp_
     if not os.path.isdir(output_auc):
         os.mkdir(output_auc)
     counter = 1000000
-    learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr)
+    learn_optimized_bamm(peaks_path, backgroud_path, counter, pwm_auc_dir, tmp_dir, output_auc, pfpr, min_length, max_length, length_step)
     length, order = choose_best_model(output_auc)
     meme = pwm_auc_dir + '/pwm_model_even_{}.meme'.format(length)
     if os.path.isfile(backgroud_path):
