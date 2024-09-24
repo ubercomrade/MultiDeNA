@@ -954,7 +954,7 @@ def main():
     fpr = args.fpr
     min_length = args.min_length
     max_length = args.max_length
-    length_step = args.length_step
+    length_step = args.step
     tools = args.models.split(',')
     background_path = args.background
 
