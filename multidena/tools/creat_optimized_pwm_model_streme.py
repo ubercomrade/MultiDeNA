@@ -23,6 +23,7 @@ def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
            '--maxw',  str(motif_length),
            #'--w', str(motif_length),
            '-nmotifs', '5']
+    print(' '.join(args))
     p = subprocess.run(args, shell=False, capture_output=True)
     return(0)
 
