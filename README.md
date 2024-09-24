@@ -14,8 +14,8 @@ The easiest way to install dependencies is to use [mamba](https://mamba.readthed
 The next command installs all dependencies except BaMM and SiteGA (need to install manually).
 
 1. Create environment and install dependencies
-  with `mamba`: `mamba create -n multidena-meme5.4.1 -c bioconda meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
-  with `conda`: `conda create -n multidena-meme5.4.1 -c bioconda -c conda-forge meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+  with _mamba_: `mamba create -n multidena-meme5.4.1 -c bioconda meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
+  with _conda_: `conda create -n multidena-meme5.4.1 -c bioconda -c conda-forge meme=5.4.1 numpy scipy pandas cython r-optparse bioconductor-clusterprofiler bioconductor-org.mm.eg.db bioconductor-org.hs.eg.db bioconductor-org.at.tair.db bioconductor-motifstack bedtools`
 
 2. Activate environment
  with `mamba`: `mamba activate multidena-meme5.4.1`
@@ -100,6 +100,14 @@ options:
   -T TEST_SIZE, --test TEST_SIZE
                         Number of peaks for testing sample. It could be any value starting from number of peaks used in traning sample. If
                         parameter is -1 all peaks are used. The default value is -1.
+  -l MIN_LENGTH, --min_length MIN_LENGTH
+                        Minimal length of motif (default value is 8. Don`t use
+                        values less than 6)
+  -L MAX_LENGTH, --max_length MAX_LENGTH
+                        Maximal length of motif (default value is 20. Don`t
+                        use values more than 30)
+  -s STEP, --step STEP  The step with which the length of the motif will
+                        increase (default value is 4)
   -m PATH_TO_MDB, --motifdatabase PATH_TO_MDB
                         Path to motif database in meme format for TOMTOM. You can get motif database from http://meme-
                         suite.org/doc/download.html
@@ -176,6 +184,23 @@ The argument `-T/--test` sets the number of peaks that will be used in analysis.
 -f FPR, --FPR FPR
 ```
 The argument `-f/--FPR` sets threshold for models to distinguish sites from no-sites. The default value is equal to 0.00019.
+
+```
+-l MIN_LENGTH, --min_length MIN_LENGTH
+```
+Minimal length of motif
+
+```
+-L MAX_LENGTH, --max_length MAX_LENGTH
+```
+
+Maximal length of motif
+
+```                      
+-s STEP, --step STEP
+```
+
+The step with which the length of the motif will increase
 
 ## Description of results
 
