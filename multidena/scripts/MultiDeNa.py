@@ -240,7 +240,6 @@ def scan_peaks_by_inmode(fasta_test, model_path, scan, threshold_table_path, fpr
 #     scan_by_strum(fasta_test, model_path, thr_strum, strum_scan_path)
 #     return(0)
 
-
 def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_dir):
     dir_to_promoters = os.path.dirname(path_to_promoters)
     name_of_promoters = os.path.basename(path_to_promoters)
@@ -253,7 +252,7 @@ def calculate_thresholds_for_sitega(path_to_promoters, sitega_model, thresholds_
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.txt'),
             '{}'.format(thresholds_dir + '/sitega_model_thresholds.bin'),
             '{}'.format(0.001),
-           '{}'.format(0.5),
+           #'{}'.format(0.5),
            '{}'.format(0.0000000005)]
         r = subprocess.run(args, capture_output=True)
     else:
