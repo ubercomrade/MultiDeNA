@@ -315,10 +315,14 @@ def run_tomtom(query, target, outdir):
         query,
         target,
         '-thresh', '1.0',
+        '-text',
         '-oc', outdir]
     r = subprocess.run(args, capture_output=True)
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+    with open(f'{outdir}/tomtom.tsv', 'wb')  as file:
+        file.write(r.stdout)
     return(1)
-
 
 
 # def get_motif_length(models):

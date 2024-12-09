@@ -17,27 +17,35 @@ from multidena.lib.speedup import creat_table_bootstrap, score_pwm
 def run_streme(fasta_path, backgroud_path, dir_out, motif_length):
     args = ['streme', '--p', fasta_path,
             '--n', backgroud_path,
-           '--oc', dir_out,
            '--objfun', 'de',
            '--minw',  str(motif_length),
            '--maxw',  str(motif_length),
            #'--w', str(motif_length),
-           '-nmotifs', '5']
+           '-nmotifs', '5',
+           '--text']
     print(' '.join(args))
     p = subprocess.run(args, shell=False, capture_output=True)
+    if not os.path.exists(dir_out):
+        os.makedirs(dir_out)
+    with open(f'{dir_out}/streme.txt', 'wb')  as file:
+        file.write(p.stdout)
     return(0)
 
 
 def run_streme_hmm_background(fasta_path, dir_out, motif_length):
     args = ['streme', '--p', fasta_path,
             '--kmer', '4',
-           '--oc', dir_out,
            '--objfun', 'de',
            '--minw',  str(motif_length),
            '--maxw',  str(motif_length),
            #'--w', str(motif_length),
-           '-nmotifs', '5']
+           '-nmotifs', '5',
+           '--text']
     p = subprocess.run(args, shell=False, capture_output=True)
+    if not os.path.exists(dir_out):
+        os.makedirs(dir_out)
+    with open(f'{dir_out}/streme.txt', 'wb')  as file:
+        file.write(p.stdout)
     return(0)
 
 
